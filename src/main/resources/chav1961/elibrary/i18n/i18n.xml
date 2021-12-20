@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<localization xmlns="http://www.i18n.purelib.chav1961.ru/">
+	<lang name="en">
+<!-- Localization for application titles --> 
+		<key name="application.name">(c) 2021 aka chav1961. E-Library V.R.=0.0.1</key>
+		<key name="application.title">(c) 2021 A.V.Chernomyrdin aka chav1961. Electronic library V.R.=0.0.1</key>
+		
+		
+	</lang>
+	<lang name="ru">
+<!-- Локализация заголовков приложения -->
+		<key name="application.name">(c) 2021 aka chav1961. Е-библиотека V.R.=0.0.1</key>
+		<key name="application.title">(c) 2019 A.V.Chernomyrdin aka chav1961. Электронная библиотека V.R.=0.0.1</key>
+
+	</lang>	
+</localization>
