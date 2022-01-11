@@ -1,85 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <app:root xmlns:app="http://ui.purelib.chav1961/">
 	<app:i18n location="i18n:xml:root://chav1961.elibrary.Application/chav1961/elibrary/i18n/i18n.xml"/>
+	<app:menu id="traymenu">
+		<app:item name="tray.show" caption="tray.show" tooltip="tray.show.tt" action="tray.show"/>
+		<app:item name="tray.about" caption="tray.about" tooltip="tray.about.tt" action="tray.about"/>
+		<app:separator/>
+		<app:item name="tray.quit" caption="tray.quit" tooltip="tray.quit.tt" action="tray.quit"/>
+	</app:menu>
 	<app:menu id="mainmenu">
-		<app:submenu name="menu.file" caption="menu.file" tooltip="menu.file.tt">
-			<app:item name="menu.file.connect" caption="menu.file.connect" tooltip="menu.file.connect.tt" action="file.connect"/>
-			<app:item name="menu.file.disconnect" caption="menu.file.disconnect" tooltip="menu.file.disconnect.tt" action="file.disconnect"/>
+		<app:submenu name="menu.main.file" caption="menu.main.file" tooltip="menu.main.file.tt">
+			<app:item name="menu.main.file.connect" caption="menu.main.file.connect" tooltip="menu.main.file.connect.tt" action="main.file.connect"/>
+			<app:item name="menu.main.file.disconnect" caption="menu.main.file.disconnect" tooltip="menu.main.file.disconnect.tt" action="main.file.disconnect"/>
 			<app:separator/>
-			<app:item name="menu.file.hide" caption="menu.file.hide" tooltip="menu.file.hide.tt" action="file.hide"/>
-			<app:item name="menu.file.quit" caption="menu.file.quit" tooltip="menu.file.quit.tt" action="file.quit"/>
-		</app:submenu>
-		<app:submenu name="menu.tools" caption="menu.tools" tooltip="menu.tools.tt">
-			<app:item name="menu.tools.search" caption="menu.tools.search" tooltip="menu.tools.search.tt" action="tools.search"/>
-			<app:item name="menu.tools.filter" caption="menu.tools.filter" tooltip="menu.tools.filter.tt" action="tools.filter"/>
-			<app:item name="menu.tools.clearfilter" caption="menu.tools.clearfilter" tooltip="menu.tools.clearfilter.tt" action="tools.clearfilter"/>
-			<app:separator/>
-			<app:submenu name="menu.tools.db" caption="menu.tools.db" tooltip="menu.tools.db.tt">
-				<app:item name="menu.tools.db.install" caption="menu.tools.db.install" tooltip="menu.tools.db.install.tt" action="tools.db.install"/>
-				<app:item name="menu.tools.db.upgrade" caption="menu.tools.db.upgrade" tooltip="menu.tools.db.upgrade.tt" action="tools.db.upgrade"/>
-				<app:separator/>
-				<app:item name="menu.tools.db.backup" caption="menu.tools.db.backup" tooltip="menu.tools.db.backup.tt" action="tools.db.backup"/>
-				<app:item name="menu.tools.db.restore" caption="menu.tools.db.restore" tooltip="menu.tools.db.restore.tt" action="tools.db.restore"/>
-				<app:separator/>
-				<app:item name="menu.tools.db.uninstall" caption="menu.tools.db.uninstall" tooltip="menu.tools.db.uninstall.tt" action="tools.db.uninstall"/>
-				<app:separator/>
-				<app:item name="menu.tools.db.demo" caption="menu.tools.db.demo" tooltip="menu.tools.db.demo.tt" action="tools.db.demo"/>
+			<app:submenu name="menu.main.file.nsi" caption="menu.main.file.nsi" tooltip="menu.main.file.nsi.tt">
+				<app:item name="menu.main.file.nsi.series" caption="menu.main.file.nsi.series" tooltip="menu.main.file.nsi.series.tt" action="main.file.nsi.series"/>
 			</app:submenu>
-			<app:builtinSubmenu name="builtin.languages" caption="menu.tools.languages" tooltip="menu.tools.languages.tt"/>
 			<app:separator/>
-			<app:item name="menu.tools.settings" caption="menu.tools.settings" tooltip="menu.tools.settings.tt" action="tools.settings"/>
+			<app:item name="menu.main.file.quit" caption="menu.main.file.quit" tooltip="menu.main.file.quit.tt" action="main.file.quit"/>
 		</app:submenu>
-		<app:submenu name="menu.help" caption="menu.help" tooltip="menu.help.tt">
-			<app:item name="menu.help.guide" caption="menu.help.guide" tooltip="menu.help.guide.tt" action="help.guide"/>
-			<app:item name="menu.help.update" caption="menu.help.update" tooltip="menu.help.update.tt" action="help.update"/>
+		<app:submenu name="menu.main.tools" caption="menu.main.tools" tooltip="menu.main.tools.tt">
+			<app:item name="menu.main.tools.settings" caption="menu.main.tools.settings" tooltip="menu.main.tools.settings.tt" action="main.tools.settings"/>
 			<app:separator/>
-			<app:item name="menu.help.about" caption="menu.help.about" tooltip="menu.help.about.tt" action="help.about"/>
+			<app:builtinSubmenu name="builtin.languages" caption="menu.main.tools.languages" tooltip="menu.main.tools.languages.tt"/>
+		</app:submenu>
+		<app:submenu name="menu.main.help" caption="menu.main.help" tooltip="menu.main.help.tt">
+			<app:item name="menu.main.help.about" caption="menu.main.help.about" tooltip="menu.main.help.about.tt" action="main.help.about"/>
 		</app:submenu>
 	</app:menu>
 	<app:keyset id="mainmenu.keyset">
-		<app:key code="F" ctrl="true" action="tools.search"/>
-		<app:key code="F" ctrl="true" shift="true" action="tools.filter"/>
-		<app:key code="N" ctrl="true" action="file.connect"/>
-		<app:key code="H" ctrl="true" action="file.hide"/>
-		<app:key code="Q" ctrl="true" action="file.quit"/>
-		<app:key code="F1" action="help.guide"/>
-	</app:keyset>		
-	<app:menu id="traymenu">
-		<app:item name="menu.tools.settings" caption="menu.tools.settings" tooltip="menu.tools.settings.tt" action="tools.settings"/>
-		<app:separator/>
-		<app:item name="menu.file.quit" caption="menu.file.quit" tooltip="menu.file.quit.tt" action="file.quit"/>
-	</app:menu>
-	<app:menu id="treemenu">
-		<app:item name="tree.insert.child" caption="tree.insert.child" tooltip="tree.insert.child.tt" action="tree.insertchild"/>
-		<app:item name="tree.insert.image" caption="tree.insert.image" tooltip="tree.insert.image.tt" action="tree.insertimage"/>
-		<app:item name="tree.insert.clipboard" caption="tree.insert.clipboard" tooltip="tree.insert.clipboard.tt" action="tree.insertclipboard"/>
-		<app:separator/>
-		<app:item name="tree.edit" caption="tree.edit" tooltip="tree.edit.tt" action="tree.edit"/>
-		<app:item name="tree.remove.subtree" caption="tree.remove.subtree" tooltip="tree.remove.subtree.tt" action="tree.remove.subtree"/>
-	</app:menu>
-	<app:menu id="newimagemenu">
-		<app:item name="list.insert.image" caption="list.insert.image" tooltip="list.insert.image.tt" action="list.insertimage"/>
-		<app:item name="list.insert.clipboard" caption="list.insert.clipboard" tooltip="list.insert.clipboard.tt" action="list.insertclipboard"/>
-	</app:menu>
-	<app:keyset id="imagemenu.keyset">
-		<app:key code="INSERT" action="tree.insertchild"/>
-		<app:key code="V" ctrl="true" action="tree.insertclipboard"/>
-		<app:key code="ENTER" ctrl="true" action="tree.edit"/>
-		<app:key code="DELETE" action="tree.remove.subtree"/>
-	</app:keyset>		
-	<app:menu id="imagemenu">
-		<app:item name="list.copy.clipboard" caption="list.copy.clipboard" tooltip="list.copy.clipboard.tt" action="list.copytoclipboard"/>
-		<app:item name="list.update.clipboard" caption="list.update.clipboard" tooltip="list.update.clipboard.tt" action="list.updatefromclipboard"/>
-		<app:item name="list.update.image" caption="list.update.image" tooltip="list.update.image.tt" action="list.updateimage"/>
-		<app:separator/>
-		<app:item name="list.edit" caption="list.edit" tooltip="list.edit.tt" action="list.edit"/>
-		<app:item name="list.remove" caption="list.remove" tooltip="list.remove.tt" action="list.remove"/>
-	</app:menu>
-	<app:keyset id="imagemenu.keyset">
-		<app:key code="C" ctrl="true" action="list.copytoclipboard"/>
-		<app:key code="V" ctrl="true" action="list.updatefromclipboard"/>
-		<app:key code="INSERT" action="list.updateimage"/>
-		<app:key code="ENTER" ctrl="true" action="list.edit"/>
-		<app:key code="DELETE" action="list.remove"/>
-	</app:keyset>		
+		<app:key code="N" ctrl="true" action="main.file.connect"/>
+		<app:key code="Q" ctrl="true" action="main.file.quit"/>
+	</app:keyset>
 </app:root>
