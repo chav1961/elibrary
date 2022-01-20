@@ -83,7 +83,7 @@
 					},
 					 {"name":"bs_Comment",
 						 "type":"java.lang.String",
-						 "labelId":"elibrary.contenttree.bs_Comment",
+						 "labelId":"elibrary.bookseries.bs_Comment",
 						 "tooltipId":"elibrary.bookseries.bs_Comment.tt",
 						 "appUri":"app:column:/elibrary.bookseries/bs_Comment?seq=4&type=TEXT",
 						 "relUri":"bs_Comment",
