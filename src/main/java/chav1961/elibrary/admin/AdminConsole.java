@@ -9,43 +9,58 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URL;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
+import java.sql.Types;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 import chav1961.elibrary.Application;
 import chav1961.elibrary.admin.db.DbManager;
+import chav1961.elibrary.admin.db.ORMInterface;
+import chav1961.elibrary.admin.db.SeriesORMInterface;
 import chav1961.elibrary.admin.dialogs.AskPassword;
-import chav1961.elibrary.admin.dialogs.Series;
+import chav1961.elibrary.admin.dialogs.SeriesDescriptor;
 import chav1961.elibrary.admin.dialogs.Settings;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SimpleURLClassLoader;
 import chav1961.purelib.basic.SubstitutableProperties;
 import chav1961.purelib.basic.exceptions.ContentException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
+import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.CloseCallback;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
 import chav1961.purelib.basic.interfaces.LoggerFacadeKeeper;
 import chav1961.purelib.basic.interfaces.ModuleAccessor;
-import chav1961.purelib.i18n.LocalizerFactory;
 import chav1961.purelib.i18n.interfaces.Localizer;
-import chav1961.purelib.i18n.interfaces.SupportedLanguages;
 import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
+import chav1961.purelib.i18n.interfaces.SupportedLanguages;
 import chav1961.purelib.model.ContentModelFactory;
+import chav1961.purelib.model.ContentNodeFilter;
+import chav1961.purelib.model.TableContainer;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
+import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 import chav1961.purelib.sql.JDBCUtils;
 import chav1961.purelib.ui.interfaces.FormManager;
 import chav1961.purelib.ui.swing.AutoBuiltForm;
 import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.interfaces.OnAction;
+import chav1961.purelib.ui.swing.useful.JCloseableTab;
 import chav1961.purelib.ui.swing.useful.JDataBaseTableWithMeta;
 import chav1961.purelib.ui.swing.useful.JStateString;
 
@@ -58,6 +73,8 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeK
 	public static final String		MSG_CONNECTED = "console.msg.connected";
 	public static final String		MSG_DISCONNECTED = "console.msg.disconnected";
 	
+	public static final String		TAB_BOOK_SERIES = "console.tab.bookSeries";
+	
 	private final ContentMetadataInterface		mdi;
 	private final Localizer						localizer;
 	private final SubstitutableProperties		settings;
@@ -66,10 +83,12 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeK
 	private final JTabbedPane					content;
 	private final JStateString					state;
 	private final ContentMetadataInterface		dbModel;
+	private CallableStatement					unique = null;
 	private SimpleURLClassLoader				loader = null;
 	private Driver								driver = null;
 	private Connection							conn = null;
 	private DbManager							mgr = null;
+	private Map<Class<?>,ORMInterface<?,?>>		orms = new HashMap<>();
 	
 	public AdminConsole(final ContentMetadataInterface mdi, final Localizer localizer, final SubstitutableProperties settings, final CloseCallback<AdminConsole> closeCallback) throws IOException {
 		if (mdi == null) {
@@ -122,6 +141,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeK
 	public void localeChanged(final Locale oldLocale, final Locale newLocale) {
 		fillLocalizedStrings();
 		SwingUtils.refreshLocale(menu, oldLocale, newLocale);
+		SwingUtils.refreshLocale(content, oldLocale, newLocale);
 	}
 	
 	@Override
@@ -147,8 +167,12 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeK
 				this.driver = JDBCUtils.loadJdbcDriver(loader, settings.getProperty(Settings.PROP_DRIVER, File.class));
 				this.conn = JDBCUtils.getConnection(driver, 
 									settings.getProperty(Settings.PROP_CONN_STRING, URI.class), 
-									settings.getProperty(Settings.PROP_ADMIN_USER, String.class), 
+									settings.getProperty(Settings.PROP_SEARCH_USER, String.class), 
 									ap.password);
+				conn.setAutoCommit(true);
+				this.unique = conn.prepareCall("{?= call nextval('elibrary.systemseq')}");
+				this.unique.registerOutParameter(1, Types.BIGINT);
+				
 				((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.connect")).setEnabled(false);
 				((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.disconnect")).setEnabled(true);
 				((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.nsi")).setEnabled(true);
@@ -168,16 +192,19 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeK
 	
 	@OnAction("action:/main.file.disconnect")
 	private void disconnect() {
-		try{conn.close();
-		} catch (SQLException e) {
-		} finally {
-			conn = null;
-		}
-		driver = null;
-		try{loader.close();
-		} catch (IOException e) {
-		} finally {
-			loader = null;
+		if (conn != null) {
+			try{unique.close();
+				conn.close();
+			} catch (SQLException e) {
+			} finally {
+				conn = null;
+			}
+			driver = null;
+			try{loader.close();
+			} catch (IOException e) {
+			} finally {
+				loader = null;
+			}
 		}
 		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.connect")).setEnabled(true);
 		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.disconnect")).setEnabled(false);
@@ -186,10 +213,20 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeK
 	}
 	
 	@OnAction("action:/main.file.nsi.series")
-	private void supportBookSeries() {
-		final JDataBaseTableWithMeta<Object, Series>	table = new JDataBaseTableWithMeta<>(null, localizer);
+	private void supportBookSeries() throws ContentException, SQLException {
+		final ContentNodeMetadata		dbMd = dbModel.byApplicationPath(URI.create("app:table:/elibrary.bookseries"))[0];
+		final Set<String>				fieldsFiltered = new HashSet<>(Arrays.asList("BS_ID","BS_PARENT"));
+		final ContentNodeMetadata		dbMdFiltered = new ContentNodeFilter(dbMd, (item)->filterModel(item, fieldsFiltered));
+		final JDataBaseTableWithMeta<Long, SeriesDescriptor>	table = new JDataBaseTableWithMeta<>(dbMdFiltered, localizer);
 		
-		System.err.println("Sderies");
+		JCloseableTab.placeComponentIntoTab(content, TAB_BOOK_SERIES, new JCloseableScrollPane(table), new JCloseableTab(localizer, TAB_BOOK_SERIES));
+		
+		if (!orms.containsKey(SeriesDescriptor.class)) {
+			orms.put(SeriesDescriptor.class, new SeriesORMInterface(state, conn, ()->getUnique()));
+		}
+		final SeriesORMInterface		soi = (SeriesORMInterface) orms.get(SeriesDescriptor.class);
+		table.assignResultSetAndManagers(soi.getResultSet(), soi.getFormManager(), soi.getInstanceManager());
+		table.requestFocusInWindow();
 	}
 	
 	
@@ -236,6 +273,15 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeK
 	
 	private DbManager getDbManager() {
 		return null;
+	}
+	
+	private boolean filterModel(final ContentNodeMetadata meta, final Set<String> fields2Exclude) {
+		return meta.getType() == TableContainer.class || !fields2Exclude.contains(meta.getName().toUpperCase());
+	}
+
+	private long getUnique() throws SQLException {
+		unique.executeUpdate();
+		return unique.getLong(1);
 	}
 	
 	private void fillLocalizedStrings() {

@@ -22,6 +22,8 @@
 		<key name="console.title">(c) 2022 aka chav1961, E-Library V.R.=1.00</key>
 		<key name="console.help">uri(aboutApplication.cre)</key>
 
+		<key name="console.tab.bookSeries">Book series</key>
+
 		<key name="console.msg.ready">Ready to work</key>
 		<key name="console.msg.connected">Connection established</key>
 		<key name="console.msg.disconnected">Connection closed</key>
@@ -96,6 +98,8 @@
 		<key name="console.msg.ready">Готово к работе</key>
 		<key name="console.msg.connected">Соединение установлено</key>
 		<key name="console.msg.disconnected">Соединение закрыто</key>
+		
+		<key name="console.tab.bookSeries">Серии книг</key>
 
 <!-- Локализация меню иконки --> 
 		<key name="tray.show">Показать админ.консоль</key>
@@ -157,6 +161,9 @@
 		<key name="askpassword.title.help">Введите пароль</key>
 		<key name="askpassword.password">Пароль</key>
 		<key name="askpassword.password.tt">Пароль пользователя-администратора</key>
+		
+		
+		
 		
 		
 	</lang>	

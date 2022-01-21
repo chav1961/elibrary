@@ -186,6 +186,7 @@ public class Application implements Closeable, LoggerFacadeKeeper {
 
 					service.start();
 					app.getLogger().message(Severity.info, app.getLocalizer().getValue(APP_NOTE_STARTED));
+					app.showConsole();
 					latch.await();
 					service.stop();
 				} catch (InterruptedException e) {
