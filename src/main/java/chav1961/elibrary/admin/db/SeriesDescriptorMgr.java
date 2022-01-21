@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import chav1961.elibrary.admin.dialogs.SeriesDescriptor;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.sql.interfaces.InstanceManager;
+import chav1961.purelib.sql.interfaces.UniqueIdGenerator;
 
 public class SeriesDescriptorMgr implements InstanceManager<Long, SeriesDescriptor> {
 	private final LoggerFacade		logger;
