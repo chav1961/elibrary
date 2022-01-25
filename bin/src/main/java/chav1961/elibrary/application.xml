@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<app:root xmlns:app="http://ui.purelib.chav1961/">
+	<app:i18n location="i18n:xml:root://chav1961.elibrary.Application/chav1961/elibrary/i18n/i18n.xml"/>
+	<app:menu id="traymenu">
+		<app:item name="tray.show" caption="tray.show" tooltip="tray.show.tt" action="tray.show"/>
+		<app:item name="tray.about" caption="tray.about" tooltip="tray.about.tt" action="tray.about"/>
+		<app:separator/>
+		<app:item name="tray.quit" caption="tray.quit" tooltip="tray.quit.tt" action="tray.quit"/>
+	</app:menu>
+	<app:menu id="mainmenu">
+		<app:submenu name="menu.main.file" caption="menu.main.file" tooltip="menu.main.file.tt">
+			<app:item name="menu.main.file.connect" caption="menu.main.file.connect" tooltip="menu.main.file.connect.tt" action="main.file.connect"/>
+			<app:item name="menu.main.file.disconnect" caption="menu.main.file.disconnect" tooltip="menu.main.file.disconnect.tt" action="main.file.disconnect"/>
+			<app:separator/>
+			<app:submenu name="menu.main.file.nsi" caption="menu.main.file.nsi" tooltip="menu.main.file.nsi.tt">
+				<app:item name="menu.main.file.nsi.series" caption="menu.main.file.nsi.series" tooltip="menu.main.file.nsi.series.tt" action="main.file.nsi.series"/>
+			</app:submenu>
+			<app:separator/>
+			<app:item name="menu.main.file.quit" caption="menu.main.file.quit" tooltip="menu.main.file.quit.tt" action="main.file.quit"/>
+		</app:submenu>
+		<app:submenu name="menu.main.tools" caption="menu.main.tools" tooltip="menu.main.tools.tt">
+			<app:item name="menu.main.tools.settings" caption="menu.main.tools.settings" tooltip="menu.main.tools.settings.tt" action="main.tools.settings"/>
+			<app:separator/>
+			<app:builtinSubmenu name="builtin.languages" caption="menu.main.tools.languages" tooltip="menu.main.tools.languages.tt"/>
+		</app:submenu>
+		<app:submenu name="menu.main.help" caption="menu.main.help" tooltip="menu.main.help.tt">
+			<app:item name="menu.main.help.about" caption="menu.main.help.about" tooltip="menu.main.help.about.tt" action="main.help.about"/>
+		</app:submenu>
+	</app:menu>
+	<app:keyset id="mainmenu.keyset">
+		<app:key code="N" ctrl="true" action="main.file.connect"/>
+		<app:key code="Q" ctrl="true" action="main.file.quit"/>
+	</app:keyset>
+</app:root>

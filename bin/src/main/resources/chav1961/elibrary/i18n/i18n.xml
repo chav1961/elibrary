@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<localization xmlns="http://www.i18n.purelib.chav1961.ru/">
+	<lang name="en">
+<!-- Localization for application titles --> 
+		<key name="application.name">(c) 2021 aka chav1961. E-Library V.R.=0.0.1</key>
+		<key name="application.title">(c) 2021 A.V.Chernomyrdin aka chav1961. Electronic library V.R.=0.0.1</key>
+		<key name="application.tooltip">(c) 2021 A.V.Chernomyrdin aka chav1961. Electronic library V.R.=0.0.1</key>
+		<key name="application.help">Application help</key>
+		<key name="application.note.started">E-library started</key>
+		<key name="application.help.title">About...</key>
+		<key name="application.help.content">uri(aboutApplication.cre)</key>
+		
+<!-- Localization for tray menu --> 
+		<key name="tray.show">Show admin tools</key>
+		<key name="tray.show.tt">Show admin console</key>
+		<key name="tray.about">About...</key>
+		<key name="tray.about.tt">About application</key>		
+		<key name="tray.quit">Quit</key>
+		<key name="tray.quit.tt">Quit E-library</key>
+		
+<!-- Localization for console window --> 
+		<key name="console.title">(c) 2022 aka chav1961, E-Library V.R.=1.00</key>
+		<key name="console.help">uri(aboutApplication.cre)</key>
+
+		<key name="console.tab.bookSeries">Book series</key>
+
+		<key name="console.msg.ready">Ready to work</key>
+		<key name="console.msg.connected">Connection established</key>
+		<key name="console.msg.disconnected">Connection closed</key>
+
+<!-- Localization for main menu --> 
+		<key name="menu.main.file">File</key>
+		<key name="menu.main.file.tt">Connect, disconnect, open/create files etc</key>
+		<key name="menu.main.file.connect">Connect</key>
+		<key name="menu.main.file.connect.tt">Connect to database</key>
+		<key name="menu.main.file.disconnect">Disconnect</key>
+		<key name="menu.main.file.disconnect.tt">Disconnect form database</key>
+		<key name="menu.main.file.nsi">References</key>
+		<key name="menu.main.file.nsi.tt">Support references info</key>
+		<key name="menu.main.file.nsi.series">Book series</key>
+		<key name="menu.main.file.nsi.series.tt">Book series list</key>
+		<key name="menu.main.file.quit">Quit</key>
+		<key name="menu.main.file.quit.tt">Quit admin console</key>
+		
+		<key name="menu.main.tools">Tools</key>
+		<key name="menu.main.tools.tt">Tools</key>
+		<key name="menu.main.tools.settings">Settings</key>
+		<key name="menu.main.tools.settings.tt">Application settings</key>
+		<key name="menu.main.tools.languages">Language</key>
+		<key name="menu.main.tools.languages.tt">Select UI language</key>
+		
+		<key name="menu.main.help">Help</key>
+		<key name="menu.main.help.tt">Help for application</key>
+		<key name="menu.main.help.about">About...</key>
+		<key name="menu.main.help.about.tt">Information about the application</key>
+
+<!-- Settings class localization--> 
+		<key name="settings.title">Settings</key>
+		<key name="settings.title.tt">Settings for application</key>
+		<key name="settings.title.help">Settings</key>
+		<key name="settings.test">Test</key>
+		<key name="settings.test.tt">Test database connection</key>
+		<key name="settings.jdbcdriver">JDBC driver</key>
+		<key name="settings.jdbcdriver.tt">JDBC driver location</key>
+		<key name="settings.connstring">Connection string</key>
+		<key name="settings.connstring.tt">Connection string for JDBC driver</key>
+		<key name="settings.adminuser">Admin name</key>
+		<key name="settings.adminuser.tt">Admn user name in the database</key>
+		<key name="settings.searchuser">User name</key>
+		<key name="settings.searchuser.tt">Usual user name in the database</key>
+		<key name="settings.searchpassword">User password</key>
+		<key name="settings.searchpassword.tt">Usual user password in the database</key>
+		<key name="settings.defaultlang">Default language</key>
+		<key name="settings.defaultlang.tt">Language to set on startup</key>
+
+<!-- AskPassword class localization-->
+		<key name="askpassword.title">Type password</key>
+		<key name="askpassword.title.tt">Type apssword for administrator</key>
+		<key name="askpassword.title.help">Type password</key>
+		<key name="askpassword.password">Password</key>
+		<key name="askpassword.password.tt">Admin password</key>
+
+	</lang>
+	<lang name="ru">
+<!-- Локализация заголовков приложения -->
+		<key name="application.name">(c) 2021 aka chav1961. Е-библиотека V.R.=0.0.1</key>
+		<key name="application.title">(c) 2019 A.V.Chernomyrdin aka chav1961. Электронная библиотека V.R.=0.0.1</key>
+		<key name="application.tooltip">(c) 2019 A.V.Chernomyrdin aka chav1961. Электронная библиотека V.R.=0.0.1</key>
+		<key name="application.help">Помощь по приложению</key>
+		<key name="application.note.started">Электронная библиотека запущена</key>
+		<key name="application.help.title">О программе</key>
+		<key name="application.help.content">uri(aboutApplication.cre)</key>
+
+<!-- Локализация окна консоли --> 
+		<key name="console.title">(c) 2022 aka chav1961, Электронная библиотека V.R.=1.00</key>
+		<key name="console.help">uri(aboutApplication.cre)</key>
+
+		<key name="console.msg.ready">Готово к работе</key>
+		<key name="console.msg.connected">Соединение установлено</key>
+		<key name="console.msg.disconnected">Соединение закрыто</key>
+		
+		<key name="console.tab.bookSeries">Серии книг</key>
+
+<!-- Локализация меню иконки --> 
+		<key name="tray.show">Показать админ.консоль</key>
+		<key name="tray.show.tt">Показать консоль администратора</key>
+		<key name="tray.about">О программе</key>
+		<key name="tray.about.tt">Информация о программе</key>		
+		<key name="tray.quit">Выход</key>
+		<key name="tray.quit.tt">Завершить работу электронной библиотеки</key>
+		
+<!-- Локализация главного меню --> 
+		<key name="menu.main.file">Файл</key>
+		<key name="menu.main.file.tt">Соединения/разъединения, слздание.открытие файлов и т.д.</key>
+		<key name="menu.main.file.connect">Соединение</key>
+		<key name="menu.main.file.connect.tt">Подсоединиться к базе данных</key>
+		<key name="menu.main.file.disconnect">Разъединение</key>
+		<key name="menu.main.file.disconnect.tt">Отсоединиться от базы данных</key>
+		<key name="menu.main.file.nsi">Справочники</key>
+		<key name="menu.main.file.nsi.tt">Ведение справочнной информации</key>
+		<key name="menu.main.file.nsi.series">Серии книг</key>
+		<key name="menu.main.file.nsi.series.tt">Справочник серий книг</key>
+		<key name="menu.main.file.quit">Закрыть консоль</key>
+		<key name="menu.main.file.quit.tt">Завершить работу консоли администратора</key>
+		
+		<key name="menu.main.tools">Инструменты</key>
+		<key name="menu.main.tools.tt">Инструменты</key>
+		<key name="menu.main.tools.settings">Настройки</key>
+		<key name="menu.main.tools.settings.tt">Настройки приложения</key>
+		<key name="menu.main.tools.languages">Язык</key>
+		<key name="menu.main.tools.languages.tt">Выбрать язык интерфейса</key>
+		
+		<key name="menu.main.help">Справка</key>
+		<key name="menu.main.help.tt">Справка по приложению</key>
+		<key name="menu.main.help.about">О программе</key>
+		<key name="menu.main.help.about.tt">Информация о приложении</key>
+
+<!-- Локализация класса Settings --> 
+		<key name="settings.title">Настройки</key>
+		<key name="settings.title.tt">Настройки приложения</key>
+		<key name="settings.title.help">Настройки приложения</key>
+		<key name="settings.test">Проверить</key>
+		<key name="settings.test.tt">Проверка параметров соединения</key>
+		<key name="settings.jdbcdriver">Драйвер JDBC</key>
+		<key name="settings.jdbcdriver.tt">Местоположения файла драйвера JDBC</key>
+		<key name="settings.connstring">Строка соединения</key>
+		<key name="settings.connstring.tt">Строка соединения с БД для драйвера</key>
+		<key name="settings.adminuser">Администратор</key>
+		<key name="settings.adminuser.tt">Имя пользователя-администратора системы в БД</key>
+		<key name="settings.searchuser">Пользователь</key>
+		<key name="settings.searchuser.tt">Имя 'рядового' пользователя системы в БД</key>
+		<key name="settings.searchpassword">Пароль</key>
+		<key name="settings.searchpassword.tt">Пароль 'рядового' пользователя системы в БД</key>
+		<key name="settings.defaultlang">Язык по умолчанию</key>
+		<key name="settings.defaultlang.tt">Язык, устанавливаемый при старте приложения</key>
+		
+		
+<!-- Локализация класса AskPassword --> 
+		<key name="askpassword.title">Введите пароль</key>
+		<key name="askpassword.title.tt">Введите пароль администратора</key>
+		<key name="askpassword.title.help">Введите пароль</key>
+		<key name="askpassword.password">Пароль</key>
+		<key name="askpassword.password.tt">Пароль пользователя-администратора</key>
+		
+		
+		
+		
+		
+	</lang>	
+</localization>
