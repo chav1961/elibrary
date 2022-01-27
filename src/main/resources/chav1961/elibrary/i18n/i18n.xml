@@ -22,6 +22,10 @@
 		<key name="console.title">(c) 2022 aka chav1961, E-Library V.R.=1.00</key>
 		<key name="console.help">uri(aboutApplication.cre)</key>
 
+		<key name="messagebox.title">Confirm action</key>
+		<key name="messagebox.confirm.creation">Database doesn't contain structure required. Create it?</key>
+		<key name="messagebox.confirm.upgrade">Database structure is deprecated. Upgrade it?</key>
+
 		<key name="console.tab.bookSeries">Book series</key>
 
 		<key name="console.msg.ready">Ready to work</key>
@@ -44,6 +48,16 @@
 		
 		<key name="menu.main.tools">Tools</key>
 		<key name="menu.main.tools.tt">Tools</key>
+		<key name="menu.main.tools.database">Database</key>
+		<key name="menu.main.tools.database.tt">Database manipulations</key>
+		<key name="menu.main.tools.database.create">Create DB</key>
+		<key name="menu.main.tools.database.create.tt">Prepare database for working</key>
+		<key name="menu.main.tools.database.upgrade">Upgrade DB</key>
+		<key name="menu.main.tools.database.upgrade.tt">Upgrade database structure</key>
+		<key name="menu.main.tools.database.backup">Backup DB</key>
+		<key name="menu.main.tools.database.backup.tt">Make backup from database</key>
+		<key name="menu.main.tools.database.restore">Restore DB</key>
+		<key name="menu.main.tools.database.restore.tt">Restore database from backup</key>
 		<key name="menu.main.tools.settings">Settings</key>
 		<key name="menu.main.tools.settings.tt">Application settings</key>
 		<key name="menu.main.tools.languages">Language</key>
@@ -95,9 +109,16 @@
 		<key name="console.title">(c) 2022 aka chav1961, Электронная библиотека V.R.=1.00</key>
 		<key name="console.help">uri(aboutApplication.cre)</key>
 
+		<key name="messagebox.title">Подтвердите операцию</key>
+		<key name="messagebox.confirm.creation">В базе данных отсутствует необходимая для работы структура. Создать ее?</key>
+		<key name="messagebox.confirm.upgrade">Структура базы данных устарела. обновить ее?</key>
+
 		<key name="console.msg.ready">Готово к работе</key>
 		<key name="console.msg.connected">Соединение установлено</key>
 		<key name="console.msg.disconnected">Соединение закрыто</key>
+		
+		
+		
 		
 		<key name="console.tab.bookSeries">Серии книг</key>
 
@@ -125,6 +146,16 @@
 		
 		<key name="menu.main.tools">Инструменты</key>
 		<key name="menu.main.tools.tt">Инструменты</key>
+		<key name="menu.main.tools.database">База данных</key>
+		<key name="menu.main.tools.database.tt">Работа с базой данных</key>
+		<key name="menu.main.tools.database.create">Создать</key>
+		<key name="menu.main.tools.database.create.tt">Подготовить БД для работы</key>
+		<key name="menu.main.tools.database.upgrade">Обновить</key>
+		<key name="menu.main.tools.database.upgrade.tt">Обновить структуру БД</key>
+		<key name="menu.main.tools.database.backup">Резервная копия</key>
+		<key name="menu.main.tools.database.backup.tt">Выполнить резервное копирование содержимого БД</key>
+		<key name="menu.main.tools.database.restore">Восстановление</key>
+		<key name="menu.main.tools.database.restore.tt">Восстановить БД с резервной копии</key>
 		<key name="menu.main.tools.settings">Настройки</key>
 		<key name="menu.main.tools.settings.tt">Настройки приложения</key>
 		<key name="menu.main.tools.languages">Язык</key>

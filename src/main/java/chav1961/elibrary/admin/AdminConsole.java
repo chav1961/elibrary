@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URL;
@@ -21,16 +22,18 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 import chav1961.elibrary.Application;
-import chav1961.elibrary.admin.db.DbManager;
 import chav1961.elibrary.admin.db.ORMInterface;
 import chav1961.elibrary.admin.db.SeriesORMInterface;
 import chav1961.elibrary.admin.dialogs.AskPassword;
@@ -47,6 +50,8 @@ import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
 import chav1961.purelib.basic.interfaces.LoggerFacadeKeeper;
 import chav1961.purelib.basic.interfaces.ModuleAccessor;
+import chav1961.purelib.fsys.FileSystemFactory;
+import chav1961.purelib.fsys.interfaces.FileSystemInterface;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
 import chav1961.purelib.i18n.interfaces.SupportedLanguages;
@@ -55,20 +60,33 @@ import chav1961.purelib.model.ContentNodeFilter;
 import chav1961.purelib.model.TableContainer;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
+import chav1961.purelib.model.interfaces.NodeMetadataOwner;
 import chav1961.purelib.sql.JDBCUtils;
+import chav1961.purelib.sql.model.SQLModelUtils;
+import chav1961.purelib.sql.model.SQLModelUtils.ConnectionGetter;
+import chav1961.purelib.sql.model.interfaces.DatabaseManagement;
+import chav1961.purelib.sql.model.SimpleDatabaseManager;
+import chav1961.purelib.sql.model.SimpleDottedVersion;
 import chav1961.purelib.ui.interfaces.FormManager;
 import chav1961.purelib.ui.swing.AutoBuiltForm;
 import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.interfaces.OnAction;
 import chav1961.purelib.ui.swing.useful.JCloseableTab;
 import chav1961.purelib.ui.swing.useful.JDataBaseTableWithMeta;
+import chav1961.purelib.ui.swing.useful.JFileSelectionDialog;
+import chav1961.purelib.ui.swing.useful.JLocalizedOptionPane;
 import chav1961.purelib.ui.swing.useful.JStateString;
 
-public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeKeeper, LocaleChangeListener {
+public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeKeeper, LocaleChangeListener, NodeMetadataOwner {
 	private static final long serialVersionUID = 1L;
 
 	public static final String		CONSOLE_TITLE = "console.title";
 	public static final String		CONSOLE_HELP = "console.help";
+	public static final String		MESSAGEBOX_TITLE = "messagebox.title";
+	public static final String		MESSAGEBOX_CONFIRM_CREATION = "messagebox.confirm.creation";
+	public static final String		MESSAGEBOX_CONFIRM_UPGRADE = "messagebox.confirm.upgrade";
+	
+	
 	public static final String		MSG_READY = "console.msg.ready";
 	public static final String		MSG_CONNECTED = "console.msg.connected";
 	public static final String		MSG_DISCONNECTED = "console.msg.disconnected";
@@ -87,7 +105,8 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeK
 	private SimpleURLClassLoader				loader = null;
 	private Driver								driver = null;
 	private Connection							conn = null;
-	private DbManager							mgr = null;
+	private ConnectionGetter					connGetter = null;
+	private SimpleDatabaseManager<SimpleDottedVersion>	mgr = null;
 	private Map<Class<?>,ORMInterface<?,?>>		orms = new HashMap<>();
 	
 	public AdminConsole(final ContentMetadataInterface mdi, final Localizer localizer, final SubstitutableProperties settings, final CloseCallback<AdminConsole> closeCallback) throws IOException {
@@ -129,7 +148,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeK
 			getLogger().message(Severity.info, localizer.getValue(MSG_READY));
 			pack();
 
-			try(final InputStream	is = DbManager.class.getResourceAsStream("model.json");
+			try(final InputStream	is = ORMInterface.class.getResourceAsStream("model.json");
 				final Reader		rdr = new InputStreamReader(is)) {
 				
 				this.dbModel = ContentModelFactory.forJsonDescription(rdr);
@@ -150,6 +169,11 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeK
 	}
 
 	@Override
+	public ContentNodeMetadata getNodeMetadata() {
+		return mdi.getRoot();
+	}
+	
+	@Override
 	public void close() throws RuntimeException {
 		if (conn != null) {
 			disconnect();
@@ -165,10 +189,36 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeK
 		if (ask(ap,250,50)) {
 			try{this.loader = new SimpleURLClassLoader(new URL[0]);
 				this.driver = JDBCUtils.loadJdbcDriver(loader, settings.getProperty(Settings.PROP_DRIVER, File.class));
-				this.conn = JDBCUtils.getConnection(driver, 
-									settings.getProperty(Settings.PROP_CONN_STRING, URI.class), 
-									settings.getProperty(Settings.PROP_SEARCH_USER, String.class), 
-									ap.password);
+				this.connGetter = ()-> JDBCUtils.getConnection(driver, 
+										settings.getProperty(Settings.PROP_CONN_STRING, URI.class), 
+										settings.getProperty(Settings.PROP_SEARCH_USER, String.class), 
+										ap.password);
+				final DatabaseManagement<SimpleDottedVersion>	mgmt = new DatabaseManagement<SimpleDottedVersion>() {
+					@Override public void onOpen(final Connection conn, final ContentNodeMetadata model) throws SQLException {}
+					@Override public void onClose(final Connection conn, final ContentNodeMetadata model) throws SQLException {}
+					@Override public void onDowngrade(final Connection conn, final SimpleDottedVersion version, final ContentNodeMetadata model, final SimpleDottedVersion oldVersion, final ContentNodeMetadata oldModel) throws SQLException {}
+					
+					@Override
+					public SimpleDottedVersion getVersion(final ContentNodeMetadata model) throws SQLException {
+						return new SimpleDottedVersion("1.0");
+					}
+
+					@Override
+					public void onCreate(final Connection conn, final ContentNodeMetadata model) throws SQLException {
+						if (new JLocalizedOptionPane(localizer).confirm(AdminConsole.this, MESSAGEBOX_CONFIRM_CREATION, MESSAGEBOX_TITLE, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
+							createDatabase(conn, model);
+						}
+					}
+
+					@Override
+					public void onUpgrade(final Connection conn, final SimpleDottedVersion version, final ContentNodeMetadata model, final SimpleDottedVersion oldVersion, final ContentNodeMetadata oldModel) throws SQLException {
+						if (new JLocalizedOptionPane(localizer).confirm(AdminConsole.this, MESSAGEBOX_CONFIRM_UPGRADE, MESSAGEBOX_TITLE, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
+							upgradeDatabase(conn, version, model, oldVersion, oldModel);
+						}
+					}
+				};
+				this.mgr = new SimpleDatabaseManager<>(state, dbModel.getRoot(), connGetter, (c)->mgmt);
+				this.conn = this.connGetter.getConnection(); 
 				conn.setAutoCommit(true);
 				this.unique = conn.prepareCall("{?= call nextval('elibrary.systemseq')}");
 				this.unique.registerOutParameter(1, Types.BIGINT);
@@ -236,6 +286,63 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeK
 		closeCallback.close(this);
 	}
 
+	@OnAction("action:/main.tools.database.create")
+	private void createDatabase() {
+		try {
+			createDatabase(conn, dbModel.getRoot());
+		} catch (SQLException e) {
+			state.message(Severity.error, e, e.getLocalizedMessage());
+		}
+	}
+
+	@OnAction("action:/main.tools.database.upgrade")
+	private void upgradeDatabase() {
+		try {
+			final ContentNodeMetadata 	meta = mgr.getCurrentDatabaseModel();
+			upgradeDatabase(conn, mgr.getManagement().getVersion(dbModel.getRoot()), dbModel.getRoot(), mgr.getManagement().getVersion(meta), meta);
+		} catch (SQLException e) {
+			state.message(Severity.error, e, e.getLocalizedMessage());
+		}
+	}
+
+	@OnAction("action:/main.tools.database.backup")
+	private void backupDatabase() {
+		try(final FileSystemInterface	fsi = FileSystemFactory.createFileSystem(URI.create("fsi:file://./"))) {
+			final JFileSelectionDialog	fsd = new JFileSelectionDialog(localizer);
+			
+			fsd.select(fsi, JFileSelectionDialog.OPTIONS_ALLOW_MKDIR | JFileSelectionDialog.OPTIONS_CAN_SELECT_FILE | JFileSelectionDialog.OPTIONS_CONFIRM_REPLACEMENT| JFileSelectionDialog.OPTIONS_FOR_SAVE, (owner,accepted)->{});
+			for (String item : fsd.getSelection()) {
+				try(final OutputStream		os = fsi.open(item).create().write();
+					final ZipOutputStream	zos = new ZipOutputStream(os)) {
+					
+					mgr.backup(zos, (i)->true, state);
+				}
+				break;
+			}
+		} catch (SQLException | IOException e) {
+			state.message(Severity.error, e, e.getLocalizedMessage());
+		}
+	}
+	
+	@OnAction("action:/main.tools.database.restore")
+	private void restoreDatabase() {
+		try(final FileSystemInterface	fsi = FileSystemFactory.createFileSystem(URI.create("fsi:file://./"))) {
+			final JFileSelectionDialog	fsd = new JFileSelectionDialog(localizer);
+			
+			fsd.select(fsi, JFileSelectionDialog.OPTIONS_CAN_SELECT_FILE | JFileSelectionDialog.OPTIONS_FOR_OPEN | JFileSelectionDialog.OPTIONS_FILE_MUST_EXISTS, (owner,accepted)->{});
+			for (String item : fsd.getSelection()) {
+				try(final InputStream		is = fsi.open(item).read();
+					final ZipInputStream	zis = new ZipInputStream(is)) {
+					
+					mgr.restore(zis, (i)->true, state);
+				}
+				break;
+			}
+		} catch (IOException e) {
+			state.message(Severity.error, e, e.getLocalizedMessage());
+		}
+	}
+	
 	@OnAction("action:/main.tools.settings")
 	private void settings() {
 		final Settings	s = new Settings(getLogger(), this);
@@ -270,9 +377,13 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeK
 			return false;
 		} 
 	}
+
+	private void createDatabase(final Connection conn, final ContentNodeMetadata model) throws SQLException {
+		SQLModelUtils.createDatabaseByModel(conn, model);
+	}
 	
-	private DbManager getDbManager() {
-		return null;
+	private void upgradeDatabase(final Connection conn, final SimpleDottedVersion newVersion, final ContentNodeMetadata newModel, final SimpleDottedVersion oldVersion, final ContentNodeMetadata oldModel) {
+		// TODO Auto-generated method stub
 	}
 	
 	private boolean filterModel(final ContentNodeMetadata meta, final Set<String> fields2Exclude) {
