@@ -28,7 +28,7 @@ import chav1961.purelib.basic.exceptions.ContentException;
 import chav1961.purelib.basic.exceptions.EnvironmentException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
-import chav1961.purelib.basic.interfaces.LoggerFacadeKeeper;
+import chav1961.purelib.basic.interfaces.LoggerFacadeOwner;
 import chav1961.purelib.i18n.LocalizerFactory;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
@@ -39,7 +39,7 @@ import chav1961.purelib.nanoservice.NanoServiceFactory;
 import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.useful.JSystemTray;
 
-public class Application implements Closeable, LoggerFacadeKeeper {
+public class Application implements Closeable, LoggerFacadeOwner {
 	public static final String	ARG_HELP_PORT = "helpPort";
 	public static final String	ARG_PROPFILE_LOCATION = "prop";
 	

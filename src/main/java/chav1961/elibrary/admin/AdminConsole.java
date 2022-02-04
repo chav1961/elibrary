@@ -48,7 +48,7 @@ import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.CloseCallback;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
-import chav1961.purelib.basic.interfaces.LoggerFacadeKeeper;
+import chav1961.purelib.basic.interfaces.LoggerFacadeOwner;
 import chav1961.purelib.basic.interfaces.ModuleAccessor;
 import chav1961.purelib.fsys.FileSystemFactory;
 import chav1961.purelib.fsys.interfaces.FileSystemInterface;
@@ -77,7 +77,7 @@ import chav1961.purelib.ui.swing.useful.JFileSelectionDialog;
 import chav1961.purelib.ui.swing.useful.JLocalizedOptionPane;
 import chav1961.purelib.ui.swing.useful.JStateString;
 
-public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeKeeper, LocaleChangeListener, NodeMetadataOwner {
+public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeOwner, LocaleChangeListener, NodeMetadataOwner {
 	private static final long serialVersionUID = 1L;
 
 	public static final String		CONSOLE_TITLE = "console.title";
