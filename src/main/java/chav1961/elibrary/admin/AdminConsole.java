@@ -197,6 +197,11 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 					@Override public void onOpen(final Connection conn, final ContentNodeMetadata model) throws SQLException {}
 					@Override public void onClose(final Connection conn, final ContentNodeMetadata model) throws SQLException {}
 					@Override public void onDowngrade(final Connection conn, final SimpleDottedVersion version, final ContentNodeMetadata model, final SimpleDottedVersion oldVersion, final ContentNodeMetadata oldModel) throws SQLException {}
+
+					@Override
+					public SimpleDottedVersion getInitialVersion() throws SQLException {
+						return new SimpleDottedVersion("0.0");
+					}
 					
 					@Override
 					public SimpleDottedVersion getVersion(final ContentNodeMetadata model) throws SQLException {
@@ -227,8 +232,22 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 				((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.disconnect")).setEnabled(true);
 				((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.nsi")).setEnabled(true);
 				getLogger().message(Severity.info, localizer.getValue(MSG_CONNECTED));
-			} catch (ContentException | SQLException e) {
+			} catch (ContentException e) {
 				getLogger().message(Severity.error, e.getLocalizedMessage());
+				this.driver = null;
+				if (loader != null) {
+					try{loader.close();
+					} catch (IOException e1) {
+					}
+				}
+				loader = null;
+			} catch (SQLException e) {
+				if (e.getCause() != null) {
+					getLogger().message(Severity.error, e.getCause().getLocalizedMessage());
+				}
+				else {
+					getLogger().message(Severity.error, e.getLocalizedMessage());
+				}
 				this.driver = null;
 				if (loader != null) {
 					try{loader.close();

@@ -201,35 +201,35 @@
 						 "type":"java.awt.Image",
 						 "labelId":"elibrary.booklist.bl_Image",
 						 "tooltipId":"elibrary.booklist.bl_Image.tt",
-						 "appUri":"app:column:/elibrary.booklist/bl_Image?seq=9&type=BLOB",
+						 "appUri":"app:column:/elibrary.booklist/bl_Image?seq=9&type=BYTEA",
 						 "relUri":"bl_Image",
 					 	 "format":""
+					}
+				 ]
+			},
+			 {"name":"book2authors",
+				 "type":"chav1961.purelib.model.TableContainer",
+				 "labelId":"elibrary.book2authors",
+				 "tooltipId":"elibrary.book2authors.tt",
+				 "appUri":"app:table:/elibrary.book2authors",
+				 "relUri":"elibrary.book2authors",
+			 	 "format":"",
+				 "children":[
+					 {"name":"bl_Id",
+						 "type":"long",
+						 "labelId":"elibrary.book2authors.bl_Id",
+						 "tooltipId":"elibrary.book2authors.bl_Id.tt",
+						 "appUri":"app:column:/elibrary.book2authors/bl_Id?seq=1&type=BIGINT&pkSeq=1",
+						 "relUri":"bl_Id",
+					 	 "format":"m"
 					},
-					 {"name":"book2authors",
-						 "type":"chav1961.purelib.model.TableContainer",
-						 "labelId":"elibrary.book2authors",
-						 "tooltipId":"elibrary.book2authors.tt",
-						 "appUri":"app:table:/elibrary.book2authors",
-						 "relUri":"elibrary.book2authors",
-					 	 "format":"",
-						 "children":[
-							 {"name":"bl_Id",
-								 "type":"long",
-								 "labelId":"elibrary.book2authors.bl_Id",
-								 "tooltipId":"elibrary.book2authors.bl_Id.tt",
-								 "appUri":"app:column:/elibrary.book2authors/bl_Id?seq=1&type=BIGINT&pkSeq=1",
-								 "relUri":"bl_Id",
-							 	 "format":"m"
-							},
-							 {"name":"ba_Id",
-								 "type":"long",
-								 "labelId":"elibrary.book2authors.ba_Id",
-								 "tooltipId":"elibrary.book2authors.ba_Id.tt",
-								 "appUri":"app:column:/elibrary.book2authors/ba_Id?seq=2&type=BIGINT&pkSeq=2",
-								 "relUri":"ba_Id",
-							 	 "format":"m"
-							}
-						 ]
+					 {"name":"ba_Id",
+						 "type":"long",
+						 "labelId":"elibrary.book2authors.ba_Id",
+						 "tooltipId":"elibrary.book2authors.ba_Id.tt",
+						 "appUri":"app:column:/elibrary.book2authors/ba_Id?seq=2&type=BIGINT&pkSeq=2",
+						 "relUri":"ba_Id",
+					 	 "format":"m"
 					}
 				 ]
 			}
