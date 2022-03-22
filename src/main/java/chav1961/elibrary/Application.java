@@ -96,7 +96,7 @@ public class Application implements Closeable, LoggerFacadeOwner {
 			
 			SwingUtils.assignActionListeners(trayMenu, (e)->callTray(e.getActionCommand()));
 			
-			try{this.tray = new JSystemTray(localizer, APP_NAME, this.getClass().getResource("tray.png").toURI(), APP_TOOLTIP, trayMenu);
+			try{this.tray = new JSystemTray(localizer, APP_NAME, this.getClass().getResource("tray.png").toURI(), APP_TOOLTIP, trayMenu, false);
 				
 				this.tray.addActionListener((e)->showConsole());
 				this.lcl = (oldLocale,newLocale)->tray.localeChanged(oldLocale, newLocale);
