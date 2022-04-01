@@ -209,6 +209,15 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 					}
 
 					@Override
+					public SimpleDottedVersion getDatabaseVersion(Connection conn) throws SQLException {
+						return new SimpleDottedVersion("1.0");
+					}
+					@Override
+					public ContentNodeMetadata getDatabaseModel(Connection conn) throws SQLException {
+						return null;
+					}
+					
+					@Override
 					public void onCreate(final Connection conn, final ContentNodeMetadata model) throws SQLException {
 						if (new JLocalizedOptionPane(localizer).confirm(AdminConsole.this, MESSAGEBOX_CONFIRM_CREATION, MESSAGEBOX_TITLE, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
 							createDatabase(conn, model);
