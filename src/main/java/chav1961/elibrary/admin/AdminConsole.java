@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -43,6 +44,7 @@ import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SimpleURLClassLoader;
 import chav1961.purelib.basic.SubstitutableProperties;
 import chav1961.purelib.basic.exceptions.ContentException;
+import chav1961.purelib.basic.exceptions.EnvironmentException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.CloseCallback;
@@ -65,7 +67,9 @@ import chav1961.purelib.sql.JDBCUtils;
 import chav1961.purelib.sql.model.SQLModelUtils;
 import chav1961.purelib.sql.model.SQLModelUtils.ConnectionGetter;
 import chav1961.purelib.sql.model.interfaces.DatabaseManagement;
+import chav1961.purelib.sql.model.interfaces.DatabaseModelManagement;
 import chav1961.purelib.sql.model.SimpleDatabaseManager;
+import chav1961.purelib.sql.model.SimpleDatabaseModelManagement;
 import chav1961.purelib.sql.model.SimpleDottedVersion;
 import chav1961.purelib.ui.interfaces.FormManager;
 import chav1961.purelib.ui.swing.AutoBuiltForm;
@@ -106,7 +110,8 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 	private Driver								driver = null;
 	private Connection							conn = null;
 	private ConnectionGetter					connGetter = null;
-	private SimpleDatabaseManager<SimpleDottedVersion>	mgr = null;
+	private DatabaseModelManagement<SimpleDottedVersion>	dbMgmt;
+	private SimpleDatabaseManager<SimpleDottedVersion>		mgr = null;
 	private Map<Class<?>,ORMInterface<?,?>>		orms = new HashMap<>();
 	
 	public AdminConsole(final ContentMetadataInterface mdi, final Localizer localizer, final SubstitutableProperties settings, final CloseCallback<AdminConsole> closeCallback) throws IOException {
@@ -193,6 +198,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 										settings.getProperty(Settings.PROP_CONN_STRING, URI.class), 
 										settings.getProperty(Settings.PROP_SEARCH_USER, String.class), 
 										ap.password);
+				this.dbMgmt = new SimpleDatabaseModelManagement(state, SeriesORMInterface.class.getResource("model.json").toURI());
 				final DatabaseManagement<SimpleDottedVersion>	mgmt = new DatabaseManagement<SimpleDottedVersion>() {
 					@Override public void onOpen(final Connection conn, final ContentNodeMetadata model) throws SQLException {}
 					@Override public void onClose(final Connection conn, final ContentNodeMetadata model) throws SQLException {}
@@ -231,7 +237,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 						}
 					}
 				};
-				this.mgr = new SimpleDatabaseManager<>(state, dbModel.getRoot(), connGetter, (c)->mgmt);
+				this.mgr = new SimpleDatabaseManager<>(state, dbMgmt, connGetter, (c)->mgmt);
 				this.conn = this.connGetter.getConnection(); 
 				conn.setAutoCommit(true);
 				this.unique = conn.prepareCall("{?= call nextval('elibrary.systemseq')}");
@@ -264,6 +270,9 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 					}
 				}
 				loader = null;
+			} catch (EnvironmentException | URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}

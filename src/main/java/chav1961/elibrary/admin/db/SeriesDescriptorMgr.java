@@ -1,5 +1,6 @@
 package chav1961.elibrary.admin.db;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -120,5 +121,11 @@ public class SeriesDescriptorMgr implements InstanceManager<Long, SeriesDescript
 
 	@Override
 	public void close() throws SQLException {
+	}
+
+	@Override
+	public void storeInstance(PreparedStatement ps, SeriesDescriptor inst, boolean update) throws SQLException {
+		// TODO Auto-generated method stub
+		
 	}
 }
