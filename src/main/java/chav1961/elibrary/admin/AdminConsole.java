@@ -43,6 +43,7 @@ import chav1961.elibrary.admin.dialogs.Settings;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SimpleURLClassLoader;
 import chav1961.purelib.basic.SubstitutableProperties;
+import chav1961.purelib.basic.URIUtils;
 import chav1961.purelib.basic.exceptions.ContentException;
 import chav1961.purelib.basic.exceptions.EnvironmentException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
@@ -59,6 +60,7 @@ import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
 import chav1961.purelib.i18n.interfaces.SupportedLanguages;
 import chav1961.purelib.model.ContentModelFactory;
 import chav1961.purelib.model.ContentNodeFilter;
+import chav1961.purelib.model.SchemaContainer;
 import chav1961.purelib.model.TableContainer;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
@@ -199,6 +201,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 										settings.getProperty(Settings.PROP_SEARCH_USER, String.class), 
 										ap.password);
 				this.dbMgmt = new SimpleDatabaseModelManagement(state, SeriesORMInterface.class.getResource("model.json").toURI());
+				
 				final DatabaseManagement<SimpleDottedVersion>	mgmt = new DatabaseManagement<SimpleDottedVersion>() {
 					@Override public void onOpen(final Connection conn, final ContentNodeMetadata model) throws SQLException {}
 					@Override public void onClose(final Connection conn, final ContentNodeMetadata model) throws SQLException {}
@@ -211,12 +214,12 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 					
 					@Override
 					public SimpleDottedVersion getVersion(final ContentNodeMetadata model) throws SQLException {
-						return new SimpleDottedVersion("1.0");
+						return SQLModelUtils.extractVersionFromModel(model, getInitialVersion());
 					}
 
 					@Override
-					public SimpleDottedVersion getDatabaseVersion(Connection conn) throws SQLException {
-						return new SimpleDottedVersion("1.0");
+					public SimpleDottedVersion getDatabaseVersion(final Connection conn) throws SQLException {
+						return new SimpleDottedVersion("0.0");
 					}
 					@Override
 					public ContentNodeMetadata getDatabaseModel(Connection conn) throws SQLException {

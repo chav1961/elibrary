@@ -2,7 +2,7 @@
 	 "name":"elibrary",
 	 "type":"chav1961.purelib.model.SchemaContainer",
 	 "labelId":"unknown",
-	 "appUri":"app:schema:/elibrary",
+	 "appUri":"app:schema:/elibrary?version=1.0",
 	 "relUri":"model",
 	 "localizer":"i18n:xml:root://chav1961.elibrary.Application/chav1961/elibrary/i18n/i18n.xml",
 	 "format":"",
