@@ -9,7 +9,7 @@ import javax.swing.JViewport;
 import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
 import chav1961.purelib.ui.swing.SwingUtils;
 
-public class JCloseableScrollPane extends JScrollPane implements AutoCloseable{
+public class JCloseableScrollPane extends JScrollPane implements AutoCloseable {
 	private static final long serialVersionUID = -67567144871870852L;
 
 	public JCloseableScrollPane() {

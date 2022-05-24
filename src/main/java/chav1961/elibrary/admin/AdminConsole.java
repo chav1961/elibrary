@@ -35,9 +35,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 import chav1961.elibrary.Application;
+import chav1961.elibrary.admin.db.AuthorsORMInterface;
 import chav1961.elibrary.admin.db.ORMInterface;
+import chav1961.elibrary.admin.db.PublishersORMInterface;
 import chav1961.elibrary.admin.db.SeriesORMInterface;
 import chav1961.elibrary.admin.dialogs.AskPassword;
+import chav1961.elibrary.admin.dialogs.AuthorsDescriptor;
+import chav1961.elibrary.admin.dialogs.PublishersDescriptor;
 import chav1961.elibrary.admin.dialogs.SeriesDescriptor;
 import chav1961.elibrary.admin.dialogs.Settings;
 import chav1961.purelib.basic.PureLibSettings;
@@ -246,6 +250,10 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 				this.unique = conn.prepareCall("{?= call nextval('elibrary.systemseq')}");
 				this.unique.registerOutParameter(1, Types.BIGINT);
 				
+				orms.put(SeriesDescriptor.class, new SeriesORMInterface(getLogger(), conn, ()->getUnique()));
+				orms.put(AuthorsDescriptor.class, new AuthorsORMInterface(getLogger(), conn, ()->getUnique()));
+				orms.put(PublishersDescriptor.class, new PublishersORMInterface(getLogger(), conn, ()->getUnique()));
+				
 				((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.connect")).setEnabled(false);
 				((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.disconnect")).setEnabled(true);
 				((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.nsi")).setEnabled(true);
@@ -284,6 +292,9 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 	private void disconnect() {
 		if (conn != null) {
 			try{unique.close();
+				orms.remove(SeriesDescriptor.class).close();
+				orms.remove(AuthorsDescriptor.class).close();
+				orms.remove(PublishersDescriptor.class).close();
 				conn.close();
 			} catch (SQLException e) {
 			} finally {
@@ -302,21 +313,24 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 		getLogger().message(Severity.info, localizer.getValue(MSG_DISCONNECTED));
 	}
 	
-	@OnAction("action:/main.file.nsi.series")
-	private void supportBookSeries() throws ContentException, SQLException {
-		final ContentNodeMetadata		dbMd = dbModel.byApplicationPath(URI.create("app:table:/elibrary.bookseries"))[0];
-		final Set<String>				fieldsFiltered = new HashSet<>(Arrays.asList("BS_ID","BS_PARENT"));
-		final ContentNodeMetadata		dbMdFiltered = new ContentNodeFilter(dbMd, (item)->filterModel(item, fieldsFiltered));
-		final JDataBaseTableWithMeta<Long, SeriesDescriptor>	table = new JDataBaseTableWithMeta<>(dbMdFiltered, localizer);
+	@OnAction("action:/main.file.nsi")
+	private void showNSI() throws ContentException, SQLException {
+//		final ContentNodeMetadata		dbMd = dbModel.byApplicationPath(URI.create("app:table:/elibrary.bookseries"))[0];
+//		final Set<String>				fieldsFiltered = new HashSet<>(Arrays.asList("BS_ID","BS_PARENT"));
+//		final ContentNodeMetadata		dbMdFiltered = new ContentNodeFilter(dbMd, (item)->filterModel(item, fieldsFiltered));
+//		final JDataBaseTableWithMeta<Long, SeriesDescriptor>	table = new JDataBaseTableWithMeta<>(dbMdFiltered, localizer);
+//		
+//		JCloseableTab.placeComponentIntoTab(content, TAB_BOOK_SERIES, new JCloseableScrollPane(table), new JCloseableTab(localizer, TAB_BOOK_SERIES));
+//		
+//		if (!orms.containsKey(SeriesDescriptor.class)) {
+//			orms.put(SeriesDescriptor.class, new SeriesORMInterface(state, conn, ()->getUnique()));
+//		}
+//		final SeriesORMInterface		soi = (SeriesORMInterface) orms.get(SeriesDescriptor.class);
+//		table.assignResultSetAndManagers(soi.getResultSet(), soi.getFormManager(), soi.getInstanceManager());
+//		table.requestFocusInWindow();
+		final NSITab	tab = new NSITab(localizer, state, dbModel, orms);
 		
-		JCloseableTab.placeComponentIntoTab(content, TAB_BOOK_SERIES, new JCloseableScrollPane(table), new JCloseableTab(localizer, TAB_BOOK_SERIES));
-		
-		if (!orms.containsKey(SeriesDescriptor.class)) {
-			orms.put(SeriesDescriptor.class, new SeriesORMInterface(state, conn, ()->getUnique()));
-		}
-		final SeriesORMInterface		soi = (SeriesORMInterface) orms.get(SeriesDescriptor.class);
-		table.assignResultSetAndManagers(soi.getResultSet(), soi.getFormManager(), soi.getInstanceManager());
-		table.requestFocusInWindow();
+		JCloseableTab.placeComponentIntoTab(content, TAB_BOOK_SERIES, tab, new JCloseableTab(localizer, TAB_BOOK_SERIES));
 	}
 	
 	

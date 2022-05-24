@@ -94,6 +94,65 @@
 		<key name="askpassword.password">Password</key>
 		<key name="askpassword.password.tt">Admin password</key>
 
+<!-- Model localization  --> 
+		<key name="elibrary.bookseries">Book series</key>
+		<key name="elibrary.bookseries.tt">Book series</key>
+
+		<key name="elibrary.bookseries.bs_Id"></key>
+		<key name="elibrary.bookseries.bs_Id.tt"></key>
+		<key name="elibrary.bookseries.bs_Parent"></key>
+		<key name="elibrary.bookseries.bs_Parent.tt"></key>
+		<key name="elibrary.bookseries.bs_Name">Series name</key>
+		<key name="elibrary.bookseries.bs_Name.tt">Series name</key>
+		<key name="elibrary.bookseries.bs_Comment">Description</key>
+		<key name="elibrary.bookseries.bs_Comment.tt">Description</key>
+
+		<key name="elibrary.bookauthors">Authors</key>
+		<key name="elibrary.bookauthors.tt">Authors</key>
+		<key name="elibrary.bookauthors.ba_Id"></key>
+		<key name="elibrary.bookauthors.ba_Id.tt"></key>
+		<key name="elibrary.bookauthors.ba_Name">Author name</key>
+		<key name="elibrary.bookauthors.ba_Name.tt">Author name</key>
+		<key name="elibrary.bookauthors.ba_Comment">Description</key>
+		<key name="elibrary.bookauthors.ba_Comment.tt">Description</key>
+
+		<key name="elibrary.bookpublishers">Publishers</key>
+		<key name="elibrary.bookpublishers.tt">Publishers</key>
+		<key name="elibrary.bookpublishers.bp_Id"></key>
+		<key name="elibrary.bookpublishers.bp_Id.tt"></key>
+		<key name="elibrary.bookpublishers.bp_Name">Publisher name</key>
+		<key name="elibrary.bookpublishers.bp_Name.tt">Publisher name</key>
+		<key name="elibrary.bookpublishers.bp_Comment">Description</key>
+		<key name="elibrary.bookpublishers.bp_Comment.tt">Description</key>
+
+		<key name="elibrary.booklist">Book list</key>
+		<key name="elibrary.booklist.tt">Book list</key>
+		<key name="elibrary.booklist.bl_Id"></key>
+		<key name="elibrary.booklist.bl_Id.tt"></key>
+		<key name="elibrary.booklist.bl_Code">ISBN code</key>
+		<key name="elibrary.booklist.bl_Code.tt">ISBN code</key>
+		<key name="elibrary.booklist.bs_Id">Series</key>
+		<key name="elibrary.booklist.bs_Id.tt">Series</key>
+		<key name="elibrary.booklist.bl_Title">Title</key>
+		<key name="elibrary.booklist.bl_Title.tt">Title</key>
+		<key name="elibrary.booklist.bl_Year">Year</key>
+		<key name="elibrary.booklist.bl_Year.tt">Year</key>
+		<key name="elibrary.booklist.bp_Id">Published by</key>
+		<key name="elibrary.booklist.bp_Id.tt">Published by</key>
+		<key name="elibrary.booklist.bl_Comment">Annotation</key>
+		<key name="elibrary.booklist.bl_Comment.tt">Annotation</key>
+		<key name="elibrary.booklist.bl_Tags">Tags</key>
+		<key name="elibrary.booklist.bl_Tags.tt">Tags</key>
+		<key name="elibrary.booklist.bl_Image">Image</key>
+		<key name="elibrary.booklist.bl_Image.tt">Image</key>
+
+		<key name="elibrary.book2authors">Books-authors</key>
+		<key name="elibrary.book2authors.tt">Books-authors</key>
+		<key name="elibrary.book2authors.bl_Id">Book</key>
+		<key name="elibrary.book2authors.bl_Id.tt">Book</key>
+		<key name="elibrary.book2authors.ba_Id">Author</key>
+		<key name="elibrary.book2authors.ba_Id.tt">Author</key>
+		
 	</lang>
 	<lang name="ru">
 <!-- Локализация заголовков приложения -->
@@ -193,9 +252,63 @@
 		<key name="askpassword.password">Пароль</key>
 		<key name="askpassword.password.tt">Пароль пользователя-администратора</key>
 		
-		
-		
-		
+<!-- Локализация модели  --> 
+		<key name="elibrary.bookseries">Серии книг</key>
+		<key name="elibrary.bookseries.tt">Серии книг</key>
+		<key name="elibrary.bookseries.bs_Id"></key>
+		<key name="elibrary.bookseries.bs_Id.tt"></key>
+		<key name="elibrary.bookseries.bs_Parent"></key>
+		<key name="elibrary.bookseries.bs_Parent.tt"></key>
+		<key name="elibrary.bookseries.bs_Name">Серия</key>
+		<key name="elibrary.bookseries.bs_Name.tt">Серия</key>
+		<key name="elibrary.bookseries.bs_Comment">Описание</key>
+		<key name="elibrary.bookseries.bs_Comment.tt">Описание</key>
+
+		<key name="elibrary.bookauthors"></key>
+		<key name="elibrary.bookauthors.tt"></key>
+		<key name="elibrary.bookauthors.ba_Id"></key>
+		<key name="elibrary.bookauthors.ba_Id.tt"></key>
+		<key name="elibrary.bookauthors.ba_Name"></key>
+		<key name="elibrary.bookauthors.ba_Name.tt"></key>
+		<key name="elibrary.bookauthors.ba_Comment"></key>
+		<key name="elibrary.bookauthors.ba_Comment.tt"></key>
+
+		<key name="elibrary.bookpublishers"></key>
+		<key name="elibrary.bookpublishers.tt"></key>
+		<key name="elibrary.bookpublishers.bp_Id"></key>
+		<key name="elibrary.bookpublishers.bp_Id.tt"></key>
+		<key name="elibrary.bookpublishers.bp_Name"></key>
+		<key name="elibrary.bookpublishers.bp_Name.tt"></key>
+		<key name="elibrary.bookpublishers.bp_Comment"></key>
+		<key name="elibrary.bookpublishers.bp_Comment.tt"></key>
+
+		<key name="elibrary.booklist"></key>
+		<key name="elibrary.booklist.tt"></key>
+		<key name="elibrary.booklist.bl_Id"></key>
+		<key name="elibrary.booklist.bl_Id.tt"></key>
+		<key name="elibrary.booklist.bl_Code"></key>
+		<key name="elibrary.booklist.bl_Code.tt"></key>
+		<key name="elibrary.booklist.bs_Id"></key>
+		<key name="elibrary.booklist.bs_Id.tt"></key>
+		<key name="elibrary.booklist.bl_Title"></key>
+		<key name="elibrary.booklist.bl_Title.tt"></key>
+		<key name="elibrary.booklist.bl_Year"></key>
+		<key name="elibrary.booklist.bl_Year.tt"></key>
+		<key name="elibrary.booklist.bp_Id"></key>
+		<key name="elibrary.booklist.bp_Id.tt"></key>
+		<key name="elibrary.booklist.bl_Comment"></key>
+		<key name="elibrary.booklist.bl_Comment.tt"></key>
+		<key name="elibrary.booklist.bl_Tags"></key>
+		<key name="elibrary.booklist.bl_Tags.tt"></key>
+		<key name="elibrary.booklist.bl_Image"></key>
+		<key name="elibrary.booklist.bl_Image.tt"></key>
+
+		<key name="elibrary.book2authors"></key>
+		<key name="elibrary.book2authors.tt"></key>
+		<key name="elibrary.book2authors.bl_Id"></key>
+		<key name="elibrary.book2authors.bl_Id.tt"></key>
+		<key name="elibrary.book2authors.ba_Id"></key>
+		<key name="elibrary.book2authors.ba_Id.tt"></key>
 		
 	</lang>	
 </localization>

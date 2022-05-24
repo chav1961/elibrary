@@ -12,9 +12,7 @@
 			<app:item name="menu.main.file.connect" caption="menu.main.file.connect" tooltip="menu.main.file.connect.tt" action="main.file.connect"/>
 			<app:item name="menu.main.file.disconnect" caption="menu.main.file.disconnect" tooltip="menu.main.file.disconnect.tt" action="main.file.disconnect"/>
 			<app:separator/>
-			<app:submenu name="menu.main.file.nsi" caption="menu.main.file.nsi" tooltip="menu.main.file.nsi.tt">
-				<app:item name="menu.main.file.nsi.series" caption="menu.main.file.nsi.series" tooltip="menu.main.file.nsi.series.tt" action="main.file.nsi.series"/>
-			</app:submenu>
+			<app:item name="menu.main.file.nsi" caption="menu.main.file.nsi" tooltip="menu.main.file.nsi.tt" action="main.file.nsi"/>
 			<app:separator/>
 			<app:item name="menu.main.file.quit" caption="menu.main.file.quit" tooltip="menu.main.file.quit.tt" action="main.file.quit"/>
 		</app:submenu>

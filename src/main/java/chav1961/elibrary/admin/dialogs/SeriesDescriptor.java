@@ -1,8 +1,10 @@
 package chav1961.elibrary.admin.dialogs;
 
+
 import chav1961.purelib.basic.exceptions.FlowException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
+import chav1961.purelib.basic.interfaces.ModuleAccessor;
 import chav1961.purelib.i18n.interfaces.LocaleResource;
 import chav1961.purelib.i18n.interfaces.LocaleResourceLocation;
 import chav1961.purelib.ui.interfaces.FormManager;
@@ -10,26 +12,22 @@ import chav1961.purelib.ui.interfaces.Format;
 import chav1961.purelib.ui.interfaces.RefreshMode;
 
 @LocaleResourceLocation("i18n:xml:root://chav1961.elibrary.admin.dialogs.SeriesDescriptor/chav1961/elibrary/i18n/i18n.xml")
-@LocaleResource(value="nsi.seriesdescriptor",tooltip="nsi.seriesdescriptor.tt",help="help.aboutApplication")
-public class SeriesDescriptor implements Cloneable, FormManager<Long, SeriesDescriptor> {
+@LocaleResource(value="elibrary.bookseries",tooltip="elibrary.bookseries.tt",help="help.aboutApplication")
+public class SeriesDescriptor implements Cloneable, FormManager<Long, SeriesDescriptor>, ModuleAccessor {
 	private final LoggerFacade	logger;
 	
 	public long		id;
 	
 	public long		parent;
 	
-	@LocaleResource(value="nsi.seriesdescriptor.seriesname",tooltip="nsi.seriesdescriptor.seriesname.tt")
+	@LocaleResource(value="elibrary.bookseries.bs_Name",tooltip="elibrary.bookseries.bs_Name.tt")
 	@Format("9.2msL")
 	public String	seriesName;
 	
-	@LocaleResource(value="nsi.seriesdescriptor.seriescomment",tooltip="nsi.seriesdescriptor.seriescomment.tt")
+	@LocaleResource(value="elibrary.bookseries.bs_Comment",tooltip="elibrary.bookseries.bs_Comment.tt")
 	@Format("9.2msl")
 	public String	seriesComment;
 
-	@LocaleResource(value="nsi.seriesdescriptor.isregular",tooltip="nsi.seriesdescriptor.isregular.tt")
-	@Format("9.2msl")
-	public boolean	isRegular;
-	
 	public SeriesDescriptor(final LoggerFacade logger) {
 		this.logger = logger;
 	}
@@ -68,7 +66,14 @@ public class SeriesDescriptor implements Cloneable, FormManager<Long, SeriesDesc
 	
 	@Override
 	public LoggerFacade getLogger() {
-		return getLogger();
+		return logger;
+	}
+
+	@Override
+	public void allowUnnamedModuleAccess(final Module... unnamedModules) {
+		for (Module item : unnamedModules) {
+			this.getClass().getModule().addExports(this.getClass().getPackageName(),item);
+		}
 	}
 
 	@Override
