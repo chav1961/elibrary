@@ -100,6 +100,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 	public static final String		MSG_READY = "console.msg.ready";
 	public static final String		MSG_CONNECTED = "console.msg.connected";
 	public static final String		MSG_DISCONNECTED = "console.msg.disconnected";
+	public static final String		MSG_JDBC_DRIVER_NOT_SET = "console.msg.jdbc.driver.not.set";
 	
 	public static final String		TAB_BOOK_SERIES = "console.tab.bookSeries";
 	
@@ -148,14 +149,12 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 			getContentPane().add(this.content, BorderLayout.CENTER);
 			getContentPane().add(this.state, BorderLayout.SOUTH);
 
-			((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.disconnect")).setEnabled(false);
-			((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.nsi")).setEnabled(false);
-			
 			SwingUtils.assignActionListeners(this.menu,this);
 			SwingUtils.assignExitMethod4MainWindow(this,()->exitApplication());
 			SwingUtils.centerMainWindow(this,0.75f);
 			localizer.addLocaleChangeListener(this);
 			fillLocalizedStrings();
+			disableMenuOnDisconnect();
 			getLogger().message(Severity.info, localizer.getValue(MSG_READY));
 			pack();
 
@@ -197,7 +196,10 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 	private void connect() {
 		final AskPassword	ap = new AskPassword(state);
 		
-		if (ask(ap,250,50)) {
+		if (!settings.containsKey(Settings.PROP_DRIVER)) {
+			getLogger().message(Severity.error, localizer.getValue(MSG_JDBC_DRIVER_NOT_SET));
+		}
+		else if (ask(ap,250,50)) {
 			try{this.loader = new SimpleURLClassLoader(new URL[0]);
 				this.driver = JDBCUtils.loadJdbcDriver(loader, settings.getProperty(Settings.PROP_DRIVER, File.class));
 				this.connGetter = ()-> JDBCUtils.getConnection(driver, 
@@ -257,6 +259,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 				((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.connect")).setEnabled(false);
 				((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.disconnect")).setEnabled(true);
 				((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.nsi")).setEnabled(true);
+				enableMenuOnConnect();
 				getLogger().message(Severity.info, localizer.getValue(MSG_CONNECTED));
 			} catch (ContentException e) {
 				getLogger().message(Severity.error, e.getLocalizedMessage());
@@ -306,10 +309,8 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 			} finally {
 				loader = null;
 			}
+			disableMenuOnDisconnect();
 		}
-		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.connect")).setEnabled(true);
-		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.disconnect")).setEnabled(false);
-		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.nsi")).setEnabled(false);
 		getLogger().message(Severity.info, localizer.getValue(MSG_DISCONNECTED));
 	}
 	
@@ -452,4 +453,20 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 	private void fillLocalizedStrings() {
 		setTitle(localizer.getValue(CONSOLE_TITLE));
 	}
+
+	private void enableMenuOnConnect() {
+		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.connect")).setEnabled(false);
+		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.disconnect")).setEnabled(true);
+		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.nsi")).setEnabled(true);
+		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.tools.database")).setEnabled(true);
+	}
+
+	private void disableMenuOnDisconnect() {
+		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.connect")).setEnabled(true);
+		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.disconnect")).setEnabled(false);
+		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.nsi")).setEnabled(false);
+		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.tools.database")).setEnabled(false);
+	}
 }
+
+
