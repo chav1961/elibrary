@@ -79,7 +79,7 @@
 						 "tooltipId":"elibrary.bookauthors.ba_Name.tt",
 						 "appUri":"app:column:/elibrary.bookauthors/ba_Name?seq=2&type=TEXT",
 						 "relUri":"ba_Name",
-					 	 "format":"mL"
+					 	 "format":"ml"
 					},
 					 {"name":"ba_Comment",
 						 "type":"java.lang.String",
@@ -113,7 +113,7 @@
 						 "tooltipId":"elibrary.bookpublishers.bp_Name.tt",
 						 "appUri":"app:column:/elibrary.bookpublishers/bp_Name?seq=2&type=TEXT",
 						 "relUri":"bp_Name",
-					 	 "format":"mL"
+					 	 "format":"ml"
 					},
 					 {"name":"bp_Comment",
 						 "type":"java.lang.String",

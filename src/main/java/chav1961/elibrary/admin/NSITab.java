@@ -2,12 +2,15 @@ package chav1961.elibrary.admin;
 
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.net.URI;
 import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Map;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
@@ -70,18 +73,21 @@ public class NSITab extends JPanel implements AutoCloseable, LoggerFacadeOwner, 
 			this.series = new JDataBaseTableWithMeta<Long, SeriesDescriptor>(meta.byApplicationPath(URI.create(URI_SERIES))[0], localizer);
 			this.series.assignResultSetAndManagers(soi.getResultSet(), soi.getFormManager(), soi.getInstanceManager());
 			this.seriesScroll = new JCloseableScrollPane(this.series);
+			assignResizer(this.seriesScroll, this.series);
 
 			final AuthorsORMInterface		aoi = (AuthorsORMInterface) orms.get(AuthorsDescriptor.class);
 			
 			this.authors = new JDataBaseTableWithMeta<Long, AuthorsDescriptor>(meta.byApplicationPath(URI.create(URI_AUTHORS))[0], localizer);
 			this.authors.assignResultSetAndManagers(aoi.getResultSet(), aoi.getFormManager(), aoi.getInstanceManager());
 			this.authorsScroll = new JCloseableScrollPane(this.authors);
+			assignResizer(this.authorsScroll, this.authors);
 
 			final PublishersORMInterface	poi = (PublishersORMInterface) orms.get(PublishersDescriptor.class);
 			
 			this.publishers = new JDataBaseTableWithMeta<Long, PublishersDescriptor>(meta.byApplicationPath(URI.create(URI_PUBLISHERS))[0], localizer);
 			this.publishers.assignResultSetAndManagers(poi.getResultSet(), poi.getFormManager(), poi.getInstanceManager());
 			this.publishersScroll = new JCloseableScrollPane(this.publishers);
+			assignResizer(this.publishersScroll, this.publishers);
 			
 			fillLocalizedStrings();
 
@@ -115,6 +121,23 @@ public class NSITab extends JPanel implements AutoCloseable, LoggerFacadeOwner, 
 		publishersScroll.close();
 	}
 
+	private void assignResizer(final JScrollPane owner, final JDataBaseTableWithMeta<?, ?> table) {
+		owner.addComponentListener(new ComponentListener() {
+			@Override public void componentMoved(ComponentEvent e) {}
+			@Override public void componentHidden(ComponentEvent e) {}
+			
+			@Override
+			public void componentShown(ComponentEvent e) {
+				table.resizeColumns();
+			}
+			
+			@Override
+			public void componentResized(ComponentEvent e) {
+				table.resizeColumns();
+			}
+		});
+	}
+	
 	private void fillLocalizedStrings() {
 		seriesScroll.setBorder(new TitledBorder(new LineBorder(Color.BLACK), localizer.getValue(meta.byApplicationPath(URI.create(URI_SERIES))[0].getLabelId())));
 		authorsScroll.setBorder(new TitledBorder(new LineBorder(Color.BLACK), localizer.getValue(meta.byApplicationPath(URI.create(URI_AUTHORS))[0].getLabelId())));
