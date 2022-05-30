@@ -64,13 +64,7 @@ public class PublishersDescriptorMgr implements InstanceManager<Long, Publishers
 	public void loadInstance(final ResultSet rs, final PublishersDescriptor inst) throws SQLException {
 		inst.id = rs.getLong("bs_Id");
 		inst.name = rs.getString("bs_Name");
-		if (rs.wasNull()) {
-			inst.name = "";
-		}
 		inst.comment = rs.getString("bs_Comment");
-		if (rs.wasNull()) {
-			inst.comment = "";
-		}
 	}
 
 	@Override
@@ -79,12 +73,7 @@ public class PublishersDescriptorMgr implements InstanceManager<Long, Publishers
 			rs.updateLong("bs_Id", inst.id);
 		}
 		rs.updateString("bs_Name", inst.name);
-		if (inst.comment.trim().isEmpty()) {
-			rs.updateNull("bs_Comment");
-		}
-		else {
-			rs.updateString("bs_Comment", inst.comment);
-		}
+		rs.updateString("bs_Comment", inst.comment);
 	}
 
 	@Override

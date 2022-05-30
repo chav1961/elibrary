@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.net.URI;
 import java.sql.SQLException;
 import java.util.Locale;
@@ -74,6 +76,7 @@ public class NSITab extends JPanel implements AutoCloseable, LoggerFacadeOwner, 
 			this.series.assignResultSetAndManagers(soi.getResultSet(), soi.getFormManager(), soi.getInstanceManager());
 			this.seriesScroll = new JCloseableScrollPane(this.series);
 			assignResizer(this.seriesScroll, this.series);
+			assignFocusManager(this.seriesScroll, this.series);
 
 			final AuthorsORMInterface		aoi = (AuthorsORMInterface) orms.get(AuthorsDescriptor.class);
 			
@@ -81,6 +84,7 @@ public class NSITab extends JPanel implements AutoCloseable, LoggerFacadeOwner, 
 			this.authors.assignResultSetAndManagers(aoi.getResultSet(), aoi.getFormManager(), aoi.getInstanceManager());
 			this.authorsScroll = new JCloseableScrollPane(this.authors);
 			assignResizer(this.authorsScroll, this.authors);
+			assignFocusManager(this.authorsScroll, this.authors);
 
 			final PublishersORMInterface	poi = (PublishersORMInterface) orms.get(PublishersDescriptor.class);
 			
@@ -88,6 +92,7 @@ public class NSITab extends JPanel implements AutoCloseable, LoggerFacadeOwner, 
 			this.publishers.assignResultSetAndManagers(poi.getResultSet(), poi.getFormManager(), poi.getInstanceManager());
 			this.publishersScroll = new JCloseableScrollPane(this.publishers);
 			assignResizer(this.publishersScroll, this.publishers);
+			assignFocusManager(this.publishersScroll, this.publishers);
 			
 			fillLocalizedStrings();
 
@@ -95,6 +100,7 @@ public class NSITab extends JPanel implements AutoCloseable, LoggerFacadeOwner, 
 			add(this.seriesScroll);
 			add(this.authorsScroll);
 			add(this.publishersScroll);
+			this.series.requestFocusInWindow();
 		}
 	}
 
@@ -138,9 +144,33 @@ public class NSITab extends JPanel implements AutoCloseable, LoggerFacadeOwner, 
 		});
 	}
 	
+	private void assignFocusManager(final JScrollPane pane, final JDataBaseTableWithMeta<?, ?> table) {
+		table.addFocusListener(new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent e) {
+				fillLocalizedStrings();
+			}
+			
+			@Override
+			public void focusGained(FocusEvent e) {
+				fillLocalizedStrings();
+			}
+		});
+	}
+	
 	private void fillLocalizedStrings() {
-		seriesScroll.setBorder(new TitledBorder(new LineBorder(Color.BLACK), localizer.getValue(meta.byApplicationPath(URI.create(URI_SERIES))[0].getLabelId())));
-		authorsScroll.setBorder(new TitledBorder(new LineBorder(Color.BLACK), localizer.getValue(meta.byApplicationPath(URI.create(URI_AUTHORS))[0].getLabelId())));
-		publishersScroll.setBorder(new TitledBorder(new LineBorder(Color.BLACK), localizer.getValue(meta.byApplicationPath(URI.create(URI_PUBLISHERS))[0].getLabelId())));
+		seriesScroll.setBorder(new TitledBorder(getBorder(series), localizer.getValue(meta.byApplicationPath(URI.create(URI_SERIES))[0].getLabelId())));
+		authorsScroll.setBorder(new TitledBorder(getBorder(authors), localizer.getValue(meta.byApplicationPath(URI.create(URI_AUTHORS))[0].getLabelId())));
+		publishersScroll.setBorder(new TitledBorder(getBorder(publishers), localizer.getValue(meta.byApplicationPath(URI.create(URI_PUBLISHERS))[0].getLabelId())));
+	}
+	
+	private LineBorder getBorder(final JDataBaseTableWithMeta<?, ?> table) {
+		if (table.hasFocus()) {
+			return new LineBorder(Color.BLUE, 3);
+		}
+		else {
+			return new LineBorder(Color.BLACK);
+		}
 	}
 }

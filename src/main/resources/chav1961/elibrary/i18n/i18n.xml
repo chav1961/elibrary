@@ -26,7 +26,7 @@
 		<key name="messagebox.confirm.creation">Database doesn't contain structure required. Create it?</key>
 		<key name="messagebox.confirm.upgrade">Database structure is deprecated. Upgrade it?</key>
 
-		<key name="console.tab.bookSeries">Book series</key>
+		<key name="console.tab.nsi">References</key>
 
 		<key name="console.msg.ready">Ready to work</key>
 		<key name="console.msg.connected">Connection established</key>
@@ -179,7 +179,7 @@
 		<key name="console.msg.jdbc.driver.not.set">Местоположение JDBC дравера не задано. Войдите в 'Инструменты'->'Настройки' и задайте его</key>
 		
 		
-		<key name="console.tab.bookSeries">Серии книг</key>
+		<key name="console.tab.nsi">Справочники</key>
 
 <!-- Локализация меню иконки --> 
 		<key name="tray.show">Показать админ.консоль</key>
@@ -264,23 +264,23 @@
 		<key name="elibrary.bookseries.bs_Comment">Описание</key>
 		<key name="elibrary.bookseries.bs_Comment.tt">Описание</key>
 
-		<key name="elibrary.bookauthors"></key>
-		<key name="elibrary.bookauthors.tt"></key>
+		<key name="elibrary.bookauthors">Авторы</key>
+		<key name="elibrary.bookauthors.tt">Авторы</key>
 		<key name="elibrary.bookauthors.ba_Id"></key>
 		<key name="elibrary.bookauthors.ba_Id.tt"></key>
-		<key name="elibrary.bookauthors.ba_Name"></key>
-		<key name="elibrary.bookauthors.ba_Name.tt"></key>
-		<key name="elibrary.bookauthors.ba_Comment"></key>
-		<key name="elibrary.bookauthors.ba_Comment.tt"></key>
+		<key name="elibrary.bookauthors.ba_Name">ФИО</key>
+		<key name="elibrary.bookauthors.ba_Name.tt">ФИО</key>
+		<key name="elibrary.bookauthors.ba_Comment">Комментарий</key>
+		<key name="elibrary.bookauthors.ba_Comment.tt">Комментарий</key>
 
-		<key name="elibrary.bookpublishers"></key>
-		<key name="elibrary.bookpublishers.tt"></key>
+		<key name="elibrary.bookpublishers">Издательства</key>
+		<key name="elibrary.bookpublishers.tt">Издательства</key>
 		<key name="elibrary.bookpublishers.bp_Id"></key>
 		<key name="elibrary.bookpublishers.bp_Id.tt"></key>
-		<key name="elibrary.bookpublishers.bp_Name"></key>
-		<key name="elibrary.bookpublishers.bp_Name.tt"></key>
-		<key name="elibrary.bookpublishers.bp_Comment"></key>
-		<key name="elibrary.bookpublishers.bp_Comment.tt"></key>
+		<key name="elibrary.bookpublishers.bp_Name">Наименование</key>
+		<key name="elibrary.bookpublishers.bp_Name.tt">Наименование</key>
+		<key name="elibrary.bookpublishers.bp_Comment">Комментарий</key>
+		<key name="elibrary.bookpublishers.bp_Comment.tt">Комментарий</key>
 
 		<key name="elibrary.booklist"></key>
 		<key name="elibrary.booklist.tt"></key>

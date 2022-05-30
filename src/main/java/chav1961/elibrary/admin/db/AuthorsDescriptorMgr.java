@@ -64,13 +64,7 @@ public class AuthorsDescriptorMgr implements InstanceManager<Long, AuthorsDescri
 	public void loadInstance(final ResultSet rs, final AuthorsDescriptor inst) throws SQLException {
 		inst.id = rs.getLong("bs_Id");
 		inst.name = rs.getString("bs_Name");
-		if (rs.wasNull()) {
-			inst.name = "";
-		}
 		inst.comment = rs.getString("bs_Comment");
-		if (rs.wasNull()) {
-			inst.comment = "";
-		}
 	}
 
 	@Override
@@ -79,12 +73,7 @@ public class AuthorsDescriptorMgr implements InstanceManager<Long, AuthorsDescri
 			rs.updateLong("bs_Id", inst.id);
 		}
 		rs.updateString("bs_Name", inst.name);
-		if (inst.comment.trim().isEmpty()) {
-			rs.updateNull("bs_Comment");
-		}
-		else {
-			rs.updateString("bs_Comment", inst.comment);
-		}
+		rs.updateString("bs_Comment", inst.comment);
 	}
 
 	@Override
@@ -99,18 +88,18 @@ public class AuthorsDescriptorMgr implements InstanceManager<Long, AuthorsDescri
 
 	@Override
 	public <T> InstanceManager<Long, AuthorsDescriptor> set(final AuthorsDescriptor inst, final String name, final T value) throws SQLException {
-			switch (name) {
-				case "bs_Id" 		: 
-					inst.id = (Long)value;
-					break;
-				case "bs_Name" 		:
-					inst.name = (String)value;
-					break;
-				case "bs_Comment"	:
-					inst.comment = (String)value;
-					break;
-				default : throw new SQLException("Name ["+name+"] is missing in the instance");
-			}
+		switch (name) {
+			case "bs_Id" 		: 
+				inst.id = (Long)value;
+				break;
+			case "bs_Name" 		:
+				inst.name = (String)value;
+				break;
+			case "bs_Comment"	:
+				inst.comment = (String)value;
+				break;
+			default : throw new SQLException("Name ["+name+"] is missing in the instance");
+		}
 		return this;
 	}
 

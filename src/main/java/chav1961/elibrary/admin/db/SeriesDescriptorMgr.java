@@ -64,13 +64,7 @@ public class SeriesDescriptorMgr implements InstanceManager<Long, SeriesDescript
 		inst.id = rs.getLong("bs_Id");
 		inst.parent = rs.getLong("bs_Parent");
 		inst.seriesName = rs.getString("bs_Name");
-		if (rs.wasNull()) {
-			inst.seriesName = "";
-		}
 		inst.seriesComment = rs.getString("bs_Comment");
-		if (rs.wasNull()) {
-			inst.seriesComment = "";
-		}
 	}
 
 	@Override
@@ -80,12 +74,7 @@ public class SeriesDescriptorMgr implements InstanceManager<Long, SeriesDescript
 		}
 		rs.updateLong("bs_Parent", inst.parent);
 		rs.updateString("bs_Name", inst.seriesName);
-		if (inst.seriesComment.trim().isEmpty()) {
-			rs.updateNull("bs_Comment");
-		}
-		else {
-			rs.updateString("bs_Comment", inst.seriesComment);
-		}
+		rs.updateString("bs_Comment", inst.seriesComment);
 	}
 
 	@Override

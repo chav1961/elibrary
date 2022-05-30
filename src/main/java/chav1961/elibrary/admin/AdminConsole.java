@@ -82,6 +82,7 @@ import chav1961.purelib.ui.swing.AutoBuiltForm;
 import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.interfaces.OnAction;
 import chav1961.purelib.ui.swing.useful.JCloseableTab;
+import chav1961.purelib.ui.swing.useful.JCloseableTabbedPane;
 import chav1961.purelib.ui.swing.useful.JDataBaseTableWithMeta;
 import chav1961.purelib.ui.swing.useful.JFileSelectionDialog;
 import chav1961.purelib.ui.swing.useful.JLocalizedOptionPane;
@@ -102,14 +103,14 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 	public static final String		MSG_DISCONNECTED = "console.msg.disconnected";
 	public static final String		MSG_JDBC_DRIVER_NOT_SET = "console.msg.jdbc.driver.not.set";
 	
-	public static final String		TAB_BOOK_SERIES = "console.tab.bookSeries";
+	public static final String		TAB_NSI = "console.tab.nsi";
 	
 	private final ContentMetadataInterface		mdi;
 	private final Localizer						localizer;
 	private final SubstitutableProperties		settings;
 	private final CloseCallback<AdminConsole>	closeCallback;
 	private final JMenuBar						menu;
-	private final JTabbedPane					content;
+	private final JCloseableTabbedPane			content;
 	private final JStateString					state;
 	private final ContentMetadataInterface		dbModel;
 	private CallableStatement					unique = null;
@@ -140,7 +141,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 			this.settings = settings;
 			this.closeCallback = closeCallback;
 			this.menu = SwingUtils.toJComponent(mdi.byUIPath(URI.create("ui:/model/navigation.top.mainmenu")),JMenuBar.class); 
-			this.content = new JTabbedPane();
+			this.content = new JCloseableTabbedPane();
 			this.state = new JStateString(localizer);
 			
 			localizer.addLocaleChangeListener(this);
@@ -294,6 +295,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 	@OnAction("action:/main.file.disconnect")
 	private void disconnect() {
 		if (conn != null) {
+			content.close();
 			try{unique.close();
 				orms.remove(SeriesDescriptor.class).close();
 				orms.remove(AuthorsDescriptor.class).close();
@@ -316,22 +318,9 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 	
 	@OnAction("action:/main.file.nsi")
 	private void showNSI() throws ContentException, SQLException {
-//		final ContentNodeMetadata		dbMd = dbModel.byApplicationPath(URI.create("app:table:/elibrary.bookseries"))[0];
-//		final Set<String>				fieldsFiltered = new HashSet<>(Arrays.asList("BS_ID","BS_PARENT"));
-//		final ContentNodeMetadata		dbMdFiltered = new ContentNodeFilter(dbMd, (item)->filterModel(item, fieldsFiltered));
-//		final JDataBaseTableWithMeta<Long, SeriesDescriptor>	table = new JDataBaseTableWithMeta<>(dbMdFiltered, localizer);
-//		
-//		JCloseableTab.placeComponentIntoTab(content, TAB_BOOK_SERIES, new JCloseableScrollPane(table), new JCloseableTab(localizer, TAB_BOOK_SERIES));
-//		
-//		if (!orms.containsKey(SeriesDescriptor.class)) {
-//			orms.put(SeriesDescriptor.class, new SeriesORMInterface(state, conn, ()->getUnique()));
-//		}
-//		final SeriesORMInterface		soi = (SeriesORMInterface) orms.get(SeriesDescriptor.class);
-//		table.assignResultSetAndManagers(soi.getResultSet(), soi.getFormManager(), soi.getInstanceManager());
-//		table.requestFocusInWindow();
 		final NSITab	tab = new NSITab(localizer, state, dbModel, orms);
 		
-		JCloseableTab.placeComponentIntoTab(content, TAB_BOOK_SERIES, tab, new JCloseableTab(localizer, TAB_BOOK_SERIES));
+		JCloseableTab.placeComponentIntoTab(content, TAB_NSI, tab, new JCloseableTab(localizer, TAB_NSI));
 	}
 	
 	

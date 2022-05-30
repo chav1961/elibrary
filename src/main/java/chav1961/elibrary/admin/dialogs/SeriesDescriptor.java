@@ -22,11 +22,11 @@ public class SeriesDescriptor implements Cloneable, FormManager<Long, SeriesDesc
 	
 	@LocaleResource(value="elibrary.bookseries.bs_Name",tooltip="elibrary.bookseries.bs_Name.tt")
 	@Format("9.2msL")
-	public String	seriesName;
+	public String	seriesName = "";
 	
 	@LocaleResource(value="elibrary.bookseries.bs_Comment",tooltip="elibrary.bookseries.bs_Comment.tt")
 	@Format("9.2msl")
-	public String	seriesComment;
+	public String	seriesComment = "";
 
 	public SeriesDescriptor(final LoggerFacade logger) {
 		this.logger = logger;
