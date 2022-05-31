@@ -10,37 +10,37 @@ import chav1961.purelib.ui.interfaces.FormManager;
 import chav1961.purelib.ui.interfaces.Format;
 import chav1961.purelib.ui.interfaces.RefreshMode;
 
-@LocaleResourceLocation("i18n:xml:root://chav1961.elibrary.admin.dialogs.AuthorsDescriptor/chav1961/elibrary/i18n/i18n.xml")
-@LocaleResource(value="elibrary.bookauthors",tooltip="elibrary.bookauthors.tt",help="help.aboutApplication")
-public class AuthorsDescriptor implements Cloneable, FormManager<Long, AuthorsDescriptor>, ModuleAccessor {
+@LocaleResourceLocation("i18n:xml:root://chav1961.elibrary.admin.dialogs.BookAuthorsDescriptor/chav1961/elibrary/i18n/i18n.xml")
+@LocaleResource(value="elibrary.book2authors",tooltip="elibrary.book2authors.tt",help="help.aboutApplication")
+public class BookAuthorsDescriptor implements Cloneable, FormManager<Long, BookAuthorsDescriptor>, ModuleAccessor {
 	private final LoggerFacade	logger;
 	
 	public long		id;
 
-	@LocaleResource(value="elibrary.bookauthors.ba_Name",tooltip="elibrary.bookauthors.ba_Name.tt")
+	@LocaleResource(value="elibrary.book2authors.bl_Id",tooltip="elibrary.book2authors.bl_Id.tt")
 	@Format("9.2msL")
-	public String	name = "";
+	public long		book;
 	
-	@LocaleResource(value="elibrary.bookauthors.ba_Comment",tooltip="elibrary.bookauthors.ba_Comment.tt")
+	@LocaleResource(value="elibrary.book2authors.ba_Id",tooltip="elibrary.book2authors.ba_Id.tt")
 	@Format("9.2msl")
-	public String	comment = "";
+	public long		author;
 	
-	public AuthorsDescriptor(final LoggerFacade logger) {
+	public BookAuthorsDescriptor(final LoggerFacade logger) {
 		this.logger = logger;
 	}
 	
 	@Override
-	public AuthorsDescriptor clone() throws CloneNotSupportedException {
-		return (AuthorsDescriptor) super.clone();
+	public BookAuthorsDescriptor clone() throws CloneNotSupportedException {
+		return (BookAuthorsDescriptor) super.clone();
 	}
 
 	@Override
-	public RefreshMode onField(AuthorsDescriptor inst, Long id, String fieldName, Object oldValue, boolean beforeCommit) throws FlowException, LocalizationException {
+	public RefreshMode onField(BookAuthorsDescriptor inst, Long id, String fieldName, Object oldValue, boolean beforeCommit) throws FlowException, LocalizationException {
 		return RefreshMode.DEFAULT;
 	}
 
 	@Override
-	public RefreshMode onRecord(final RecordAction action, final AuthorsDescriptor oldRecord, final Long oldId, final AuthorsDescriptor newRecord, final Long newId) throws FlowException, LocalizationException {
+	public RefreshMode onRecord(final RecordAction action, final BookAuthorsDescriptor oldRecord, final Long oldId, final BookAuthorsDescriptor newRecord, final Long newId) throws FlowException, LocalizationException {
 		switch (action) {
 			case CHANGE		:
 				break;
@@ -52,8 +52,6 @@ public class AuthorsDescriptor implements Cloneable, FormManager<Long, AuthorsDe
 				break;
 			case INSERT		:
 				newRecord.id = newId;
-				newRecord.name = "New author";
-				newRecord.comment = "";
 				break;
 			default:
 				throw new UnsupportedOperationException("Action ["+action+"] is not supported yet");
@@ -75,6 +73,6 @@ public class AuthorsDescriptor implements Cloneable, FormManager<Long, AuthorsDe
 
 	@Override
 	public String toString() {
-		return "AuthorsDescriptor [name=" + name + ", comment=" + comment + "]";
+		return "BookAuthorsDescriptor [name=" + book + ", comment=" + author + "]";
 	}
 }

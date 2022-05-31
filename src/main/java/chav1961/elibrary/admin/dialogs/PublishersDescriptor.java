@@ -19,11 +19,11 @@ public class PublishersDescriptor implements Cloneable, FormManager<Long, Publis
 
 	@LocaleResource(value="elibrary.bookpublishers.bp_Name",tooltip="elibrary.bookpublishers.bp_Name.tt")
 	@Format("9.2msL")
-	public String	name;
+	public String	name= "";
 	
 	@LocaleResource(value="elibrary.bookpublishers.bp_Comment",tooltip="elibrary.bookpublishers.bp_Comment.tt")
 	@Format("9.2msl")
-	public String	comment;
+	public String	comment = "";
 	
 	public PublishersDescriptor(final LoggerFacade logger) {
 		this.logger = logger;
@@ -51,6 +51,9 @@ public class PublishersDescriptor implements Cloneable, FormManager<Long, Publis
 			case DUPLICATE	:
 				break;
 			case INSERT		:
+				newRecord.id = newId;
+				newRecord.name = "New publisher";
+				newRecord.comment = "";
 				break;
 			default:
 				throw new UnsupportedOperationException("Action ["+action+"] is not supported yet");

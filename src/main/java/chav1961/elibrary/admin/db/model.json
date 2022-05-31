@@ -37,7 +37,7 @@
 						 "tooltipId":"elibrary.bookseries.bs_Parent.tt",
 						 "appUri":"app:column:/elibrary.bookseries/bs_Parent?seq=2&type=BIGINT",
 						 "relUri":"bs_Parent",
-					 	 "format":"m"
+					 	 "format":""
 					},
 					 {"name":"bs_Name",
 						 "type":"java.lang.String",

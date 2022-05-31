@@ -62,26 +62,26 @@ public class PublishersDescriptorMgr implements InstanceManager<Long, Publishers
 
 	@Override
 	public void loadInstance(final ResultSet rs, final PublishersDescriptor inst) throws SQLException {
-		inst.id = rs.getLong("bs_Id");
-		inst.name = rs.getString("bs_Name");
-		inst.comment = rs.getString("bs_Comment");
+		inst.id = rs.getLong("bp_Id");
+		inst.name = rs.getString("bp_Name");
+		inst.comment = rs.getString("bp_Comment");
 	}
 
 	@Override
 	public void storeInstance(final ResultSet rs, final PublishersDescriptor inst, final boolean update) throws SQLException {
 		if (!update) {
-			rs.updateLong("bs_Id", inst.id);
+			rs.updateLong("bp_Id", inst.id);
 		}
-		rs.updateString("bs_Name", inst.name);
-		rs.updateString("bs_Comment", inst.comment);
+		rs.updateString("bp_Name", inst.name);
+		rs.updateString("bp_Comment", inst.comment);
 	}
 
 	@Override
 	public <T> T get(final PublishersDescriptor inst, final String name) throws SQLException {
 		switch (name) {
-			case "bs_Id" 		: return (T) Long.valueOf(inst.id);
-			case "bs_Name" 		: return (T) inst.name;
-			case "bs_Comment"	: return (T) inst.comment;
+			case "bp_Id" 		: return (T) Long.valueOf(inst.id);
+			case "bp_Name" 		: return (T) inst.name;
+			case "bp_Comment"	: return (T) inst.comment;
 			default : throw new SQLException("Name ["+name+"] is missing in the instance");
 		}
 	}
@@ -89,16 +89,17 @@ public class PublishersDescriptorMgr implements InstanceManager<Long, Publishers
 	@Override
 	public <T> InstanceManager<Long, PublishersDescriptor> set(final PublishersDescriptor inst, final String name, final T value) throws SQLException {
 			switch (name) {
-				case "bs_Id" 		: 
+				case "bp_Id" 		: 
 					inst.id = (Long)value;
 					break;
-				case "bs_Name" 		:
+				case "bp_Name" 		:
 					inst.name = (String)value;
 					break;
-				case "bs_Comment"	:
+				case "bp_Comment"	:
 					inst.comment = (String)value;
 					break;
-				default : throw new SQLException("Name ["+name+"] is missing in the instance");
+				default : 
+					throw new SQLException("Name ["+name+"] is missing in the instance");
 			}
 		return this;
 	}

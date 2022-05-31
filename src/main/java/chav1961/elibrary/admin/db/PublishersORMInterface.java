@@ -20,7 +20,7 @@ public class PublishersORMInterface implements ORMInterface<PublishersDescriptor
 	
 	public PublishersORMInterface(final LoggerFacade logger, final Connection conn, final UniqueIdGenerator gen) throws SQLException {
 		this.stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-		this.rs = stmt.executeQuery("select * from elibrary.bookseries order by \"bs_Id\"");
+		this.rs = stmt.executeQuery("select * from elibrary.bookpublishers order by \"bp_Id\"");
 		this.gen = gen;
 		this.mgr = new PublishersDescriptorMgr(logger, gen);
 		this.desc = new PublishersDescriptor(logger);

@@ -103,7 +103,8 @@ public class SeriesDescriptorMgr implements InstanceManager<Long, SeriesDescript
 				case "bs_Comment"	:
 					inst.seriesComment = (String)value;
 					break;
-				default : throw new SQLException("Name ["+name+"] is missing in the instance");
+				default : 
+					throw new SQLException("Name ["+name+"] is missing in the instance");
 			}
 		return this;
 	}

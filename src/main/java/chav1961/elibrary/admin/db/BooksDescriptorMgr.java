@@ -5,16 +5,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import chav1961.elibrary.admin.dialogs.AuthorsDescriptor;
+import chav1961.elibrary.admin.dialogs.BookDescriptor;
 import chav1961.elibrary.admin.dialogs.SeriesDescriptor;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.sql.interfaces.InstanceManager;
 import chav1961.purelib.sql.interfaces.UniqueIdGenerator;
 
-public class AuthorsDescriptorMgr implements InstanceManager<Long, AuthorsDescriptor> {
+public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor> {
 	private final LoggerFacade		logger;
 	private final UniqueIdGenerator	uig;
 	
-	public AuthorsDescriptorMgr(final LoggerFacade logger, final UniqueIdGenerator uig) {
+	public BooksDescriptorMgr(final LoggerFacade logger, final UniqueIdGenerator uig) {
 		this.logger = logger;
 		this.uig = uig;
 	}
@@ -35,8 +36,8 @@ public class AuthorsDescriptorMgr implements InstanceManager<Long, AuthorsDescri
 	}
 
 	@Override
-	public AuthorsDescriptor newInstance() throws SQLException {
-		return new AuthorsDescriptor(logger);
+	public BookDescriptor newInstance() throws SQLException {
+		return new BookDescriptor(logger);
 	}
 
 	@Override
@@ -45,13 +46,13 @@ public class AuthorsDescriptorMgr implements InstanceManager<Long, AuthorsDescri
 	}
 
 	@Override
-	public Long extractKey(final AuthorsDescriptor inst) throws SQLException {
+	public Long extractKey(final BookDescriptor inst) throws SQLException {
 		return inst.id;
 	}
 
 	@Override
-	public AuthorsDescriptor clone(final AuthorsDescriptor inst) throws SQLException {
-		try{final AuthorsDescriptor	clone = inst.clone();
+	public BookDescriptor clone(final BookDescriptor inst) throws SQLException {
+		try{final BookDescriptor	clone = inst.clone();
 
 			clone.id = uig.getId();
 			return clone;
@@ -61,43 +62,43 @@ public class AuthorsDescriptorMgr implements InstanceManager<Long, AuthorsDescri
 	}
 
 	@Override
-	public void loadInstance(final ResultSet rs, final AuthorsDescriptor inst) throws SQLException {
+	public void loadInstance(final ResultSet rs, final BookDescriptor inst) throws SQLException {
 		inst.id = rs.getLong("ba_Id");
-		inst.name = rs.getString("ba_Name");
-		inst.comment = rs.getString("ba_Comment");
+//		inst.name = rs.getString("ba_Name");
+//		inst.comment = rs.getString("ba_Comment");
 	}
 
 	@Override
-	public void storeInstance(final ResultSet rs, final AuthorsDescriptor inst, final boolean update) throws SQLException {
+	public void storeInstance(final ResultSet rs, final BookDescriptor inst, final boolean update) throws SQLException {
 		if (!update) {
 			rs.updateLong("ba_Id", inst.id);
 		}
-		rs.updateString("ba_Name", inst.name);
-		rs.updateString("ba_Comment", inst.comment);
+//		rs.updateString("ba_Name", inst.name);
+//		rs.updateString("ba_Comment", inst.comment);
 	}
 
 	@Override
-	public <T> T get(final AuthorsDescriptor inst, final String name) throws SQLException {
+	public <T> T get(final BookDescriptor inst, final String name) throws SQLException {
 		switch (name) {
 			case "ba_Id" 		: return (T) Long.valueOf(inst.id);
-			case "ba_Name" 		: return (T) inst.name;
-			case "ba_Comment"	: return (T) inst.comment;
+//			case "ba_Name" 		: return (T) inst.name;
+//			case "ba_Comment"	: return (T) inst.comment;
 			default : throw new SQLException("Name ["+name+"] is missing in the instance");
 		}
 	}
 
 	@Override
-	public <T> InstanceManager<Long, AuthorsDescriptor> set(final AuthorsDescriptor inst, final String name, final T value) throws SQLException {
+	public <T> InstanceManager<Long, BookDescriptor> set(final BookDescriptor inst, final String name, final T value) throws SQLException {
 		switch (name) {
 			case "ba_Id" 		: 
 				inst.id = (Long)value;
 				break;
-			case "ba_Name" 		:
-				inst.name = (String)value;
-				break;
-			case "ba_Comment"	:
-				inst.comment = (String)value;
-				break;
+//			case "ba_Name" 		:
+//				inst.name = (String)value;
+//				break;
+//			case "ba_Comment"	:
+//				inst.comment = (String)value;
+//				break;
 			default :
 				throw new SQLException("Name ["+name+"] is missing in the instance");
 		}
@@ -109,7 +110,7 @@ public class AuthorsDescriptorMgr implements InstanceManager<Long, AuthorsDescri
 	}
 
 	@Override
-	public void storeInstance(PreparedStatement ps, AuthorsDescriptor inst, boolean update) throws SQLException {
+	public void storeInstance(PreparedStatement ps, BookDescriptor inst, boolean update) throws SQLException {
 		// TODO Auto-generated method stub
 		
 	}

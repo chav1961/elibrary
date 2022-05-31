@@ -410,7 +410,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 	private <T> boolean ask(final T instance, final int width, final int height) {
 		try{final ContentMetadataInterface	mdi = ContentModelFactory.forAnnotatedClass(instance.getClass());
 		
-			try(final AutoBuiltForm<T>		abf = new AutoBuiltForm<T>(mdi, localizer, PureLibSettings.INTERNAL_LOADER, instance, (FormManager<Object,T>)instance)) {
+			try(final AutoBuiltForm<T,?>	abf = new AutoBuiltForm<>(mdi, localizer, PureLibSettings.INTERNAL_LOADER, instance, (FormManager<Object,T>)instance)) {
 				
 				((ModuleAccessor)instance).allowUnnamedModuleAccess(abf.getUnnamedModules());
 				abf.setPreferredSize(new Dimension(width,height));
