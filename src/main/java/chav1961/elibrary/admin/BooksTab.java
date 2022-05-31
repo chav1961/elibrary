@@ -69,7 +69,7 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 			this.meta = meta;
 			this.orms = orms;
 	
-			final BooksORMInterface		boi = (BooksORMInterface) orms.get(BooksORMInterface.class);
+			final BooksORMInterface		boi = (BooksORMInterface) orms.get(BookDescriptor.class);
 			
 			this.books = new JDataBaseTableWithMeta<Long, BookDescriptor>(meta.byApplicationPath(URI.create(URI_BOOKS))[0], localizer);
 			this.books.assignResultSetAndManagers(boi.getResultSet(), boi.getFormManager(), boi.getInstanceManager());

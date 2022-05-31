@@ -36,11 +36,13 @@ import javax.swing.JTabbedPane;
 
 import chav1961.elibrary.Application;
 import chav1961.elibrary.admin.db.AuthorsORMInterface;
+import chav1961.elibrary.admin.db.BooksORMInterface;
 import chav1961.elibrary.admin.db.ORMInterface;
 import chav1961.elibrary.admin.db.PublishersORMInterface;
 import chav1961.elibrary.admin.db.SeriesORMInterface;
 import chav1961.elibrary.admin.dialogs.AskPassword;
 import chav1961.elibrary.admin.dialogs.AuthorsDescriptor;
+import chav1961.elibrary.admin.dialogs.BookDescriptor;
 import chav1961.elibrary.admin.dialogs.PublishersDescriptor;
 import chav1961.elibrary.admin.dialogs.SeriesDescriptor;
 import chav1961.elibrary.admin.dialogs.Settings;
@@ -104,6 +106,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 	public static final String		MSG_JDBC_DRIVER_NOT_SET = "console.msg.jdbc.driver.not.set";
 	
 	public static final String		TAB_NSI = "console.tab.nsi";
+	public static final String		TAB_BOOKS = "console.tab.books";
 	
 	private final ContentMetadataInterface		mdi;
 	private final Localizer						localizer;
@@ -256,6 +259,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 				orms.put(SeriesDescriptor.class, new SeriesORMInterface(getLogger(), conn, ()->getUnique()));
 				orms.put(AuthorsDescriptor.class, new AuthorsORMInterface(getLogger(), conn, ()->getUnique()));
 				orms.put(PublishersDescriptor.class, new PublishersORMInterface(getLogger(), conn, ()->getUnique()));
+				orms.put(BookDescriptor.class, new BooksORMInterface(getLogger(), conn, ()->getUnique()));
 				
 				((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.connect")).setEnabled(false);
 				((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.disconnect")).setEnabled(true);
@@ -300,6 +304,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 				orms.remove(SeriesDescriptor.class).close();
 				orms.remove(AuthorsDescriptor.class).close();
 				orms.remove(PublishersDescriptor.class).close();
+				orms.remove(BookDescriptor.class).close();
 				conn.close();
 			} catch (SQLException e) {
 			} finally {
@@ -323,6 +328,12 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 		JCloseableTab.placeComponentIntoTab(content, TAB_NSI, tab, new JCloseableTab(localizer, TAB_NSI));
 	}
 	
+	@OnAction("action:/main.file.books")
+	private void showBooks() throws ContentException, SQLException {
+		final BooksTab	tab = new BooksTab(localizer, state, dbModel, orms);
+		
+		JCloseableTab.placeComponentIntoTab(content, TAB_BOOKS, tab, new JCloseableTab(localizer, TAB_BOOKS));
+	}
 	
 	@OnAction("action:/main.file.quit")
 	private void exitApplication() {

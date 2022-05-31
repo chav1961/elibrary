@@ -13,6 +13,7 @@
 			<app:item name="menu.main.file.disconnect" caption="menu.main.file.disconnect" tooltip="menu.main.file.disconnect.tt" action="main.file.disconnect"/>
 			<app:separator/>
 			<app:item name="menu.main.file.nsi" caption="menu.main.file.nsi" tooltip="menu.main.file.nsi.tt" action="main.file.nsi"/>
+			<app:item name="menu.main.file.books" caption="menu.main.file.books" tooltip="menu.main.file.books.tt" action="main.file.books"/>
 			<app:separator/>
 			<app:item name="menu.main.file.quit" caption="menu.main.file.quit" tooltip="menu.main.file.quit.tt" action="main.file.quit"/>
 		</app:submenu>

@@ -10,6 +10,7 @@ import chav1961.purelib.i18n.interfaces.LocaleResource;
 import chav1961.purelib.i18n.interfaces.LocaleResourceLocation;
 import chav1961.purelib.ui.interfaces.FormManager;
 import chav1961.purelib.ui.interfaces.Format;
+import chav1961.purelib.ui.interfaces.ReferenceAndComment;
 import chav1961.purelib.ui.interfaces.RefreshMode;
 
 @LocaleResourceLocation("i18n:xml:root://chav1961.elibrary.admin.dialogs.BookDescriptor/chav1961/elibrary/i18n/i18n.xml")
@@ -39,9 +40,9 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 	@Format("9.2msL")
 	public long			publisher;
 	
-	@LocaleResource(value="elibrary.booklist.ba_Name",tooltip="elibrary.booklist.ba_Name.tt")
-	@Format("9.2msL")
-	public String[]		authors;
+//	@LocaleResource(value="elibrary.booklist.ba_Name",tooltip="elibrary.booklist.ba_Name.tt")
+//	@Format("9.2msL")
+//	public ReferenceAndComment[]	authors;
 
 	@LocaleResource(value="elibrary.booklist.bl_Comment",tooltip="elibrary.booklist.bl_Comment.tt")
 	@Format("9.2msL")
@@ -49,7 +50,7 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 
 	@LocaleResource(value="elibrary.booklist.bl_Tags",tooltip="elibrary.booklist.bl_Tags.tt")
 	@Format("9.2msL")
-	public String[]		tags;
+	public ReferenceAndComment[]	tags;
 
 	@LocaleResource(value="elibrary.booklist.bl_Image",tooltip="elibrary.booklist.bl_Image.tt")
 	@Format("9.2msL")

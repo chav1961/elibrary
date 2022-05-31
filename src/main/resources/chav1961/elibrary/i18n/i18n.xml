@@ -27,6 +27,7 @@
 		<key name="messagebox.confirm.upgrade">Database structure is deprecated. Upgrade it?</key>
 
 		<key name="console.tab.nsi">References</key>
+		<key name="console.tab.books">Books</key>
 
 		<key name="console.msg.ready">Ready to work</key>
 		<key name="console.msg.connected">Connection established</key>
@@ -42,8 +43,8 @@
 		<key name="menu.main.file.disconnect.tt">Disconnect form database</key>
 		<key name="menu.main.file.nsi">References</key>
 		<key name="menu.main.file.nsi.tt">Support references info</key>
-		<key name="menu.main.file.nsi.series">Book series</key>
-		<key name="menu.main.file.nsi.series.tt">Book series list</key>
+		<key name="menu.main.file.books">Books</key>
+		<key name="menu.main.file.books.tt">Books list</key>
 		<key name="menu.main.file.quit">Quit</key>
 		<key name="menu.main.file.quit.tt">Quit admin console</key>
 		
@@ -178,8 +179,8 @@
 		<key name="console.msg.disconnected">Соединение закрыто</key>
 		<key name="console.msg.jdbc.driver.not.set">Местоположение JDBC дравера не задано. Войдите в 'Инструменты'->'Настройки' и задайте его</key>
 		
-		
 		<key name="console.tab.nsi">Справочники</key>
+		<key name="console.tab.books">Список</key>
 
 <!-- Локализация меню иконки --> 
 		<key name="tray.show">Показать админ.консоль</key>
@@ -198,8 +199,8 @@
 		<key name="menu.main.file.disconnect.tt">Отсоединиться от базы данных</key>
 		<key name="menu.main.file.nsi">Справочники</key>
 		<key name="menu.main.file.nsi.tt">Ведение справочнной информации</key>
-		<key name="menu.main.file.nsi.series">Серии книг</key>
-		<key name="menu.main.file.nsi.series.tt">Справочник серий книг</key>
+		<key name="menu.main.file.books">Список</key>
+		<key name="menu.main.file.books.tt">Ведение списка</key>
 		<key name="menu.main.file.quit">Закрыть консоль</key>
 		<key name="menu.main.file.quit.tt">Завершить работу консоли администратора</key>
 		
@@ -288,20 +289,20 @@
 		<key name="elibrary.booklist.bl_Id.tt"></key>
 		<key name="elibrary.booklist.bl_Code"></key>
 		<key name="elibrary.booklist.bl_Code.tt"></key>
-		<key name="elibrary.booklist.bs_Id"></key>
-		<key name="elibrary.booklist.bs_Id.tt"></key>
-		<key name="elibrary.booklist.bl_Title"></key>
-		<key name="elibrary.booklist.bl_Title.tt"></key>
-		<key name="elibrary.booklist.bl_Year"></key>
-		<key name="elibrary.booklist.bl_Year.tt"></key>
-		<key name="elibrary.booklist.bp_Id"></key>
-		<key name="elibrary.booklist.bp_Id.tt"></key>
-		<key name="elibrary.booklist.bl_Comment"></key>
-		<key name="elibrary.booklist.bl_Comment.tt"></key>
-		<key name="elibrary.booklist.bl_Tags"></key>
-		<key name="elibrary.booklist.bl_Tags.tt"></key>
-		<key name="elibrary.booklist.bl_Image"></key>
-		<key name="elibrary.booklist.bl_Image.tt"></key>
+		<key name="elibrary.booklist.bs_Id">Серия</key>
+		<key name="elibrary.booklist.bs_Id.tt">Серия</key>
+		<key name="elibrary.booklist.bl_Title">Название</key>
+		<key name="elibrary.booklist.bl_Title.tt">Название</key>
+		<key name="elibrary.booklist.bl_Year">Год издания</key>
+		<key name="elibrary.booklist.bl_Year.tt">Год издания</key>
+		<key name="elibrary.booklist.bp_Id">Издательство</key>
+		<key name="elibrary.booklist.bp_Id.tt">Издательство</key>
+		<key name="elibrary.booklist.bl_Comment">Аннотация</key>
+		<key name="elibrary.booklist.bl_Comment.tt">Аннотация</key>
+		<key name="elibrary.booklist.bl_Tags">Теги</key>
+		<key name="elibrary.booklist.bl_Tags.tt">Теги</key>
+		<key name="elibrary.booklist.bl_Image">Обложка</key>
+		<key name="elibrary.booklist.bl_Image.tt">Обложка</key>
 
 		<key name="elibrary.book2authors"></key>
 		<key name="elibrary.book2authors.tt"></key>
