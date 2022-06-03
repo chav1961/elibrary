@@ -25,9 +25,11 @@ import chav1961.purelib.basic.Utils;
 import chav1961.purelib.basic.exceptions.CommandLineParametersException;
 import chav1961.purelib.basic.exceptions.ContentException;
 import chav1961.purelib.basic.exceptions.EnvironmentException;
+import chav1961.purelib.basic.exceptions.PreparationException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
 import chav1961.purelib.basic.interfaces.LoggerFacadeOwner;
+import chav1961.purelib.fsys.interfaces.FileSystemInterface;
 import chav1961.purelib.i18n.LocalizerFactory;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
@@ -48,7 +50,7 @@ public class Application implements Closeable, LoggerFacadeOwner {
 	public static final String	APP_NOTE_STARTED = "application.note.started";
 	public static final String	HELP_TITLE = "application.help.title";
 	public static final String	HELP_CONTENT = "application.help.content";
-
+	
 	private final ContentMetadataInterface	xda;
 	private final Localizer					localizer;
 	private final File						propFileLocation;
@@ -168,7 +170,7 @@ public class Application implements Closeable, LoggerFacadeOwner {
 		try{final ArgParser						parser = new ApplicationArgParser().parse(args);
 			final SubstitutableProperties		props = new SubstitutableProperties(Utils.mkProps(
 													 NanoServiceFactory.NANOSERVICE_PORT, parser.getValue(ARG_HELP_PORT,String.class)
-													,NanoServiceFactory.NANOSERVICE_ROOT, "fsys:xmlReadOnly:root://chav1961.elibrary.Application/chav1961/elibrary/helptree.xml"
+													,NanoServiceFactory.NANOSERVICE_ROOT, FileSystemInterface.FILESYSTEM_URI_SCHEME+":xmlReadOnly:root://chav1961.elibrary.Application/chav1961/elibrary/helptree.xml"
 													,NanoServiceFactory.NANOSERVICE_CREOLE_PROLOGUE_URI, Application.class.getResource("prolog.cre").toString() 
 													,NanoServiceFactory.NANOSERVICE_CREOLE_EPILOGUE_URI, Application.class.getResource("epilog.cre").toString() 
 												));
