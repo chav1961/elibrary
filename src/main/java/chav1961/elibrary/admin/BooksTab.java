@@ -1,5 +1,7 @@
 package chav1961.elibrary.admin;
 
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
@@ -11,6 +13,7 @@ import java.util.Map;
 
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -88,6 +91,11 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 			
 			setLeftComponent(this.booksScroll);
 			setRightComponent(this.form);
+
+			final Dimension dim = books.getPreferredScrollableViewportSize();
+			dim.height += 20;
+			books.setPreferredScrollableViewportSize(dim);
+			books.setPreferredSize(dim);
 		}
 	}
 	

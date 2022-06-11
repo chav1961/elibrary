@@ -163,7 +163,7 @@
 						 "tooltipId":"elibrary.booklist.bl_Title.tt",
 						 "appUri":"app:column:/elibrary.booklist/bl_Title?seq=4&type=TEXT",
 						 "relUri":"bl_Name",
-					 	 "format":"m"
+					 	 "format":"mL"
 					},
 					 {"name":"bl_Year",
 						 "type":"int",
@@ -187,7 +187,7 @@
 						 "tooltipId":"elibrary.booklist.bl_Comment.tt",
 						 "appUri":"app:column:/elibrary.booklist/bl_Comment?seq=7&type=TEXT",
 						 "relUri":"bl_Comment",
-					 	 "format":""
+					 	 "format":"l"
 					},
 					 {"name":"bl_Tags",
 						 "type":"java.lang.String",

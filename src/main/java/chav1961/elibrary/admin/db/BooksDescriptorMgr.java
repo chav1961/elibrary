@@ -1,22 +1,41 @@
 package chav1961.elibrary.admin.db;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.net.URI;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
-import chav1961.elibrary.admin.dialogs.AuthorsDescriptor;
 import chav1961.elibrary.admin.dialogs.BookDescriptor;
 import chav1961.elibrary.admin.dialogs.SeriesDescriptor;
+import chav1961.purelib.basic.exceptions.FlowException;
+import chav1961.purelib.basic.exceptions.LocalizationException;
+import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.sql.interfaces.InstanceManager;
 import chav1961.purelib.sql.interfaces.UniqueIdGenerator;
+import chav1961.purelib.streams.JsonStaxParser;
+import chav1961.purelib.streams.JsonStaxPrinter;
+import chav1961.purelib.streams.interfaces.JsonStaxParserLexType;
+import chav1961.purelib.ui.interfaces.ReferenceAndComment;
+import chav1961.purelib.ui.interfaces.RecordFormManager.RecordAction;
 
 public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor> {
+	private static final ReferenceAndComment[]					EMPTY_TAGS = new ReferenceAndComment[0];
+	
 	private final LoggerFacade		logger;
+	private final BookDescriptor	desc;
 	private final UniqueIdGenerator	uig;
 	
-	public BooksDescriptorMgr(final LoggerFacade logger, final UniqueIdGenerator uig) {
+	public BooksDescriptorMgr(final LoggerFacade logger, final BookDescriptor desc, final UniqueIdGenerator uig) {
 		this.logger = logger;
+		this.desc = desc;
 		this.uig = uig;
 	}
 	
@@ -37,7 +56,11 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 
 	@Override
 	public BookDescriptor newInstance() throws SQLException {
-		return new BookDescriptor(logger);
+		try{desc.onRecord(RecordAction.INSERT, null, null, desc, newKey());
+			return desc;
+		} catch (FlowException e) {
+			throw new SQLException(e.getLocalizedMessage(), e);
+		}
 	}
 
 	@Override
@@ -54,7 +77,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	public BookDescriptor clone(final BookDescriptor inst) throws SQLException {
 		try{final BookDescriptor	clone = inst.clone();
 
-			clone.id = uig.getId();
+			clone.id = newKey();
 			return clone;
 		} catch (CloneNotSupportedException e) {
 			throw new SQLException(e.getLocalizedMessage(), e);
@@ -63,26 +86,49 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 
 	@Override
 	public void loadInstance(final ResultSet rs, final BookDescriptor inst) throws SQLException {
-		inst.id = rs.getLong("ba_Id");
-//		inst.name = rs.getString("ba_Name");
-//		inst.comment = rs.getString("ba_Comment");
+		inst.id = rs.getLong("bs_Id");
+		inst.code  = rs.getInt("bl_Code");
+		inst.seriesNumber  = rs.getLong("bs_Id");
+		inst.title = rs.getString("bl_Title");
+		inst.year = rs.getInt("bl_Year");
+		inst.publisher = rs.getLong("bp_Id");
+		inst.annotation = rs.getString("bl_Comment");
+		inst.tags = fromString(rs.getString("bl_Tags"));
+		inst.image = null; 
 	}
 
 	@Override
 	public void storeInstance(final ResultSet rs, final BookDescriptor inst, final boolean update) throws SQLException {
 		if (!update) {
-			rs.updateLong("ba_Id", inst.id);
+			rs.updateLong("bl_Id", inst.id);
 		}
-//		rs.updateString("ba_Name", inst.name);
-//		rs.updateString("ba_Comment", inst.comment);
+		rs.updateInt("bl_code", inst.code);
+		rs.updateLong("bs_Id", inst.seriesNumber);
+		rs.updateString("bl_Title", inst.title);
+		rs.updateInt("bl_Year", inst.year);
+		rs.updateLong("bp_Id", inst.publisher);
+		rs.updateString("bl_Comment", inst.annotation);
+		rs.updateString("bl_Tags", toString(inst.tags));
+		if (inst.image != null) {
+			rs.updateObject("bl_Image", inst.image);
+		}
+		else {
+			rs.updateNull("bl_Image");
+		}
 	}
 
 	@Override
 	public <T> T get(final BookDescriptor inst, final String name) throws SQLException {
 		switch (name) {
-			case "ba_Id" 		: return (T) Long.valueOf(inst.id);
-//			case "ba_Name" 		: return (T) inst.name;
-//			case "ba_Comment"	: return (T) inst.comment;
+			case "bl_Id" 		: return (T) Long.valueOf(inst.id);
+			case "bl_Code" 		: return (T) Integer.valueOf(inst.code);
+			case "bs_Id" 		: return (T) Long.valueOf(inst.seriesNumber);
+			case "bl_Title"		: return (T) inst.title;
+			case "bl_Year" 		: return (T) Integer.valueOf(inst.year);
+			case "bp_Id" 		: return (T) Long.valueOf(inst.publisher);
+			case "bl_Comment"	: return (T) inst.annotation;
+			case "bl_Tags" 		: return (T) inst.tags;
+			case "bl_Image" 	: return (T) inst.image;
 			default : throw new SQLException("Name ["+name+"] is missing in the instance");
 		}
 	}
@@ -111,7 +157,69 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 
 	@Override
 	public void storeInstance(PreparedStatement ps, BookDescriptor inst, boolean update) throws SQLException {
-		// TODO Auto-generated method stub
-		
+		throw new UnsupportedOperationException("This method is not implemented yet"); 
+	}
+
+	private static String toString(final ReferenceAndComment[] tags) throws SQLException {
+		try(final Writer			wr = new StringWriter();
+			final JsonStaxPrinter	prn = new JsonStaxPrinter(wr)) {
+			boolean		theSameFirst = true;
+			
+			prn.startArray();
+			for (ReferenceAndComment item : tags) {
+				if(!theSameFirst) {
+					prn.splitter();
+					prn.startObject().name("ref").value(item.getReference().toASCIIString())
+						.name("comment").value(item.getComment()).endObject();
+				}
+				theSameFirst = false;
+			}
+			prn.endArray();
+			return wr.toString();
+		} catch (IOException e) {
+			throw new SQLException(e.getLocalizedMessage(), e);
+		}
+	}
+
+	private static ReferenceAndComment[] fromString(final String string) throws SQLException {
+		try(final Reader			rdr = new StringReader(string);
+			final JsonStaxParser	parser = new JsonStaxParser(rdr)) {
+			final List<ReferenceAndComment>	result = new ArrayList<>();
+			
+			String					forName = "", forUri = "", forComment = "";
+
+loop:		for(JsonStaxParserLexType item : parser) {
+				switch (item) {
+					case START_ARRAY : case START_OBJECT : case LIST_SPLITTER : case NAME_SPLITTER :
+						break;
+					case NAME			:
+						forName = parser.name();
+						break;
+					case STRING_VALUE	:
+						switch (forName) {
+							case "ref" 		:
+								forUri = parser.stringValue();
+								break;
+							case "comment"	:
+								forComment = parser.stringValue();
+								break;
+							default :
+								throw new IOException(new SyntaxException(parser.row(), parser.col(), "Unsupported field name ["+forName+"]"));
+						}
+						break;
+					case END_OBJECT		:
+						result.add(ReferenceAndComment.of(URI.create(forUri), forComment));
+						forUri = forComment = "";
+						break;
+					case END_ARRAY		:
+						break loop;
+					default:
+						throw new IOException(new SyntaxException(parser.row(), parser.col(), "Unwaited lexema"));
+				}
+			}
+			return result.toArray(new ReferenceAndComment[result.size()]); 
+		} catch (IOException e) {
+			throw new SQLException(e.getLocalizedMessage(), e);
+		}
 	}
 }

@@ -99,7 +99,6 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 	public static final String		MESSAGEBOX_CONFIRM_CREATION = "messagebox.confirm.creation";
 	public static final String		MESSAGEBOX_CONFIRM_UPGRADE = "messagebox.confirm.upgrade";
 	
-	
 	public static final String		MSG_READY = "console.msg.ready";
 	public static final String		MSG_CONNECTED = "console.msg.connected";
 	public static final String		MSG_DISCONNECTED = "console.msg.disconnected";
@@ -458,6 +457,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.connect")).setEnabled(false);
 		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.disconnect")).setEnabled(true);
 		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.nsi")).setEnabled(true);
+		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.books")).setEnabled(true);
 		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.tools.database")).setEnabled(true);
 	}
 
@@ -465,6 +465,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.connect")).setEnabled(true);
 		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.disconnect")).setEnabled(false);
 		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.nsi")).setEnabled(false);
+		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.books")).setEnabled(false);
 		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.tools.database")).setEnabled(false);
 	}
 }

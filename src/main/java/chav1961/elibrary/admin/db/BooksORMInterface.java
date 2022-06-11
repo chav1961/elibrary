@@ -15,16 +15,14 @@ import chav1961.purelib.ui.interfaces.FormManager;
 public class BooksORMInterface implements ORMInterface<BookDescriptor, BooksDescriptorMgr> {
 	private final Statement				stmt;
 	private final ResultSet				rs;
-	private final UniqueIdGenerator		gen;
 	private final BooksDescriptorMgr	mgr;
 	private final BookDescriptor		desc;
 	
 	public BooksORMInterface(final LoggerFacade logger, final Connection conn, final UniqueIdGenerator gen) throws SQLException {
 		this.stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 		this.rs = stmt.executeQuery("select * from elibrary.booklist order by \"bl_Id\"");
-		this.gen = gen;
-		this.mgr = new BooksDescriptorMgr(logger, gen);
 		this.desc = new BookDescriptor(logger);
+		this.mgr = new BooksDescriptorMgr(logger, this.desc, gen);
 	}
 	
 	@Override
