@@ -7,10 +7,12 @@ import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.net.URI;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.border.LineBorder;
@@ -75,12 +77,15 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 			final BooksORMInterface		boi = (BooksORMInterface) orms.get(BookDescriptor.class);
 			
 			this.books = new JDataBaseTableWithMeta<Long, BookDescriptor>(meta.byApplicationPath(URI.create(URI_BOOKS))[0], localizer);
+			SwingUtils.assignActionKey(this.books, SwingUtils.KS_ACCEPT, (e)->edit(boi, this.books.getSelectedRow(), (BookDescriptor)boi.getFormManager()), SwingUtils.ACTION_ACCEPT);
+			
 			this.books.assignResultSetAndManagers(boi.getResultSet(), boi.getFormManager(), boi.getInstanceManager());
 			this.booksScroll = new JCloseableScrollPane(this.books);
 			assignResizer(this.booksScroll, this.books);
 			assignFocusManager(this.booksScroll, this.books);
 			
 			this.form = new AutoBuiltForm<BookDescriptor,Long>(ContentModelFactory.forAnnotatedClass(BookDescriptor.class), localizer, PureLibSettings.INTERNAL_LOADER, (BookDescriptor)boi.getFormManager(), boi.getFormManager());
+			SwingUtils.assignActionKey(this.form, JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, SwingUtils.KS_SOFT_EXIT, (e)->save(boi, (BookDescriptor)boi.getFormManager(), this.books.getSelectedRow()), SwingUtils.ACTION_SOFT_EXIT);
 			this.books.getSelectionModel().addListSelectionListener((e)->{
 				try {
 					SwingUtils.putToScreen(this.form.getContentModel().getRoot(), (BookDescriptor)boi.getFormManager(), this.form);
@@ -99,10 +104,13 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 		}
 	}
 	
+
 	@Override
-	public void localeChanged(Locale oldLocale, Locale newLocale) throws LocalizationException {
+	public void localeChanged(final Locale oldLocale, final Locale newLocale) throws LocalizationException {
 		// TODO Auto-generated method stub
 		fillLocalizedStrings();
+		SwingUtils.refreshLocale(books, oldLocale, newLocale);
+		SwingUtils.refreshLocale(form, oldLocale, newLocale);
 	}
 
 	@Override
@@ -151,6 +159,28 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 				fillLocalizedStrings();
 			}
 		});
+	}
+
+	private void edit(final BooksORMInterface boi, final int selectedRow, final BookDescriptor desc) {
+		final ResultSet	rs = boi.getResultSet();
+		
+		try{rs.absolute(selectedRow + 1);
+			boi.getInstanceManager().loadInstance(rs, desc);
+			form.requestFocusInWindow();
+		} catch (SQLException e) {
+			getLogger().message(Severity.error, e, e.getLocalizedMessage());
+		}
+	}
+
+	private void save(final BooksORMInterface boi, final BookDescriptor desc, final int selectedRow) {
+		final ResultSet	rs = boi.getResultSet();
+		
+		try{rs.absolute(selectedRow + 1);
+			boi.getInstanceManager().storeInstance(rs, desc, true);
+			books.requestFocusInWindow();
+		} catch (SQLException e) {
+			getLogger().message(Severity.error, e, e.getLocalizedMessage());
+		}
 	}
 	
 	private void fillLocalizedStrings() {
