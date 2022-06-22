@@ -12,8 +12,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import chav1961.elibrary.admin.dialogs.BookDescriptor;
-import chav1961.elibrary.admin.dialogs.SeriesDescriptor;
+import chav1961.elibrary.admin.entities.BookDescriptor;
+import chav1961.elibrary.admin.entities.SeriesDescriptor;
 import chav1961.purelib.basic.exceptions.FlowException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
 import chav1961.purelib.basic.exceptions.SyntaxException;
@@ -99,9 +99,6 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 
 	@Override
 	public void storeInstance(final ResultSet rs, final BookDescriptor inst, final boolean update) throws SQLException {
-		if (!update) {
-			rs.updateLong("bl_Id", inst.id);
-		}
 		rs.updateInt("bl_code", inst.code);
 		rs.updateLong("bs_Id", inst.seriesNumber);
 		rs.updateString("bl_Title", inst.title);
@@ -114,6 +111,9 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		}
 		else {
 			rs.updateNull("bl_Image");
+		}
+		if (!update) {
+			rs.updateLong("bl_Id", inst.id);
 		}
 	}
 

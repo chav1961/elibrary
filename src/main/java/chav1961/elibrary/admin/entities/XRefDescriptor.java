@@ -1,4 +1,4 @@
-package chav1961.elibrary.admin.dialogs;
+package chav1961.elibrary.admin.entities;
 
 import java.awt.Image;
 import java.net.URI;

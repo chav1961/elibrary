@@ -17,7 +17,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import chav1961.elibrary.admin.AdminConsole;
-import chav1961.elibrary.admin.dialogs.Settings;
+import chav1961.elibrary.admin.entities.Settings;
 import chav1961.purelib.basic.ArgParser;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SubstitutableProperties;

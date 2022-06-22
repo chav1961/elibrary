@@ -4,8 +4,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import chav1961.elibrary.admin.dialogs.AuthorsDescriptor;
-import chav1961.elibrary.admin.dialogs.SeriesDescriptor;
+import chav1961.elibrary.admin.entities.AuthorsDescriptor;
+import chav1961.elibrary.admin.entities.SeriesDescriptor;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.sql.interfaces.InstanceManager;
 import chav1961.purelib.sql.interfaces.UniqueIdGenerator;
@@ -69,11 +69,11 @@ public class AuthorsDescriptorMgr implements InstanceManager<Long, AuthorsDescri
 
 	@Override
 	public void storeInstance(final ResultSet rs, final AuthorsDescriptor inst, final boolean update) throws SQLException {
+		rs.updateString("ba_Name", inst.name);
+		rs.updateString("ba_Comment", inst.comment);
 		if (!update) {
 			rs.updateLong("ba_Id", inst.id);
 		}
-		rs.updateString("ba_Name", inst.name);
-		rs.updateString("ba_Comment", inst.comment);
 	}
 
 	@Override

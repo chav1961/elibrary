@@ -5,8 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import chav1961.elibrary.admin.dialogs.PublishersDescriptor;
-import chav1961.elibrary.admin.dialogs.SeriesDescriptor;
+import chav1961.elibrary.admin.entities.PublishersDescriptor;
+import chav1961.elibrary.admin.entities.SeriesDescriptor;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.sql.interfaces.UniqueIdGenerator;
 import chav1961.purelib.ui.interfaces.FormManager;

@@ -4,7 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import chav1961.elibrary.admin.dialogs.SeriesDescriptor;
+import chav1961.elibrary.admin.entities.SeriesDescriptor;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.sql.interfaces.InstanceManager;
 import chav1961.purelib.sql.interfaces.UniqueIdGenerator;
@@ -69,12 +69,12 @@ public class SeriesDescriptorMgr implements InstanceManager<Long, SeriesDescript
 
 	@Override
 	public void storeInstance(final ResultSet rs, final SeriesDescriptor inst, final boolean update) throws SQLException {
-		if (!update) {
-			rs.updateLong("bs_Id", inst.id);
-		}
 		rs.updateLong("bs_Parent", inst.parent);
 		rs.updateString("bs_Name", inst.seriesName);
 		rs.updateString("bs_Comment", inst.seriesComment);
+		if (!update) {
+			rs.updateLong("bs_Id", inst.id);
+		}
 	}
 
 	@Override

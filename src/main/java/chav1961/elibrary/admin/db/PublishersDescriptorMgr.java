@@ -4,8 +4,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import chav1961.elibrary.admin.dialogs.PublishersDescriptor;
-import chav1961.elibrary.admin.dialogs.SeriesDescriptor;
+import chav1961.elibrary.admin.entities.PublishersDescriptor;
+import chav1961.elibrary.admin.entities.SeriesDescriptor;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.sql.interfaces.InstanceManager;
 import chav1961.purelib.sql.interfaces.UniqueIdGenerator;
@@ -69,11 +69,11 @@ public class PublishersDescriptorMgr implements InstanceManager<Long, Publishers
 
 	@Override
 	public void storeInstance(final ResultSet rs, final PublishersDescriptor inst, final boolean update) throws SQLException {
+		rs.updateString("bp_Name", inst.name);
+		rs.updateString("bp_Comment", inst.comment);
 		if (!update) {
 			rs.updateLong("bp_Id", inst.id);
 		}
-		rs.updateString("bp_Name", inst.name);
-		rs.updateString("bp_Comment", inst.comment);
 	}
 
 	@Override
