@@ -2,21 +2,25 @@ package chav1961.elibrary.admin.entities;
 
 import java.awt.Image;
 
+import javax.naming.NamingException;
+
 import chav1961.purelib.basic.exceptions.FlowException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.ModuleAccessor;
 import chav1961.purelib.i18n.interfaces.LocaleResource;
 import chav1961.purelib.i18n.interfaces.LocaleResourceLocation;
+import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 import chav1961.purelib.ui.interfaces.FormManager;
 import chav1961.purelib.ui.interfaces.Format;
 import chav1961.purelib.ui.interfaces.ReferenceAndComment;
 import chav1961.purelib.ui.interfaces.RefreshMode;
 
-@LocaleResourceLocation("i18n:xml:root://chav1961.elibrary.admin.dialogs.BookDescriptor/chav1961/elibrary/i18n/i18n.xml")
+@LocaleResourceLocation("i18n:xml:root://chav1961.elibrary.admin.entities.BookDescriptor/chav1961/elibrary/i18n/i18n.xml")
 @LocaleResource(value="elibrary.booklist",tooltip="elibrary.booklist.tt",help="help.aboutApplication")
 public class BookDescriptor implements Cloneable, FormManager<Long, BookDescriptor>, ModuleAccessor {
-	private final LoggerFacade	logger;
+	private final LoggerFacade			logger;
+	private final ContentNodeMetadata	metadata;
 
 	public long			id;
 	
@@ -26,7 +30,7 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 
 	@LocaleResource(value="elibrary.booklist.bs_Id",tooltip="elibrary.booklist.bs_Id.tt")
 	@Format("9.2ms")
-	public long			seriesNumber;
+	public AnyRefDescriptor	seriesNumber;
 
 	@LocaleResource(value="elibrary.booklist.bl_Title",tooltip="elibrary.booklist.bl_Title.tt")
 	@Format("9.2msL")
@@ -57,8 +61,10 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 	public Image		image;
 
 	
-	public BookDescriptor(final LoggerFacade logger) {
+	public BookDescriptor(final LoggerFacade logger, final ContentNodeMetadata root) throws NamingException {
 		this.logger = logger;
+		this.metadata = root;
+		this.seriesNumber = new AnyRefDescriptor(root.getChild("bs_Id"));
 	}
 
 	@Override

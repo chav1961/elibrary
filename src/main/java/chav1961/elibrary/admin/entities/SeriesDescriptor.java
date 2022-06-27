@@ -11,7 +11,7 @@ import chav1961.purelib.ui.interfaces.FormManager;
 import chav1961.purelib.ui.interfaces.Format;
 import chav1961.purelib.ui.interfaces.RefreshMode;
 
-@LocaleResourceLocation("i18n:xml:root://chav1961.elibrary.admin.dialogs.SeriesDescriptor/chav1961/elibrary/i18n/i18n.xml")
+@LocaleResourceLocation("i18n:xml:root://chav1961.elibrary.admin.entities.SeriesDescriptor/chav1961/elibrary/i18n/i18n.xml")
 @LocaleResource(value="elibrary.bookseries",tooltip="elibrary.bookseries.tt",help="help.aboutApplication")
 public class SeriesDescriptor implements Cloneable, FormManager<Long, SeriesDescriptor>, ModuleAccessor {
 	private final LoggerFacade	logger;

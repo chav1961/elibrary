@@ -167,6 +167,8 @@ public class Application implements Closeable, LoggerFacadeOwner {
 	}
 	
 	public static void main(String[] args) {
+		System.setProperty("java.naming.factory.initial", "chav1961.purelib.basic.SimpleInitialContextFactory");
+		
 		try{final ArgParser						parser = new ApplicationArgParser().parse(args);
 			final SubstitutableProperties		props = new SubstitutableProperties(Utils.mkProps(
 													 NanoServiceFactory.NANOSERVICE_PORT, parser.getValue(ARG_HELP_PORT,String.class)

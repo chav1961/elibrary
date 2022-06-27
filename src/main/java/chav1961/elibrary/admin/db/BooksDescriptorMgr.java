@@ -88,7 +88,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	public void loadInstance(final ResultSet rs, final BookDescriptor inst) throws SQLException {
 		inst.id = rs.getLong("bs_Id");
 		inst.code  = rs.getInt("bl_Code");
-		inst.seriesNumber  = rs.getLong("bs_Id");
+		inst.seriesNumber.setValue(rs.getLong("bs_Id"));
 		inst.title = rs.getString("bl_Title");
 		inst.year = rs.getInt("bl_Year");
 		inst.publisher = rs.getLong("bp_Id");
@@ -100,7 +100,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	@Override
 	public void storeInstance(final ResultSet rs, final BookDescriptor inst, final boolean update) throws SQLException {
 		rs.updateInt("bl_code", inst.code);
-		rs.updateLong("bs_Id", inst.seriesNumber);
+		rs.updateLong("bs_Id", inst.seriesNumber.getValue());
 		rs.updateString("bl_Title", inst.title);
 		rs.updateInt("bl_Year", inst.year);
 		rs.updateLong("bp_Id", inst.publisher);
@@ -122,7 +122,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		switch (name) {
 			case "bl_Id" 		: return (T) Long.valueOf(inst.id);
 			case "bl_Code" 		: return (T) Integer.valueOf(inst.code);
-			case "bs_Id" 		: return (T) Long.valueOf(inst.seriesNumber);
+			case "bs_Id" 		: return (T) Long.valueOf(inst.seriesNumber.getValue());
 			case "bl_Title"		: return (T) inst.title;
 			case "bl_Year" 		: return (T) Integer.valueOf(inst.year);
 			case "bp_Id" 		: return (T) Long.valueOf(inst.publisher);

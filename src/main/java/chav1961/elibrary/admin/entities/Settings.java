@@ -21,7 +21,7 @@ import chav1961.purelib.ui.interfaces.Format;
 import chav1961.purelib.ui.interfaces.RefreshMode;
 import chav1961.purelib.ui.swing.JButtonWithMeta;
 
-@LocaleResourceLocation("i18n:xml:root://chav1961.elibrary.admin.dialogs.Settings/chav1961/elibrary/i18n/i18n.xml")
+@LocaleResourceLocation("i18n:xml:root://chav1961.elibrary.admin.entities.Settings/chav1961/elibrary/i18n/i18n.xml")
 @LocaleResource(value="settings.title",tooltip="settings.title.tt",help="settings.title.help")
 @Action(resource=@LocaleResource(value="settings.test",tooltip="settings.test.tt"),actionString="test")
 public class Settings implements FormManager<Object,Settings>, ModuleAccessor {

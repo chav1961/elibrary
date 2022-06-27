@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import javax.naming.NamingException;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
@@ -258,14 +259,14 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 				orms.put(SeriesDescriptor.class, new SeriesORMInterface(getLogger(), conn, ()->getUnique()));
 				orms.put(AuthorsDescriptor.class, new AuthorsORMInterface(getLogger(), conn, ()->getUnique()));
 				orms.put(PublishersDescriptor.class, new PublishersORMInterface(getLogger(), conn, ()->getUnique()));
-				orms.put(BookDescriptor.class, new BooksORMInterface(getLogger(), conn, ()->getUnique()));
+				orms.put(BookDescriptor.class, new BooksORMInterface(getLogger(), conn, ()->getUnique(), dbMgmt.getTheSameLastModel().getChild("booklist")));
 				
 				((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.connect")).setEnabled(false);
 				((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.disconnect")).setEnabled(true);
 				((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.nsi")).setEnabled(true);
 				enableMenuOnConnect();
 				getLogger().message(Severity.info, localizer.getValue(MSG_CONNECTED));
-			} catch (ContentException e) {
+			} catch (ContentException | NamingException e) {
 				getLogger().message(Severity.error, e.getLocalizedMessage());
 				this.driver = null;
 				if (loader != null) {

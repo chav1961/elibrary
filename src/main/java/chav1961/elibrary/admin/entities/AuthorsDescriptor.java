@@ -10,7 +10,7 @@ import chav1961.purelib.ui.interfaces.FormManager;
 import chav1961.purelib.ui.interfaces.Format;
 import chav1961.purelib.ui.interfaces.RefreshMode;
 
-@LocaleResourceLocation("i18n:xml:root://chav1961.elibrary.admin.dialogs.AuthorsDescriptor/chav1961/elibrary/i18n/i18n.xml")
+@LocaleResourceLocation("i18n:xml:root://chav1961.elibrary.admin.entities.AuthorsDescriptor/chav1961/elibrary/i18n/i18n.xml")
 @LocaleResource(value="elibrary.bookauthors",tooltip="elibrary.bookauthors.tt",help="help.aboutApplication")
 public class AuthorsDescriptor implements Cloneable, FormManager<Long, AuthorsDescriptor>, ModuleAccessor {
 	private final LoggerFacade	logger;
