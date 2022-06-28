@@ -6,6 +6,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,6 +24,7 @@ import chav1961.purelib.sql.interfaces.UniqueIdGenerator;
 import chav1961.purelib.streams.JsonStaxParser;
 import chav1961.purelib.streams.JsonStaxPrinter;
 import chav1961.purelib.streams.interfaces.JsonStaxParserLexType;
+import chav1961.purelib.ui.interfaces.LongItemAndReference;
 import chav1961.purelib.ui.interfaces.ReferenceAndComment;
 import chav1961.purelib.ui.interfaces.RecordFormManager.RecordAction;
 
@@ -32,11 +34,15 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	private final LoggerFacade		logger;
 	private final BookDescriptor	desc;
 	private final UniqueIdGenerator	uig;
+	private final Connection		conn;
+	private final PreparedStatement	ps;
 	
-	public BooksDescriptorMgr(final LoggerFacade logger, final BookDescriptor desc, final UniqueIdGenerator uig) {
+	public BooksDescriptorMgr(final LoggerFacade logger, final BookDescriptor desc, final UniqueIdGenerator uig, final Connection conn) throws SQLException {
 		this.logger = logger;
 		this.desc = desc;
 		this.uig = uig;
+		this.conn = conn;
+		this.ps = conn.prepareStatement("select \"bl_Id\", \"ba_Id\" from \"elibrary\".\"book2authors\" where \"bl_Id\" = ?", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 	}
 	
 	@Override
@@ -92,10 +98,31 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		inst.title = rs.getString("bl_Title");
 		inst.year = rs.getInt("bl_Year");
 		inst.publisher.setValue(rs.getLong("bp_Id"));
-		inst.authors[0].setValue(rs.getLong("ba_Id"));
 		inst.annotation = rs.getString("bl_Comment");
 		inst.tags = fromString(rs.getString("bl_Tags"));
 		inst.image = null; 
+		
+		final List<LongItemAndReference<String>>	list = new ArrayList<>();
+
+		ps.setLong(1, inst.id);		
+		try(final ResultSet	rs1 = ps.executeQuery()) {
+			
+			while (rs1.next()) {
+				final LongItemAndReference<String>	item = (LongItemAndReference<String>) inst.authors[0].clone();
+				
+				item.setValue(rs1.getLong(2));
+				list.add(item);
+			}
+			if (list.isEmpty()) {
+				final LongItemAndReference<String>	item = (LongItemAndReference<String>) inst.authors[0].clone();
+				
+				item.setValue(-1L);
+				list.add(inst.authors[0]);
+			}
+		} catch (CloneNotSupportedException e) {
+			throw new SQLException(e);
+		}
+		inst.authors = list.toArray(new LongItemAndReference[list.size()]);
 	}
 
 	@Override
@@ -115,6 +142,22 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		}
 		if (!update) {
 			rs.updateLong("bl_Id", inst.id);
+		}
+		
+		ps.setLong(1, inst.id);		
+		try(final ResultSet	rs1 = ps.executeQuery()) {
+			
+			while (rs1.next()) {
+				rs1.deleteRow();
+			}
+			for (LongItemAndReference<String> item : inst.authors) {
+				if (item.getValue() != -1L) {
+					rs1.moveToInsertRow();
+					rs1.updateLong(1, inst.id);
+					rs1.updateLong(2, item.getValue());
+					rs1.insertRow();
+				}
+			}
 		}
 	}
 
@@ -154,6 +197,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 
 	@Override
 	public void close() throws SQLException {
+		ps.close();
 	}
 
 	@Override

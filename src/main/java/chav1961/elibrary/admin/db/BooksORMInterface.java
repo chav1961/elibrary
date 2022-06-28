@@ -25,7 +25,7 @@ public class BooksORMInterface implements ORMInterface<BookDescriptor, BooksDesc
 		this.stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 		this.rs = stmt.executeQuery("select * from elibrary.booklist order by \"bl_Id\"");
 		this.desc = new BookDescriptor(logger, meta);
-		this.mgr = new BooksDescriptorMgr(logger, this.desc, gen);
+		this.mgr = new BooksDescriptorMgr(logger, this.desc, gen, conn);
 	}
 	
 	@Override
