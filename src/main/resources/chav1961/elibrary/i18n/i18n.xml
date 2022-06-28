@@ -88,6 +88,8 @@
 		<key name="settings.searchpassword.tt">Usual user password in the database</key>
 		<key name="settings.defaultlang">Default language</key>
 		<key name="settings.defaultlang.tt">Language to set on startup</key>
+		<key name="settings.versioning.missing">Version infrastructure is missing in the database. Create it first</key>	
+		<key name="settings.versioning.missing.title">Versioning is not prepared</key>
 
 <!-- AskPassword class localization-->
 		<key name="askpassword.title">Type password</key>
@@ -246,7 +248,8 @@
 		<key name="settings.searchpassword.tt">Пароль 'рядового' пользователя системы в БД</key>
 		<key name="settings.defaultlang">Язык по умолчанию</key>
 		<key name="settings.defaultlang.tt">Язык, устанавливаемый при старте приложения</key>
-		
+		<key name="settings.versioning.missing">Инфраструктура для поддержки версий в БД отсутствует. Необходимо вначале создать ее</key>	
+		<key name="settings.versioning.missing.title">Версионирование не подготовлено</key>
 		
 <!-- Локализация класса AskPassword --> 
 		<key name="askpassword.title">Введите пароль</key>

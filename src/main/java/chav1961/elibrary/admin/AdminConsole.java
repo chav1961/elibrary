@@ -3,6 +3,7 @@ package chav1961.elibrary.admin;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -56,6 +57,7 @@ import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SimpleURLClassLoader;
 import chav1961.purelib.basic.SubstitutableProperties;
 import chav1961.purelib.basic.URIUtils;
+import chav1961.purelib.basic.exceptions.CommandLineParametersException;
 import chav1961.purelib.basic.exceptions.ContentException;
 import chav1961.purelib.basic.exceptions.EnvironmentException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
@@ -69,6 +71,7 @@ import chav1961.purelib.fsys.FileSystemFactory;
 import chav1961.purelib.fsys.interfaces.FileSystemInterface;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
+import chav1961.purelib.i18n.interfaces.LocalizerOwner;
 import chav1961.purelib.i18n.interfaces.SupportedLanguages;
 import chav1961.purelib.model.ContentModelFactory;
 import chav1961.purelib.model.ContentNodeFilter;
@@ -96,7 +99,7 @@ import chav1961.purelib.ui.swing.useful.JFileSelectionDialog;
 import chav1961.purelib.ui.swing.useful.JLocalizedOptionPane;
 import chav1961.purelib.ui.swing.useful.JStateString;
 
-public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeOwner, LocaleChangeListener, NodeMetadataOwner {
+public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeOwner, LocalizerOwner, LocaleChangeListener, NodeMetadataOwner {
 	private static final long serialVersionUID = 1L;
 
 	public static final String		CONSOLE_TITLE = "console.title";
@@ -187,6 +190,11 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 		return state;
 	}
 
+	@Override
+	public Localizer getLocalizer() {
+		return localizer;
+	}
+	
 	@Override
 	public ContentNodeMetadata getNodeMetadata() {
 		return mdi.getRoot();

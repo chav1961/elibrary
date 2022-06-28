@@ -2,24 +2,37 @@ package chav1961.elibrary.admin.entities;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Locale;
 
+import javax.swing.JOptionPane;
+
 import chav1961.elibrary.admin.AdminConsole;
+import chav1961.purelib.basic.PureLibSettings;
+import chav1961.purelib.basic.SimpleURLClassLoader;
 import chav1961.purelib.basic.SubstitutableProperties;
+import chav1961.purelib.basic.exceptions.ContentException;
 import chav1961.purelib.basic.exceptions.FlowException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.ModuleAccessor;
 import chav1961.purelib.i18n.interfaces.LocaleResource;
 import chav1961.purelib.i18n.interfaces.LocaleResourceLocation;
+import chav1961.purelib.i18n.interfaces.LocalizerOwner;
 import chav1961.purelib.i18n.interfaces.SupportedLanguages;
 import chav1961.purelib.sql.JDBCUtils;
+import chav1961.purelib.sql.model.SimpleDatabaseManager;
 import chav1961.purelib.ui.interfaces.Action;
 import chav1961.purelib.ui.interfaces.FormManager;
 import chav1961.purelib.ui.interfaces.Format;
 import chav1961.purelib.ui.interfaces.RefreshMode;
 import chav1961.purelib.ui.swing.JButtonWithMeta;
+import chav1961.purelib.ui.swing.SwingUtils;
+import chav1961.purelib.ui.swing.useful.JLocalizedOptionPane;
 
 @LocaleResourceLocation("i18n:xml:root://chav1961.elibrary.admin.entities.Settings/chav1961/elibrary/i18n/i18n.xml")
 @LocaleResource(value="settings.title",tooltip="settings.title.tt",help="settings.title.help")
@@ -32,6 +45,9 @@ public class Settings implements FormManager<Object,Settings>, ModuleAccessor {
 	public static final String	PROP_SEARCH_PASSWORD = "searchPassword";	
 	public static final String	PROP_DEFAULT_LANG = "defaultLanguage";	
 
+	public static final String	KEY_VERSIONING_MISSING = "settings.versioning.missing";	
+	public static final String	KEY_VERSIONING_MISSING_TITLE = "settings.versioning.missing.title";	
+	
 	@LocaleResource(value="settings.jdbcdriver",tooltip="settings.jdbcdriver.tt")
 	@Format("30ms")
 	public File		jdbcDriver = new File("./current.jar");
@@ -83,7 +99,16 @@ public class Settings implements FormManager<Object,Settings>, ModuleAccessor {
 				final JButtonWithMeta	button = (JButtonWithMeta)parameter[0];
 				
 				if (JDBCUtils.testConnection(jdbcDriver, connectionString, searchUser, searchPassword, logger)) {
-					button.markOK(true);
+					try(final SimpleURLClassLoader	loader = new SimpleURLClassLoader(new URL[0]);
+						final Connection			conn = JDBCUtils.getConnection(JDBCUtils.loadJdbcDriver(loader, jdbcDriver), connectionString, searchUser, searchPassword)) {
+
+						if (!SimpleDatabaseManager.isDatabasePrepared4Versioning(conn, conn.getSchema())) {
+							new JLocalizedOptionPane(SwingUtils.getNearestOwner(console, LocalizerOwner.class).getLocalizer()).message(null, KEY_VERSIONING_MISSING, KEY_VERSIONING_MISSING_TITLE, JOptionPane.INFORMATION_MESSAGE);
+						}
+						button.markOK(true);
+					} catch (ContentException | SQLException | IOException e) {
+						button.markOK(false);
+					}
 				}
 				else {
 					button.markOK(false);
