@@ -147,6 +147,8 @@
 		<key name="elibrary.booklist.bl_Tags.tt">Tags</key>
 		<key name="elibrary.booklist.bl_Image">Image</key>
 		<key name="elibrary.booklist.bl_Image.tt">Image</key>
+		<key name="elibrary.booklist.ba_Name">Authors</key>	
+		<key name="elibrary.booklist.ba_Name.tt">List of the authors</key>
 
 		<key name="elibrary.book2authors">Books-authors</key>
 		<key name="elibrary.book2authors.tt">Books-authors</key>
@@ -303,6 +305,8 @@
 		<key name="elibrary.booklist.bl_Tags.tt">Теги</key>
 		<key name="elibrary.booklist.bl_Image">Обложка</key>
 		<key name="elibrary.booklist.bl_Image.tt">Обложка</key>
+		<key name="elibrary.booklist.ba_Name">Авторы</key>	
+		<key name="elibrary.booklist.ba_Name.tt">Список авторов</key>
 
 		<key name="elibrary.book2authors"></key>
 		<key name="elibrary.book2authors.tt"></key>

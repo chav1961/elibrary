@@ -13,6 +13,7 @@ import chav1961.purelib.i18n.interfaces.LocaleResourceLocation;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 import chav1961.purelib.ui.interfaces.FormManager;
 import chav1961.purelib.ui.interfaces.Format;
+import chav1961.purelib.ui.interfaces.LongItemAndReference;
 import chav1961.purelib.ui.interfaces.ReferenceAndComment;
 import chav1961.purelib.ui.interfaces.RefreshMode;
 
@@ -42,11 +43,11 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 
 	@LocaleResource(value="elibrary.booklist.bp_Id",tooltip="elibrary.booklist.bp_Id.tt")
 	@Format("9.2ms")
-	public long			publisher;
+	public AnyRefDescriptor	publisher;
 	
-//	@LocaleResource(value="elibrary.booklist.ba_Name",tooltip="elibrary.booklist.ba_Name.tt")
-//	@Format("9.2msL")
-//	public ReferenceAndComment[]	authors;
+	@LocaleResource(value="elibrary.booklist.ba_Name",tooltip="elibrary.booklist.ba_Name.tt")
+	@Format("10*5ms")
+	public LongItemAndReference<String>[]	authors;
 
 	@LocaleResource(value="elibrary.booklist.bl_Comment",tooltip="elibrary.booklist.bl_Comment.tt")
 	@Format("9.2msl")
@@ -54,7 +55,7 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 
 	@LocaleResource(value="elibrary.booklist.bl_Tags",tooltip="elibrary.booklist.bl_Tags.tt")
 	@Format("10*5ms")
-	public ReferenceAndComment[]	tags;
+	public ReferenceAndComment[]	tags = new ReferenceAndComment[0];
 
 	@LocaleResource(value="elibrary.booklist.bl_Image",tooltip="elibrary.booklist.bl_Image.tt")
 	@Format("200*200ms")
@@ -65,6 +66,8 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 		this.logger = logger;
 		this.metadata = root;
 		this.seriesNumber = new AnyRefDescriptor(root.getChild("bs_Id"));
+		this.publisher = new AnyRefDescriptor(root.getChild("bp_Id"));
+		this.authors = new LongItemAndReference[] {new AnyRefDescriptor(root.getParent().getChild("book2authors").getChild("ba_Id"))};
 	}
 
 	@Override

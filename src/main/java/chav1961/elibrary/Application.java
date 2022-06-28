@@ -20,6 +20,7 @@ import chav1961.elibrary.admin.AdminConsole;
 import chav1961.elibrary.admin.entities.Settings;
 import chav1961.purelib.basic.ArgParser;
 import chav1961.purelib.basic.PureLibSettings;
+import chav1961.purelib.basic.SimpleInitialContextFactory;
 import chav1961.purelib.basic.SubstitutableProperties;
 import chav1961.purelib.basic.Utils;
 import chav1961.purelib.basic.exceptions.CommandLineParametersException;
@@ -78,7 +79,7 @@ public class Application implements Closeable, LoggerFacadeOwner {
 			final JPopupMenu	trayMenu = SwingUtils.toJComponent(xda.byUIPath(URI.create("ui:/model/navigation.top.traymenu")),JPopupMenu.class);
 			
 			this.xda = xda;
-			this.localizer =  LocalizerFactory.getLocalizer(xda.getRoot().getLocalizerAssociated());
+			this.localizer = LocalizerFactory.getLocalizer(xda.getRoot().getLocalizerAssociated());
 			this.propFileLocation = propFileLocation;
 			this.latch = latch;
 			
@@ -92,7 +93,7 @@ public class Application implements Closeable, LoggerFacadeOwner {
 			}
 			settings.addPropertyChangeListener((e)->{
 				settingsChanged = true;
-				localizer.setCurrentLocale(settings.getProperty(Settings.PROP_DEFAULT_LANG, SupportedLanguages.class).getLocale());
+				PureLibSettings.PURELIB_LOCALIZER.setCurrentLocale(settings.getProperty(Settings.PROP_DEFAULT_LANG, SupportedLanguages.class).getLocale());
 			});
 			
 			SwingUtils.assignActionListeners(trayMenu, (e)->callTray(e.getActionCommand()));
@@ -101,11 +102,11 @@ public class Application implements Closeable, LoggerFacadeOwner {
 				
 				this.tray.addActionListener((e)->showConsole());
 				this.lcl = (oldLocale,newLocale)->tray.localeChanged(oldLocale, newLocale);
-				localizer.addLocaleChangeListener(lcl);
+				PureLibSettings.PURELIB_LOCALIZER.addLocaleChangeListener(lcl);
 			} catch (URISyntaxException exc) {
 				throw new EnvironmentException(exc);
 			}
-			localizer.setCurrentLocale(settings.getProperty(Settings.PROP_DEFAULT_LANG, SupportedLanguages.class, Locale.getDefault().getLanguage()).getLocale());
+			PureLibSettings.PURELIB_LOCALIZER.setCurrentLocale(settings.getProperty(Settings.PROP_DEFAULT_LANG, SupportedLanguages.class, Locale.getDefault().getLanguage()).getLocale());
 		}
 	}
 
@@ -167,7 +168,7 @@ public class Application implements Closeable, LoggerFacadeOwner {
 	}
 	
 	public static void main(String[] args) {
-		System.setProperty("java.naming.factory.initial", "chav1961.purelib.basic.SimpleInitialContextFactory");
+		System.setProperty("java.naming.factory.initial", SimpleInitialContextFactory.class.getName());
 		
 		try{final ArgParser						parser = new ApplicationArgParser().parse(args);
 			final SubstitutableProperties		props = new SubstitutableProperties(Utils.mkProps(

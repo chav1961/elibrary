@@ -53,7 +53,7 @@ public class AnyRefDescriptor implements LongItemAndReference<String> {
 	
 	@Override
 	public TableModel getModel() {
-		try{return (TableModel)modelContext.lookup("/refs/"+getKeyName());
+		try{return (TableModel)modelContext.lookup("models/"+getKeyName());
 		} catch (NamingException e) {
 			throw new RuntimeException(e); 
 		}
@@ -91,6 +91,21 @@ public class AnyRefDescriptor implements LongItemAndReference<String> {
 	}
 
 	@Override
+	public long getValue(final int position) {
+		final TableModel	model = getModel();
+		
+		if (position < 0 || position >= model.getRowCount()) {
+			throw new IllegalArgumentException("Position ["+position+"] out of range 0.."+(model.getRowCount()-1));
+		}
+		for (int index = 0, maxIndex = model.getColumnCount(); index < maxIndex; index++) {
+			if (model.getColumnName(maxIndex).equals(getKeyName())) {
+				return ((Long)model.getValueAt(position, index)).longValue();
+			}
+		}
+		throw new IllegalArgumentException("Key name ["+getKeyName()+"] not found in the table model");
+	}
+	
+	@Override
 	public void setValue(final long value) {
 		this.key = value;
 		this.presentation = key2presentation(value);
@@ -110,7 +125,9 @@ public class AnyRefDescriptor implements LongItemAndReference<String> {
 				e.printStackTrace();
 			}
 		}
-		((DefaultTableModel)getModel()).fireTableStructureChanged();
+		else if (model != null) {
+			((DefaultTableModel)getModel()).fireTableStructureChanged();
+		}
 	}
 	
 	protected String key2presentation(long value) {

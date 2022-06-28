@@ -91,7 +91,8 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		inst.seriesNumber.setValue(rs.getLong("bs_Id"));
 		inst.title = rs.getString("bl_Title");
 		inst.year = rs.getInt("bl_Year");
-		inst.publisher = rs.getLong("bp_Id");
+		inst.publisher.setValue(rs.getLong("bp_Id"));
+		inst.authors[0].setValue(rs.getLong("ba_Id"));
 		inst.annotation = rs.getString("bl_Comment");
 		inst.tags = fromString(rs.getString("bl_Tags"));
 		inst.image = null; 
@@ -103,7 +104,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		rs.updateLong("bs_Id", inst.seriesNumber.getValue());
 		rs.updateString("bl_Title", inst.title);
 		rs.updateInt("bl_Year", inst.year);
-		rs.updateLong("bp_Id", inst.publisher);
+		rs.updateLong("bp_Id", inst.publisher.getValue());
 		rs.updateString("bl_Comment", inst.annotation);
 		rs.updateString("bl_Tags", toString(inst.tags));
 		if (inst.image != null) {
@@ -125,7 +126,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 			case "bs_Id" 		: return (T) Long.valueOf(inst.seriesNumber.getValue());
 			case "bl_Title"		: return (T) inst.title;
 			case "bl_Year" 		: return (T) Integer.valueOf(inst.year);
-			case "bp_Id" 		: return (T) Long.valueOf(inst.publisher);
+			case "bp_Id" 		: return (T) Long.valueOf(inst.publisher.getValue());
 			case "bl_Comment"	: return (T) inst.annotation;
 			case "bl_Tags" 		: return (T) inst.tags;
 			case "bl_Image" 	: return (T) inst.image;

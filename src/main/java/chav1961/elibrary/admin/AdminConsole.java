@@ -26,6 +26,8 @@ import java.util.Set;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -43,9 +45,12 @@ import chav1961.elibrary.admin.db.PublishersORMInterface;
 import chav1961.elibrary.admin.db.SeriesORMInterface;
 import chav1961.elibrary.admin.entities.AskPassword;
 import chav1961.elibrary.admin.entities.AuthorsDescriptor;
+import chav1961.elibrary.admin.entities.AuthorsTableModel;
 import chav1961.elibrary.admin.entities.BookDescriptor;
 import chav1961.elibrary.admin.entities.PublishersDescriptor;
+import chav1961.elibrary.admin.entities.PublishersTableModel;
 import chav1961.elibrary.admin.entities.SeriesDescriptor;
+import chav1961.elibrary.admin.entities.SeriesTableModel;
 import chav1961.elibrary.admin.entities.Settings;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SimpleURLClassLoader;
@@ -256,6 +261,12 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 				this.unique = conn.prepareCall("{?= call nextval('elibrary.systemseq')}");
 				this.unique.registerOutParameter(1, Types.BIGINT);
 				
+				final Context	ctx = new InitialContext();
+				
+				ctx.bind("models/bs_Id", new SeriesTableModel(conn));
+				ctx.bind("models/bp_Id", new PublishersTableModel(conn));
+				ctx.bind("models/ba_Id", new AuthorsTableModel(conn));
+				
 				orms.put(SeriesDescriptor.class, new SeriesORMInterface(getLogger(), conn, ()->getUnique()));
 				orms.put(AuthorsDescriptor.class, new AuthorsORMInterface(getLogger(), conn, ()->getUnique()));
 				orms.put(PublishersDescriptor.class, new PublishersORMInterface(getLogger(), conn, ()->getUnique()));
@@ -290,8 +301,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 				}
 				loader = null;
 			} catch (EnvironmentException | URISyntaxException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				getLogger().message(Severity.error, e, e.getLocalizedMessage());
 			}
 		}
 	}
@@ -299,14 +309,23 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 	@OnAction("action:/main.file.disconnect")
 	private void disconnect() {
 		if (conn != null) {
+			
 			content.close();
-			try{unique.close();
+			try{final Context	ctx = new InitialContext();
+			
+				((SeriesTableModel)ctx.lookup("models/bs_Id")).close();
+				ctx.unbind("models/bs_Id");
+				((PublishersTableModel)ctx.lookup("models/bp_Id")).close();
+				ctx.unbind("models/bp_Id");
+				((AuthorsTableModel)ctx.lookup("models/ba_Id")).close();
+				ctx.unbind("models/ba_Id");
+				unique.close();
 				orms.remove(SeriesDescriptor.class).close();
 				orms.remove(AuthorsDescriptor.class).close();
 				orms.remove(PublishersDescriptor.class).close();
 				orms.remove(BookDescriptor.class).close();
 				conn.close();
-			} catch (SQLException e) {
+			} catch (SQLException | NamingException e) {
 			} finally {
 				conn = null;
 			}
@@ -441,10 +460,6 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 		// TODO Auto-generated method stub
 	}
 	
-	private boolean filterModel(final ContentNodeMetadata meta, final Set<String> fields2Exclude) {
-		return meta.getType() == TableContainer.class || !fields2Exclude.contains(meta.getName().toUpperCase());
-	}
-
 	private long getUnique() throws SQLException {
 		unique.executeUpdate();
 		return unique.getLong(1);

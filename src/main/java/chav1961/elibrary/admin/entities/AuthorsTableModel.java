@@ -5,18 +5,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class SeriesTableModel extends RefTableModel {
+public class AuthorsTableModel extends RefTableModel {
 	private static final long 		serialVersionUID = 6136391534170874644L;
 	
-	private static final String		KEY_2_VALUE = "select \"bs_Name\" from \"elibrary\".\"bookseries\" where \"bs_Id\" = ?";
-	private static final String		CONTENT = "select \"bs_Id\", \"bs_Name\", \"bs_Comment\" from \"elibrary\".\"bookseries\" where \"bs_Name\" like ? order by 1";
+	private static final String		KEY_2_VALUE = "select \"ba_Name\" from \"elibrary\".\"bookauthors\" where \"ba_Id\" = ?";
+	private static final String		CONTENT = "select \"ba_Id\", \"ba_Name\", \"ba_Comment\" from \"elibrary\".\"bookauthors\" where \"ba_Name\" like ? order by 1";
 
 	private final Connection		conn;
 	private final PreparedStatement	key2value;
 	private final PreparedStatement	content;
 	private ResultSet				rs = null;
 	
-	public SeriesTableModel(final Connection conn) throws SQLException {
+	public AuthorsTableModel(final Connection conn) throws SQLException {
 		if (conn == null) {
 			throw new NullPointerException("Connection can't be null"); 
 		}
