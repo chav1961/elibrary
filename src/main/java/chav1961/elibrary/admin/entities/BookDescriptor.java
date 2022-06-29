@@ -27,7 +27,7 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 	
 	@LocaleResource(value="elibrary.booklist.bl_Code",tooltip="elibrary.booklist.bl_Code.tt")
 	@Format("20ms")
-	public String		code;
+	public String		code = "";
 
 	@LocaleResource(value="elibrary.booklist.bs_Id",tooltip="elibrary.booklist.bs_Id.tt")
 	@Format("20ms")
@@ -35,11 +35,11 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 
 	@LocaleResource(value="elibrary.booklist.bl_Title",tooltip="elibrary.booklist.bl_Title.tt")
 	@Format("9.2msL")
-	public String		title;
+	public String		title = "";
 	
 	@LocaleResource(value="elibrary.booklist.bl_Year",tooltip="elibrary.booklist.bl_Year.tt")
 	@Format("4ms")
-	public int			year;
+	public int			year = 1900;
 
 	@LocaleResource(value="elibrary.booklist.bp_Id",tooltip="elibrary.booklist.bp_Id.tt")
 	@Format("20ms")
@@ -51,7 +51,7 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 
 	@LocaleResource(value="elibrary.booklist.bl_Comment",tooltip="elibrary.booklist.bl_Comment.tt")
 	@Format("20msl")
-	public String		annotation;
+	public String		annotation = "";
 
 	@LocaleResource(value="elibrary.booklist.bl_Tags",tooltip="elibrary.booklist.bl_Tags.tt")
 	@Format("10*5ms")

@@ -1,5 +1,8 @@
 package chav1961.elibrary.admin.db;
 
+import java.awt.image.RenderedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -12,6 +15,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import chav1961.elibrary.admin.entities.BookDescriptor;
 import chav1961.elibrary.admin.entities.SeriesDescriptor;
@@ -100,7 +105,18 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		inst.publisher.setValue(rs.getLong("bp_Id"));
 		inst.annotation = rs.getString("bl_Comment");
 		inst.tags = fromString(rs.getString("bl_Tags"));
-		inst.image = null; 
+		
+		final byte[]	imageContent = rs.getBytes("bl_Image");
+		
+		if (imageContent == null) {
+			inst.image = null;
+		}
+		else {
+			try{inst.image = ImageIO.read(new ByteArrayInputStream(imageContent));
+			} catch (IOException e) {
+				throw new SQLException(e.getLocalizedMessage(), e);
+			}
+		}
 		
 		final List<LongItemAndReference<String>>	list = new ArrayList<>();
 
@@ -135,7 +151,13 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		rs.updateString("bl_Comment", inst.annotation);
 		rs.updateString("bl_Tags", toString(inst.tags));
 		if (inst.image != null) {
-			rs.updateObject("bl_Image", inst.image);
+			try(final ByteArrayOutputStream	baos = new ByteArrayOutputStream()) {
+				ImageIO.write((RenderedImage) inst.image, "png", baos);
+				
+				rs.updateBytes("bl_Image", baos.toByteArray());
+			} catch (IOException e) {
+				throw new SQLException(e.getLocalizedMessage(), e);
+			}
 		}
 		else {
 			rs.updateNull("bl_Image");

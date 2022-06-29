@@ -85,10 +85,12 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 			assignFocusManager(this.booksScroll, this.books);
 			
 			this.form = new AutoBuiltForm<BookDescriptor,Long>(ContentModelFactory.forAnnotatedClass(BookDescriptor.class), localizer, PureLibSettings.INTERNAL_LOADER, (BookDescriptor)boi.getFormManager(), boi.getFormManager());
+			this.form.setEnabled(false);
 			
 			SwingUtils.assignActionKey(this.books, SwingUtils.KS_ACCEPT, (e)->{
 				if (!books.getSelectionModel().isSelectionEmpty()) {
-					try{
+					try{books.setEnabled(false);
+						form.setEnabled(true);
 						edit(boi, this.books.getSelectedRow(), (BookDescriptor)boi.getFormManager(), this.form);
 					} catch (ContentException exc) {
 						SwingUtils.getNearestLogger(books).message(Severity.error, exc, exc.getLocalizedMessage());
@@ -96,20 +98,20 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 				}
 			}, SwingUtils.ACTION_ACCEPT);
 			SwingUtils.assignActionKey(this.form, JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, SwingUtils.KS_SOFT_EXIT, (e)->{
+				form.setEnabled(false);
+				books.setEnabled(true);
 				save(boi, (BookDescriptor)boi.getFormManager(), this.books.getSelectedRow());
 			}, SwingUtils.ACTION_SOFT_EXIT);
 			
 			this.books.getSelectionModel().addListSelectionListener((e)->{
 				if (!books.getSelectionModel().isSelectionEmpty()) {
-					try{load(boi, books.getSelectedRow(), (BookDescriptor)boi.getFormManager());
+					try{this.form.setEnabled(true);
+						load(boi, books.getSelectedRow(), (BookDescriptor)boi.getFormManager());
 						toScreen((BookDescriptor)boi.getFormManager(), this.form);
-						this.form.setEnabled(true);
+						this.form.setEnabled(false);
 					} catch (ContentException exc) {
 						SwingUtils.getNearestLogger(books).message(Severity.error, exc, exc.getLocalizedMessage());
 					}
-				}
-				else {
-					this.form.setEnabled(false);
 				}
 			});
 			
