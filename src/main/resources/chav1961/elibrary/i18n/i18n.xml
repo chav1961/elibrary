@@ -33,6 +33,7 @@
 		<key name="console.msg.connected">Connection established</key>
 		<key name="console.msg.disconnected">Connection closed</key>
 		<key name="console.msg.jdbc.driver.not.set">JDBC driver location is not set. Open Tools->Settings and type it</key>
+		<key name="console.msg.indexer.completed">Indexing completed</key>
 
 <!-- Localization for main menu --> 
 		<key name="menu.main.file">File</key>
@@ -99,12 +100,35 @@
 		<key name="settings.versioning.missing">Version infrastructure is missing in the database. Create it first</key>	
 		<key name="settings.versioning.missing.title">Versioning is not prepared</key>
 
-<!-- AskPassword class localization-->
+<!-- AskPassword class localization -->
 		<key name="askpassword.title">Type password</key>
 		<key name="askpassword.title.tt">Type apssword for administrator</key>
 		<key name="askpassword.title.help">Type password</key>
 		<key name="askpassword.password">Password</key>
 		<key name="askpassword.password.tt">Admin password</key>
+
+<!-- LuceneIndexer class localization --> 
+		<key name="LuceneIndexer.startIndexing">Indexing started...</key>
+
+<!-- Query class localization --> 
+		<key name="query.title">Запрос</key>
+		<key name="query.title.tt">Введите строку запроса</key>
+		<key name="query.anywhere">Искать везде</key>
+		<key name="query.anywhere.tt">Искать в любом поел документа</key>
+		<key name="query.series">Искать серии</key>
+		<key name="query.series.tt">Искать серии (например МРБ)</key>
+		<key name="query.code">Искать в ISBN</key>
+		<key name="query.code.tt">Искать в ISBN</key>
+		<key name="query.title">Искать в названии</key>
+		<key name="query.title.tt">Искать в названии книги</key>
+		<key name="query.authors">Искать в авторах</key>
+		<key name="query.authors.tt">Искать в списке авторов книги</key>
+		<key name="query.publisher">Искать в издательстве</key>
+		<key name="query.publisher.tt">Искать в издательстве книги</key>
+		<key name="query.comment">Искать в аннотации</key>
+		<key name="query.comment.tt">Искать в аннотации к книге</key>
+		<key name="query.tags">Искать в тегах</key>
+		<key name="query.tags.tt">Искать в тегах к книге</key>
 
 <!-- Model localization  --> 
 		<key name="elibrary.bookseries">Book series</key>
@@ -190,6 +214,7 @@
 		<key name="console.msg.connected">Соединение установлено</key>
 		<key name="console.msg.disconnected">Соединение закрыто</key>
 		<key name="console.msg.jdbc.driver.not.set">Местоположение JDBC дравера не задано. Войдите в 'Инструменты'->'Настройки' и задайте его</key>
+		<key name="console.msg.indexer.completed">Индексация завершена</key>
 		
 		<key name="console.tab.nsi">Справочники</key>
 		<key name="console.tab.books">Список</key>
@@ -273,6 +298,29 @@
 		<key name="askpassword.title.help">Введите пароль</key>
 		<key name="askpassword.password">Пароль</key>
 		<key name="askpassword.password.tt">Пароль пользователя-администратора</key>
+
+<!-- Локализация класса LuceneIndexer --> 
+		<key name="LuceneIndexer.startIndexing">Ждите, идет индексация</key>
+		
+<!-- Локализация класса Query --> 
+		<key name="query.title">Запрос</key>
+		<key name="query.title.tt">Введите строку запроса</key>
+		<key name="query.anywhere">Искать везде</key>
+		<key name="query.anywhere.tt">Искать в любом поел документа</key>
+		<key name="query.series">Искать серии</key>
+		<key name="query.series.tt">Искать серии (например МРБ)</key>
+		<key name="query.code">Искать в ISBN</key>
+		<key name="query.code.tt">Искать в ISBN</key>
+		<key name="query.title">Искать в названии</key>
+		<key name="query.title.tt">Искать в названии книги</key>
+		<key name="query.authors">Искать в авторах</key>
+		<key name="query.authors.tt">Искать в списке авторов книги</key>
+		<key name="query.publisher">Искать в издательстве</key>
+		<key name="query.publisher.tt">Искать в издательстве книги</key>
+		<key name="query.comment">Искать в аннотации</key>
+		<key name="query.comment.tt">Искать в аннотации к книге</key>
+		<key name="query.tags">Искать в тегах</key>
+		<key name="query.tags.tt">Искать в тегах к книге</key>
 		
 <!-- Локализация модели  --> 
 		<key name="elibrary.bookseries">Серии книг</key>
@@ -333,6 +381,7 @@
 		<key name="elibrary.book2authors.bl_Id.tt"></key>
 		<key name="elibrary.book2authors.ba_Id"></key>
 		<key name="elibrary.book2authors.ba_Id.tt"></key>
+		
 		
 	</lang>	
 </localization>

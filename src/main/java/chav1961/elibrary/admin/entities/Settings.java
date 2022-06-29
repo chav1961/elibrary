@@ -12,6 +12,7 @@ import java.util.Locale;
 import javax.swing.JOptionPane;
 
 import chav1961.elibrary.admin.AdminConsole;
+import chav1961.elibrary.admin.indexer.LuceneIndexer;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SimpleURLClassLoader;
 import chav1961.purelib.basic.SubstitutableProperties;
@@ -75,7 +76,7 @@ public class Settings implements FormManager<Object,Settings>, ModuleAccessor {
 
 	@LocaleResource(value="settings.defaultlang",tooltip="settings.defaultlang.tt")
 	@Format("30ms")
-	public File		indexerDir = new File("./lucene");
+	public File		indexerDir = new File(LuceneIndexer.LUCENE_DEFAULT_INDEXING_DIR);
 	
 	private final LoggerFacade	logger;
 	private final AdminConsole	console;
@@ -147,7 +148,7 @@ public class Settings implements FormManager<Object,Settings>, ModuleAccessor {
 			searchUser = props.getProperty(PROP_SEARCH_USER, String.class, "user");
 			searchPassword = props.getProperty(PROP_SEARCH_PASSWORD, char[].class, "password");
 			defaultLang = props.getProperty(PROP_DEFAULT_LANG, SupportedLanguages.class, Locale.getDefault().getLanguage());
-			indexerDir = props.getProperty(PROP_INDEXER_DIR, File.class, "./lucene");
+			indexerDir = props.getProperty(PROP_INDEXER_DIR, File.class, LuceneIndexer.LUCENE_DEFAULT_INDEXING_DIR);
 		}
 	}
 	

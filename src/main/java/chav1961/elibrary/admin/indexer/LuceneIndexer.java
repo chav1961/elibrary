@@ -40,13 +40,14 @@ import chav1961.purelib.i18n.interfaces.LocalizerOwner;
 import chav1961.purelib.sql.JDBCUtils;
 
 public class LuceneIndexer implements LoggerFacadeOwner, LocalizerOwner, Closeable {
-	private static final String	KEY_START_INDEXING = "";
+	public static final String	LUCENE_DEFAULT_INDEXING_DIR = "./lucene";
+	
+	private static final String	KEY_START_INDEXING = "LuceneIndexer.startIndexing";
 	
 	private final Localizer		localizer;
 	private final LoggerFacade	logger;
 	private final File			luceneDirectory;
 	private Directory 			index;
-	
 	
 	public LuceneIndexer(final Localizer localizer, final LoggerFacade logger, final File luceneDirectory) throws NullPointerException, IllegalArgumentException, IOException {
 		if (localizer == null) {
@@ -111,7 +112,7 @@ public class LuceneIndexer implements LoggerFacadeOwner, LocalizerOwner, Closeab
 			try(final Statement	stmt = conn.createStatement()) {
 				final int		count;
 
-				try(final ResultSet	rs = stmt.executeQuery("select count(*) from \"e\".\"e\"")) {
+				try(final ResultSet	rs = stmt.executeQuery("select count(*) from \"elibrary\".\"booklist\"")) {
 					if (rs.next()) {
 						count = rs.getInt(1);
 					}
@@ -123,11 +124,13 @@ public class LuceneIndexer implements LoggerFacadeOwner, LocalizerOwner, Closeab
 				int	current = 0;
 				
 				pi.start(localizer.getValue(KEY_START_INDEXING), count);
-				try(final ResultSet		rs = stmt.executeQuery("select * from \"e\".\"e\""); 
+				try(final ResultSet		rs = stmt.executeQuery("select * from \"elibrary\".\"booklist\""); 
 					final IndexWriter	wr = new IndexWriter(index, config)) {
 					
-					addDoc(wr, rs);
-					pi.processed(current++);
+					while (rs.next()) {
+						addDoc(wr, rs);
+						pi.processed(current++);
+					}
 				} finally {
 					pi.end();
 				}
@@ -138,31 +141,38 @@ public class LuceneIndexer implements LoggerFacadeOwner, LocalizerOwner, Closeab
 	}
 	
 	private static void addDoc(final IndexWriter wr, final ResultSet rs) throws IOException, SQLException {
-	  final Document doc = new Document();
+	  final Document 		doc = new Document();
+	  final StringBuilder	sb = new StringBuilder();
 	  
 	  doc.add(new StoredField("bl_Id", rs.getLong("bl_Id")));
-	  doc.add(new StringField("bl_Title", rs.getString("bl_Title"), Field.Store.YES));
+	  doc.add(new TextField("bl_Title", rs.getString("bl_Title"), Field.Store.YES));
+	  sb.append(rs.getString("bl_Title")).append(' ');
 	  doc.add(new TextField("bl_Comment", rs.getString("bl_Comment"), Field.Store.YES));
+	  sb.append(rs.getString("bl_Comment")).append(' ');
+	  doc.add(new TextField("anywhere", sb.toString(), Field.Store.YES));
+	  System.err.println("ADD "+sb.toString());
 	  wr.addDocument(doc);
 	}
 
 	public long[] search(final String queryStr, final int hitsPerPage) throws IOException, SyntaxException {
 		try(final StandardAnalyzer 	analyzer = new StandardAnalyzer()) {
-			final Query 			q = new QueryParser("bl_Comment", analyzer).parse(queryStr);
-	
+			final Query 			q = new QueryParser("anywhere", analyzer).parse(queryStr);
+
+	        System.err.println("Search " + queryStr);
+			
 	        try(final IndexReader 	reader = DirectoryReader.open(index)) {
 	            final IndexSearcher searcher = new IndexSearcher(reader);
 	            final TopDocs 		docs = searcher.search(q, hitsPerPage);
 	            final ScoreDoc[] 	hits = docs.scoreDocs;
 	            final GrowableLongArray	gla = new GrowableLongArray(false);
 	            
-//		        System.out.println("Found " + hits.length + " hits.");
+		        System.err.println("Found " + hits.length + " hits.");
 		        for(int i = 0; i < hits.length; i++) {
 		            final int 		docId = hits[i].doc;
 		            final Document	d = searcher.doc(docId);
 		            
 		            gla.append(Long.valueOf(d.get("bl_Id")));
-//		            System.out.println((i + 1) + ". " + d.get("bl_Id") + "\t" + d.get("title"));
+		            System.err.println((i + 1) + ". " + d.get("bl_Id") + "\t" + d.get("title"));
 		        }
 		        return gla.extract();
 	        }

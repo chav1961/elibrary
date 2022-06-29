@@ -3,7 +3,6 @@ package chav1961.elibrary.admin;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,26 +16,20 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 
 import chav1961.elibrary.Application;
 import chav1961.elibrary.admin.db.AuthorsORMInterface;
@@ -50,14 +43,14 @@ import chav1961.elibrary.admin.entities.AuthorsTableModel;
 import chav1961.elibrary.admin.entities.BookDescriptor;
 import chav1961.elibrary.admin.entities.PublishersDescriptor;
 import chav1961.elibrary.admin.entities.PublishersTableModel;
+import chav1961.elibrary.admin.entities.Query;
 import chav1961.elibrary.admin.entities.SeriesDescriptor;
 import chav1961.elibrary.admin.entities.SeriesTableModel;
 import chav1961.elibrary.admin.entities.Settings;
+import chav1961.elibrary.admin.indexer.LuceneIndexer;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SimpleURLClassLoader;
 import chav1961.purelib.basic.SubstitutableProperties;
-import chav1961.purelib.basic.URIUtils;
-import chav1961.purelib.basic.exceptions.CommandLineParametersException;
 import chav1961.purelib.basic.exceptions.ContentException;
 import chav1961.purelib.basic.exceptions.EnvironmentException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
@@ -74,27 +67,23 @@ import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
 import chav1961.purelib.i18n.interfaces.LocalizerOwner;
 import chav1961.purelib.i18n.interfaces.SupportedLanguages;
 import chav1961.purelib.model.ContentModelFactory;
-import chav1961.purelib.model.ContentNodeFilter;
-import chav1961.purelib.model.SchemaContainer;
-import chav1961.purelib.model.TableContainer;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 import chav1961.purelib.model.interfaces.NodeMetadataOwner;
 import chav1961.purelib.sql.JDBCUtils;
 import chav1961.purelib.sql.model.SQLModelUtils;
 import chav1961.purelib.sql.model.SQLModelUtils.ConnectionGetter;
-import chav1961.purelib.sql.model.interfaces.DatabaseManagement;
-import chav1961.purelib.sql.model.interfaces.DatabaseModelManagement;
 import chav1961.purelib.sql.model.SimpleDatabaseManager;
 import chav1961.purelib.sql.model.SimpleDatabaseModelManagement;
 import chav1961.purelib.sql.model.SimpleDottedVersion;
+import chav1961.purelib.sql.model.interfaces.DatabaseManagement;
+import chav1961.purelib.sql.model.interfaces.DatabaseModelManagement;
 import chav1961.purelib.ui.interfaces.FormManager;
 import chav1961.purelib.ui.swing.AutoBuiltForm;
 import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.interfaces.OnAction;
 import chav1961.purelib.ui.swing.useful.JCloseableTab;
 import chav1961.purelib.ui.swing.useful.JCloseableTabbedPane;
-import chav1961.purelib.ui.swing.useful.JDataBaseTableWithMeta;
 import chav1961.purelib.ui.swing.useful.JFileSelectionDialog;
 import chav1961.purelib.ui.swing.useful.JLocalizedOptionPane;
 import chav1961.purelib.ui.swing.useful.JStateString;
@@ -112,6 +101,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 	public static final String		MSG_CONNECTED = "console.msg.connected";
 	public static final String		MSG_DISCONNECTED = "console.msg.disconnected";
 	public static final String		MSG_JDBC_DRIVER_NOT_SET = "console.msg.jdbc.driver.not.set";
+	public static final String		MSG_INDEXER_COMPLETED = "console.msg.indexer.completed";
 	
 	public static final String		TAB_NSI = "console.tab.nsi";
 	public static final String		TAB_BOOKS = "console.tab.books";
@@ -317,7 +307,6 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 	@OnAction("action:/main.file.disconnect")
 	private void disconnect() {
 		if (conn != null) {
-			
 			content.close();
 			try{final Context	ctx = new InitialContext();
 			
@@ -337,6 +326,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 			} finally {
 				conn = null;
 			}
+			connGetter = null;
 			driver = null;
 			try{loader.close();
 			} catch (IOException e) {
@@ -427,14 +417,41 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 	
 	@OnAction("action:/main.tools.indexer.create")
 	private void createIndex() {
+		try(final LuceneIndexer	indexer = new LuceneIndexer(localizer, state, settings.getProperty(Settings.PROP_INDEXER_DIR, File.class, LuceneIndexer.LUCENE_DEFAULT_INDEXING_DIR))) {
+			
+			indexer.clear();
+			indexer.createIndex(connGetter.getConnection(), state);
+			state.message(Severity.info, MSG_INDEXER_COMPLETED);
+		} catch (IOException | SQLException e) {
+			state.message(Severity.error, e, e.getLocalizedMessage());
+		}
 	}
 
 	@OnAction("action:/main.tools.indexer.upgrade")
 	private void upgradeIndex() {
+		try(final LuceneIndexer	indexer = new LuceneIndexer(localizer, state, settings.getProperty(Settings.PROP_INDEXER_DIR, File.class, LuceneIndexer.LUCENE_DEFAULT_INDEXING_DIR))) {
+			
+			indexer.createIndex(connGetter.getConnection(), state);
+			state.message(Severity.info, MSG_INDEXER_COMPLETED);
+		} catch (IOException | SQLException e) {
+			state.message(Severity.error, e, e.getLocalizedMessage());
+		}
 	}
 
 	@OnAction("action:/main.tools.indexer.search")
 	private void search() {
+		final Query	query = new Query(state);
+		
+		if (ask(query,450,300)) {
+			try(final LuceneIndexer	indexer = new LuceneIndexer(localizer, state, settings.getProperty(Settings.PROP_INDEXER_DIR, File.class, LuceneIndexer.LUCENE_DEFAULT_INDEXING_DIR))) {
+				
+				for(long item : indexer.search(query.getQueryString(), 10)) {
+					System.err.println("Item="+item);				
+				}
+			} catch (IOException | SyntaxException e) {
+				state.message(Severity.error, e, e.getLocalizedMessage());
+			}
+		}
 	}
 	
 	@OnAction("action:/main.tools.settings")
@@ -495,6 +512,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.nsi")).setEnabled(true);
 		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.books")).setEnabled(true);
 		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.tools.database")).setEnabled(true);
+		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.tools.indexer")).setEnabled(true);
 	}
 
 	private void disableMenuOnDisconnect() {
@@ -503,6 +521,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.nsi")).setEnabled(false);
 		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.books")).setEnabled(false);
 		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.tools.database")).setEnabled(false);
+		((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.tools.indexer")).setEnabled(false);
 	}
 }
 
