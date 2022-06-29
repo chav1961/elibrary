@@ -26,11 +26,11 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 	public long			id;
 	
 	@LocaleResource(value="elibrary.booklist.bl_Code",tooltip="elibrary.booklist.bl_Code.tt")
-	@Format("9.2ms")
-	public int			code;
+	@Format("20ms")
+	public String		code;
 
 	@LocaleResource(value="elibrary.booklist.bs_Id",tooltip="elibrary.booklist.bs_Id.tt")
-	@Format("9.2ms")
+	@Format("20ms")
 	public AnyRefDescriptor	seriesNumber;
 
 	@LocaleResource(value="elibrary.booklist.bl_Title",tooltip="elibrary.booklist.bl_Title.tt")
@@ -38,11 +38,11 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 	public String		title;
 	
 	@LocaleResource(value="elibrary.booklist.bl_Year",tooltip="elibrary.booklist.bl_Year.tt")
-	@Format("9ms")
+	@Format("4ms")
 	public int			year;
 
 	@LocaleResource(value="elibrary.booklist.bp_Id",tooltip="elibrary.booklist.bp_Id.tt")
-	@Format("9.2ms")
+	@Format("20ms")
 	public AnyRefDescriptor	publisher;
 	
 	@LocaleResource(value="elibrary.booklist.ba_Name",tooltip="elibrary.booklist.ba_Name.tt")
@@ -50,7 +50,7 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 	public LongItemAndReference<String>[]	authors;
 
 	@LocaleResource(value="elibrary.booklist.bl_Comment",tooltip="elibrary.booklist.bl_Comment.tt")
-	@Format("9.2msl")
+	@Format("20msl")
 	public String		annotation;
 
 	@LocaleResource(value="elibrary.booklist.bl_Tags",tooltip="elibrary.booklist.bl_Tags.tt")

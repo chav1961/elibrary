@@ -93,7 +93,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	@Override
 	public void loadInstance(final ResultSet rs, final BookDescriptor inst) throws SQLException {
 		inst.id = rs.getLong("bs_Id");
-		inst.code  = rs.getInt("bl_Code");
+		inst.code  = rs.getString("bl_Code");
 		inst.seriesNumber.setValue(rs.getLong("bs_Id"));
 		inst.title = rs.getString("bl_Title");
 		inst.year = rs.getInt("bl_Year");
@@ -127,7 +127,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 
 	@Override
 	public void storeInstance(final ResultSet rs, final BookDescriptor inst, final boolean update) throws SQLException {
-		rs.updateInt("bl_code", inst.code);
+		rs.updateString("bl_code", inst.code);
 		rs.updateLong("bs_Id", inst.seriesNumber.getValue());
 		rs.updateString("bl_Title", inst.title);
 		rs.updateInt("bl_Year", inst.year);

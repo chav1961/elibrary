@@ -25,8 +25,14 @@
 				<app:item name="menu.main.tools.database.backup" caption="menu.main.tools.database.backup" tooltip="menu.main.tools.database.backup.tt" action="main.tools.database.backup"/>
 				<app:item name="menu.main.tools.database.restore" caption="menu.main.tools.database.restore" tooltip="menu.main.tools.database.restore.tt" action="main.tools.database.restore"/>
 			</app:submenu>
-			<app:item name="menu.main.tools.settings" caption="menu.main.tools.settings" tooltip="menu.main.tools.settings.tt" action="main.tools.settings"/>
+			<app:submenu name="menu.main.tools.indexer" caption="menu.main.tools.indexer" tooltip="menu.main.tools.indexer.tt">
+				<app:item name="menu.main.tools.indexer.create" caption="menu.main.tools.indexer.create" tooltip="menu.main.tools.database.indexer.tt" action="main.tools.indexer.create"/>
+				<app:item name="menu.main.tools.indexer.upgrade" caption="menu.main.tools.indexer.upgrade" tooltip="menu.main.tools.database.indexer.tt" action="main.tools.indexer.upgrade"/>
+				<app:separator/>
+				<app:item name="menu.main.tools.indexer.search" caption="menu.main.tools.indexer.search" tooltip="menu.main.tools.indexer.search.tt" action="main.tools.indexer.search"/>
+			</app:submenu>
 			<app:separator/>
+			<app:item name="menu.main.tools.settings" caption="menu.main.tools.settings" tooltip="menu.main.tools.settings.tt" action="main.tools.settings"/>
 			<app:builtinSubmenu name="builtin.languages" caption="menu.main.tools.languages" tooltip="menu.main.tools.languages.tt"/>
 		</app:submenu>
 		<app:submenu name="menu.main.help" caption="menu.main.help" tooltip="menu.main.help.tt">

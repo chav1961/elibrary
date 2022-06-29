@@ -425,6 +425,18 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 		}
 	}
 	
+	@OnAction("action:/main.tools.indexer.create")
+	private void createIndex() {
+	}
+
+	@OnAction("action:/main.tools.indexer.upgrade")
+	private void upgradeIndex() {
+	}
+
+	@OnAction("action:/main.tools.indexer.search")
+	private void search() {
+	}
+	
 	@OnAction("action:/main.tools.settings")
 	private void settings() {
 		final Settings	s = new Settings(getLogger(), this);

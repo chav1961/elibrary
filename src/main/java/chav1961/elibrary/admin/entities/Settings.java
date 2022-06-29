@@ -44,6 +44,7 @@ public class Settings implements FormManager<Object,Settings>, ModuleAccessor {
 	public static final String	PROP_SEARCH_USER = "searchUser";	
 	public static final String	PROP_SEARCH_PASSWORD = "searchPassword";	
 	public static final String	PROP_DEFAULT_LANG = "defaultLanguage";	
+	public static final String	PROP_INDEXER_DIR = "indexerDir";	
 
 	public static final String	KEY_VERSIONING_MISSING = "settings.versioning.missing";	
 	public static final String	KEY_VERSIONING_MISSING_TITLE = "settings.versioning.missing.title";	
@@ -71,6 +72,10 @@ public class Settings implements FormManager<Object,Settings>, ModuleAccessor {
 	@LocaleResource(value="settings.defaultlang",tooltip="settings.defaultlang.tt")
 	@Format("30ms")
 	public SupportedLanguages	defaultLang = SupportedLanguages.valueOf(Locale.getDefault().getLanguage());
+
+	@LocaleResource(value="settings.defaultlang",tooltip="settings.defaultlang.tt")
+	@Format("30ms")
+	public File		indexerDir = new File("./lucene");
 	
 	private final LoggerFacade	logger;
 	private final AdminConsole	console;
@@ -142,6 +147,7 @@ public class Settings implements FormManager<Object,Settings>, ModuleAccessor {
 			searchUser = props.getProperty(PROP_SEARCH_USER, String.class, "user");
 			searchPassword = props.getProperty(PROP_SEARCH_PASSWORD, char[].class, "password");
 			defaultLang = props.getProperty(PROP_DEFAULT_LANG, SupportedLanguages.class, Locale.getDefault().getLanguage());
+			indexerDir = props.getProperty(PROP_INDEXER_DIR, File.class, "./lucene");
 		}
 	}
 	
@@ -156,6 +162,7 @@ public class Settings implements FormManager<Object,Settings>, ModuleAccessor {
 			props.setProperty(PROP_SEARCH_USER, searchUser);
 			props.setProperty(PROP_SEARCH_PASSWORD, new String(searchPassword));
 			props.setProperty(PROP_DEFAULT_LANG, defaultLang.name());
+			props.setProperty(PROP_INDEXER_DIR, indexerDir.getAbsolutePath());
 		}
 	}
 }
