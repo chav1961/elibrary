@@ -2,6 +2,12 @@ package chav1961.elibrary.admin;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.FlavorEvent;
+import java.awt.datatransfer.FlavorListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
@@ -12,7 +18,10 @@ import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.swing.JButton;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
@@ -51,6 +60,7 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 	private final ContentMetadataInterface				meta;
 	private final Map<Class<?>,ORMInterface<?,?>>		orms;
 	private final JToolBar								toolbar;
+	private final JPopupMenu							popupMenu;
 	private final JDataBaseTableWithMeta<Long, BookDescriptor>		books;
 	private final JCloseableScrollPane					booksScroll;
 	private final AutoBuiltForm<BookDescriptor,Long>	form;
@@ -75,9 +85,11 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 			this.meta = meta;
 			this.orms = orms;
 			
-			this.toolbar = SwingUtils.toJComponent(metaParent.byUIPath(TOOLBAR_MENU_ROOT),JToolBar.class);
+			this.toolbar = SwingUtils.toJComponent(metaParent.byUIPath(TOOLBAR_MENU_ROOT), JToolBar.class);
+			this.popupMenu = SwingUtils.toJComponent(metaParent.byUIPath(TOOLBAR_MENU_ROOT), JPopupMenu.class);
 			this.toolbar.setFloatable(false);
 			SwingUtils.assignActionListeners(this.toolbar,this);
+			SwingUtils.assignActionListeners(this.popupMenu,this);
 	
 			this.boi = (BooksORMInterface) orms.get(BookDescriptor.class);
 			
@@ -98,6 +110,12 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 					edit(boi, this.books.getSelectedRow(), (BookDescriptor)boi.getFormManager(), this.form);
 				}
 			}, SwingUtils.ACTION_ACCEPT);
+			SwingUtils.assignActionKey(this.books, SwingUtils.KS_CONTEXTMENU, (e)->{
+				final Rectangle	rect = !books.getSelectionModel().isSelectionEmpty() ? books.getCellRect(books.getSelectedRow(), 0, false) : books.getBounds(); 
+
+				enableMenuItems(false);
+				popupMenu.show(books, (int)rect.getCenterX(), (int)rect.getCenterY());
+			}, SwingUtils.ACTION_ACCEPT);
 			SwingUtils.assignActionKey(this.form, JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, SwingUtils.KS_SOFT_EXIT, (e)->{
 				save(boi, (BookDescriptor)boi.getFormManager(), this.books.getSelectedRow());
 			}, SwingUtils.ACTION_SOFT_EXIT);
@@ -106,6 +124,7 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 				if (!books.getSelectionModel().isSelectionEmpty()) {
 					fill(boi, this.books.getSelectedRow(), (BookDescriptor)boi.getFormManager(), this.form);
 				}
+				enableMenuItems(false);
 			});
 			
 			final JPanel	panel = new JPanel(new BorderLayout());
@@ -115,7 +134,8 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 			
 			setLeftComponent(panel);
 			setRightComponent(this.form);
-
+			enableMenuItems(false);
+			Toolkit.getDefaultToolkit().getSystemClipboard().addFlavorListener((e)->enableMenuItems(true));
 			final Dimension dim = books.getPreferredScrollableViewportSize();
 			dim.height += 20;
 			books.setPreferredScrollableViewportSize(dim);
@@ -126,7 +146,6 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 	
 	@Override
 	public void localeChanged(final Locale oldLocale, final Locale newLocale) throws LocalizationException {
-		// TODO Auto-generated method stub
 		fillLocalizedStrings();
 		SwingUtils.refreshLocale(books, oldLocale, newLocale);
 		SwingUtils.refreshLocale(form, oldLocale, newLocale);
@@ -144,7 +163,6 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 
 	@Override
 	public void close() throws Exception {
-		boi.close();
 	}
 
 	@OnAction("menu.booklist.copy")
@@ -317,6 +335,37 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 			form.setEnabled(false);
 			books.setEnabled(true);
 			books.requestFocusInWindow();
+		}
+	}
+
+	private void enableMenuItems(final boolean refreshPaste) {
+		if (books.getSelectionModel().isSelectionEmpty()) {
+			((JMenuItem)SwingUtils.findComponentByName(popupMenu, "menu.booklist.copy")).setEnabled(false);
+			((JMenuItem)SwingUtils.findComponentByName(popupMenu, "menu.booklist.duplicate")).setEnabled(false);
+			((JMenuItem)SwingUtils.findComponentByName(popupMenu, "menu.booklist.edit")).setEnabled(false);
+			((JMenuItem)SwingUtils.findComponentByName(popupMenu, "menu.booklist.delete")).setEnabled(false);
+			((JButton)SwingUtils.findComponentByName(toolbar, "menu.booklist.copy")).setEnabled(false);
+			((JButton)SwingUtils.findComponentByName(toolbar, "menu.booklist.duplicate")).setEnabled(false);
+			((JButton)SwingUtils.findComponentByName(toolbar, "menu.booklist.edit")).setEnabled(false);
+			((JButton)SwingUtils.findComponentByName(toolbar, "menu.booklist.delete")).setEnabled(false);
+		}
+		else {
+			((JMenuItem)SwingUtils.findComponentByName(popupMenu, "menu.booklist.copy")).setEnabled(true);
+			((JMenuItem)SwingUtils.findComponentByName(popupMenu, "menu.booklist.duplicate")).setEnabled(true);
+			((JMenuItem)SwingUtils.findComponentByName(popupMenu, "menu.booklist.edit")).setEnabled(true);
+			((JMenuItem)SwingUtils.findComponentByName(popupMenu, "menu.booklist.delete")).setEnabled(true);
+			((JButton)SwingUtils.findComponentByName(toolbar, "menu.booklist.copy")).setEnabled(true);
+			((JButton)SwingUtils.findComponentByName(toolbar, "menu.booklist.duplicate")).setEnabled(true);
+			((JButton)SwingUtils.findComponentByName(toolbar, "menu.booklist.edit")).setEnabled(true);
+			((JButton)SwingUtils.findComponentByName(toolbar, "menu.booklist.delete")).setEnabled(true);
+		}
+		if (refreshPaste) {
+			if (Toolkit.getDefaultToolkit().getSystemClipboard().isDataFlavorAvailable(DataFlavor.stringFlavor)) {
+				((JMenuItem)SwingUtils.findComponentByName(popupMenu, "menu.booklist.paste")).setEnabled(true);
+			}
+			else {
+				((JMenuItem)SwingUtils.findComponentByName(popupMenu, "menu.booklist.paste")).setEnabled(false);
+			}
 		}
 	}
 	

@@ -5,6 +5,7 @@ module chav1961.elibrary {
 	requires java.naming;
 	requires lucene.core;
 	requires lucene.queryparser;
+	requires java.datatransfer;
 
 	opens chav1961.elibrary.admin to chav1961.purelib;
 	exports chav1961.elibrary.admin.entities to chav1961.purelib;

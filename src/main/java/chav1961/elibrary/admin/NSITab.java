@@ -13,6 +13,7 @@ import java.util.Map;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
@@ -100,7 +101,7 @@ public class NSITab extends JPanel implements AutoCloseable, LoggerFacadeOwner, 
 			add(this.seriesScroll);
 			add(this.authorsScroll);
 			add(this.publishersScroll);
-			this.series.requestFocusInWindow();
+			SwingUtilities.invokeLater(()->this.series.requestFocusInWindow());
 		}
 	}
 

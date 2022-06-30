@@ -1,7 +1,10 @@
 package chav1961.elibrary.admin;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,10 +29,12 @@ import java.util.zip.ZipOutputStream;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import chav1961.elibrary.Application;
 import chav1961.elibrary.admin.db.AuthorsORMInterface;
@@ -165,6 +170,14 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 				
 				this.dbModel = ContentModelFactory.forJsonDescription(rdr);
 			}
+			SwingUtils.assignActionKey(content, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.CTRL_DOWN_MASK), (e)->{
+				final int lastIndex = content.getSelectedIndex();
+				
+				((JCloseableTab)content.getTabComponentAt(lastIndex)).closeTab();
+				if (content.getTabCount() > 0) {
+					content.setSelectedIndex(Math.min(lastIndex, content.getTabCount() - 1));
+				}
+			}, "closeCurrentTab");
 		}
 	}
 
