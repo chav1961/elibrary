@@ -43,4 +43,21 @@
 		<app:key code="N" ctrl="true" action="main.file.connect"/>
 		<app:key code="Q" ctrl="true" action="main.file.quit"/>
 	</app:keyset>
+	<app:menu id="booklistmenu">
+		<app:item name="menu.booklist.copy" caption="menu.booklist.copy" tooltip="menu.booklist.copy.tt" icon="root://chav1961.elibrary.Application/chav1961/elibrary/icons/copy.png" action="booklist.copy"/>
+		<app:item name="menu.booklist.paste" caption="menu.booklist.paste" tooltip="menu.booklist.paste.tt" icon="root://chav1961.elibrary.Application/chav1961/elibrary/icons/paste.png" action="booklist.paste"/>
+		<app:separator/>
+		<app:item name="menu.booklist.insert" caption="menu.booklist.insert" tooltip="menu.booklist.insert.tt" icon="root://chav1961.elibrary.Application/chav1961/elibrary/icons/insert.png" action="booklist.insert"/>
+		<app:item name="menu.booklist.duplicate" caption="menu.booklist.duplicate" tooltip="menu.booklist.duplicate.tt" icon="root://chav1961.elibrary.Application/chav1961/elibrary/icons/duplicate.png" action="booklist.duplicate"/>
+		<app:item name="menu.booklist.edit" caption="menu.booklist.edit" tooltip="menu.booklist.edit.tt" icon="root://chav1961.elibrary.Application/chav1961/elibrary/icons/edit.png" action="booklist.edit"/>
+		<app:item name="menu.booklist.delete" caption="menu.booklist.delete" tooltip="menu.booklist.delete.tt" icon="root://chav1961.elibrary.Application/chav1961/elibrary/icons/delete.png" action="booklist.delete"/>
+	</app:menu>
+	<app:keyset id="booklistmenu.keyset">
+		<app:key code="C" ctrl="true" action="booklist.copy"/>
+		<app:key code="V" ctrl="true" action="booklist.paste"/>
+		<app:key code="INSERT" action="booklist.insert"/>
+		<app:key code="INSERT" ctrl="true" shift="true" action="booklist.duplicate"/>
+		<app:key code="ENTER" action="booklist.edit"/>
+		<app:key code="DELETE" action="booklist.delete"/>
+	</app:keyset>
 </app:root>

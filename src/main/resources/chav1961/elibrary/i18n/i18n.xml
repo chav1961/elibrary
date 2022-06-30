@@ -78,6 +78,19 @@
 		<key name="menu.main.help.tt">Help for application</key>
 		<key name="menu.main.help.about">About...</key>
 		<key name="menu.main.help.about.tt">Information about the application</key>
+		
+		<key name="menu.booklist.copy">Copy</key>
+		<key name="menu.booklist.copy.tt">Copy book descriptor into clipboard (as JSON)</key>
+		<key name="menu.booklist.paste">Paste</key>
+		<key name="menu.booklist.paste.tt">Paste book descriptor from clipboard (as JSON)</key>
+		<key name="menu.booklist.insert">Insert</key>
+		<key name="menu.booklist.insert.tt">Insert new book descriptor</key>
+		<key name="menu.booklist.duplicate">Duplicate</key>
+		<key name="menu.booklist.duplicate.tt">Duplicate book descriptor</key>
+		<key name="menu.booklist.edit">Edit</key>
+		<key name="menu.booklist.edit.tt">Edit book descriptor</key>
+		<key name="menu.booklist.delete">Delete</key>
+		<key name="menu.booklist.delete.tt">Delete book descriptor</key>
 
 <!-- Settings class localization--> 
 		<key name="settings.title">Settings</key>
@@ -270,6 +283,19 @@
 		<key name="menu.main.help.tt">Справка по приложению</key>
 		<key name="menu.main.help.about">О программе</key>
 		<key name="menu.main.help.about.tt">Информация о приложении</key>
+
+		<key name="menu.booklist.copy">Копировать</key>
+		<key name="menu.booklist.copy.tt">Скопировать описатель книги в буфер обмена (в формате JSON)</key>
+		<key name="menu.booklist.paste">Вставить</key>
+		<key name="menu.booklist.paste.tt">Вставить описатель книги из буфера обмена (в формате JSON)</key>
+		<key name="menu.booklist.insert">Создать</key>
+		<key name="menu.booklist.insert.tt">Создать новый описатель книги</key>
+		<key name="menu.booklist.duplicate">Дублировать</key>
+		<key name="menu.booklist.duplicate.tt">Дублировать существующий описатель книги</key>
+		<key name="menu.booklist.edit">Изменить</key>
+		<key name="menu.booklist.edit.tt">Редактировать выбранный описатель книги</key>
+		<key name="menu.booklist.delete">Удалить</key>
+		<key name="menu.booklist.delete.tt">Удалить выбранный описатель книги</key>
 
 <!-- Локализация класса Settings --> 
 		<key name="settings.title">Настройки</key>

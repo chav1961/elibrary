@@ -347,7 +347,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 	
 	@OnAction("action:/main.file.books")
 	private void showBooks() throws ContentException, SQLException {
-		final BooksTab	tab = new BooksTab(localizer, state, dbModel, orms);
+		final BooksTab	tab = new BooksTab(localizer, state, dbModel, mdi, orms);
 		
 		JCloseableTab.placeComponentIntoTab(content, TAB_BOOKS, tab, new JCloseableTab(localizer, TAB_BOOKS));
 	}

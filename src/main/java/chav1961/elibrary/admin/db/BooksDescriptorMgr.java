@@ -97,7 +97,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 
 	@Override
 	public void loadInstance(final ResultSet rs, final BookDescriptor inst) throws SQLException {
-		inst.id = rs.getLong("bs_Id");
+		inst.id = rs.getLong("bl_Id");
 		inst.code  = rs.getString("bl_Code");
 		inst.seriesNumber.setValue(rs.getLong("bs_Id"));
 		inst.title = rs.getString("bl_Title");

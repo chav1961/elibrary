@@ -1,6 +1,6 @@
 package chav1961.elibrary.admin;
 
-import java.awt.Color;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -15,17 +15,12 @@ import java.util.Map;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
-import javax.swing.border.LineBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import chav1961.elibrary.admin.db.BooksORMInterface;
 import chav1961.elibrary.admin.db.ORMInterface;
-import chav1961.elibrary.admin.db.SeriesORMInterface;
-import chav1961.elibrary.admin.entities.AuthorsDescriptor;
 import chav1961.elibrary.admin.entities.BookDescriptor;
-import chav1961.elibrary.admin.entities.SeriesDescriptor;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.exceptions.ContentException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
@@ -35,28 +30,30 @@ import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
 import chav1961.purelib.basic.interfaces.LoggerFacadeOwner;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
-import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
-import chav1961.purelib.ui.interfaces.FormManager;
-import chav1961.purelib.ui.swing.AutoBuiltForm;
-import chav1961.purelib.ui.swing.SwingUtils;
-import chav1961.purelib.ui.swing.useful.JDataBaseTableWithMeta;
 import chav1961.purelib.model.ContentModelFactory;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
+import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 import chav1961.purelib.model.interfaces.NodeMetadataOwner;
+import chav1961.purelib.ui.swing.AutoBuiltForm;
+import chav1961.purelib.ui.swing.SwingUtils;
+import chav1961.purelib.ui.swing.interfaces.OnAction;
+import chav1961.purelib.ui.swing.useful.JDataBaseTableWithMeta;
 
 public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeOwner, NodeMetadataOwner, LocaleChangeListener {
 	private static final long serialVersionUID = -8075407533330137127L;
 	private static final String				URI_BOOKS = "app:table:/elibrary.booklist";
+	private static final URI				TOOLBAR_MENU_ROOT = URI.create("ui:/model/navigation.top.booklistmenu");	
 
 	private final Localizer								localizer;
 	private final LoggerFacade							logger;
 	private final ContentMetadataInterface				meta;
 	private final Map<Class<?>,ORMInterface<?,?>>		orms;
+	private final JToolBar								toolbar;
 	private final JDataBaseTableWithMeta<Long, BookDescriptor>		books;
 	private final JCloseableScrollPane					booksScroll;
 	private final AutoBuiltForm<BookDescriptor,Long>	form;
 	
-	public BooksTab(final Localizer localizer, final LoggerFacade logger, final ContentMetadataInterface meta, final Map<Class<?>,ORMInterface<?,?>> orms) throws NullPointerException, IllegalArgumentException, SQLException, SyntaxException, LocalizationException, ContentException {
+	public BooksTab(final Localizer localizer, final LoggerFacade logger, final ContentMetadataInterface meta, final ContentMetadataInterface metaParent, final Map<Class<?>,ORMInterface<?,?>> orms) throws NullPointerException, IllegalArgumentException, SQLException, SyntaxException, LocalizationException, ContentException {
 		if (localizer == null) {
 			throw new NullPointerException("Localizer can't be null");
 		}
@@ -74,10 +71,14 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 			this.logger = logger;
 			this.meta = meta;
 			this.orms = orms;
+			
+			this.toolbar = SwingUtils.toJComponent(metaParent.byUIPath(TOOLBAR_MENU_ROOT),JToolBar.class);
+			this.toolbar.setFloatable(false);
+			SwingUtils.assignActionListeners(this.toolbar,this);
 	
 			final BooksORMInterface		boi = (BooksORMInterface) orms.get(BookDescriptor.class);
-			
-			this.books = new JDataBaseTableWithMeta<Long, BookDescriptor>(meta.byApplicationPath(URI.create(URI_BOOKS))[0], localizer);
+
+			this.books = new JDataBaseTableWithMeta<Long, BookDescriptor>(meta.byApplicationPath(URI.create(URI_BOOKS))[0], localizer, true, false);
 			
 			this.books.assignResultSetAndManagers(boi.getResultSet(), boi.getFormManager(), boi.getInstanceManager());
 			this.booksScroll = new JCloseableScrollPane(this.books);
@@ -89,33 +90,25 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 			
 			SwingUtils.assignActionKey(this.books, SwingUtils.KS_ACCEPT, (e)->{
 				if (!books.getSelectionModel().isSelectionEmpty()) {
-					try{books.setEnabled(false);
-						form.setEnabled(true);
-						edit(boi, this.books.getSelectedRow(), (BookDescriptor)boi.getFormManager(), this.form);
-					} catch (ContentException exc) {
-						SwingUtils.getNearestLogger(books).message(Severity.error, exc, exc.getLocalizedMessage());
-					}
+					edit(boi, this.books.getSelectedRow(), (BookDescriptor)boi.getFormManager(), this.form);
 				}
 			}, SwingUtils.ACTION_ACCEPT);
 			SwingUtils.assignActionKey(this.form, JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, SwingUtils.KS_SOFT_EXIT, (e)->{
-				form.setEnabled(false);
-				books.setEnabled(true);
 				save(boi, (BookDescriptor)boi.getFormManager(), this.books.getSelectedRow());
 			}, SwingUtils.ACTION_SOFT_EXIT);
 			
 			this.books.getSelectionModel().addListSelectionListener((e)->{
 				if (!books.getSelectionModel().isSelectionEmpty()) {
-					try{this.form.setEnabled(true);
-						load(boi, books.getSelectedRow(), (BookDescriptor)boi.getFormManager());
-						toScreen((BookDescriptor)boi.getFormManager(), this.form);
-						this.form.setEnabled(false);
-					} catch (ContentException exc) {
-						SwingUtils.getNearestLogger(books).message(Severity.error, exc, exc.getLocalizedMessage());
-					}
+					fill(boi, this.books.getSelectedRow(), (BookDescriptor)boi.getFormManager(), this.form);
 				}
 			});
 			
-			setLeftComponent(this.booksScroll);
+			final JPanel	panel = new JPanel(new BorderLayout());
+			
+			panel.add(this.toolbar, BorderLayout.NORTH);
+			panel.add(this.booksScroll, BorderLayout.CENTER);
+			
+			setLeftComponent(panel);
 			setRightComponent(this.form);
 
 			final Dimension dim = books.getPreferredScrollableViewportSize();
@@ -150,7 +143,45 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 		// TODO Auto-generated method stub
 		
 	}
-
+	
+	@OnAction("menu.booklist.copy")
+	private void copy() {
+		if (books.getSelectedRow() >= 0) {
+			
+		}
+	}
+	
+	@OnAction("booklist.paste")
+	private void paste() {
+		
+	}
+	
+	@OnAction("booklist.insert")
+	private void insert() {
+		
+	}
+	
+	@OnAction("booklist.duplicate")
+	private void duplicate() {
+		if (books.getSelectedRow() >= 0) {
+			
+		}
+	}
+	
+	@OnAction("booklist.edit")
+	private void edit() {
+		if (books.getSelectedRow() >= 0) {
+			
+		}
+	}
+	
+	@OnAction("booklist.delete")
+	private void delete() {
+		if (books.getSelectedRow() >= 0) {
+			
+		}
+	}
+	
 	private void assignResizer(final JScrollPane owner, final JDataBaseTableWithMeta<?, ?> table) {
 		owner.addComponentListener(new ComponentListener() {
 			@Override public void componentMoved(ComponentEvent e) {}
@@ -170,7 +201,6 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 	
 	private void assignFocusManager(final JScrollPane pane, final JDataBaseTableWithMeta<?, ?> table) {
 		table.addFocusListener(new FocusListener() {
-			
 			@Override
 			public void focusLost(FocusEvent e) {
 				fillLocalizedStrings();
@@ -198,24 +228,65 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 		form.revalidate();
 		form.repaint();
 	}
+
+	private void fill(final BooksORMInterface boi, final int selectedRow, final BookDescriptor desc, final AutoBuiltForm<BookDescriptor,Long> form) {
+		try{load(boi, books.getSelectedRow(), (BookDescriptor)boi.getFormManager());
+			toScreen((BookDescriptor)boi.getFormManager(), form);
+		} catch (ContentException e) {
+			getLogger().message(Severity.error, e, e.getLocalizedMessage());
+		}
+	}
 	
-	private void edit(final BooksORMInterface boi, final int selectedRow, final BookDescriptor desc, final AutoBuiltForm<BookDescriptor,Long> form) throws ContentException {
-		load(boi, selectedRow, desc);
-		toScreen(desc, form);
-		form.requestFocusInWindow();
+	private void edit(final BooksORMInterface boi, final int selectedRow, final BookDescriptor desc, final AutoBuiltForm<BookDescriptor,Long> form) {
+		try{fill(boi, selectedRow, desc, form);
+		} finally {
+			books.setEnabled(false);
+			form.setEnabled(true);
+			form.requestFocusInWindow();
+		}
 	}
 
+	
 	private void save(final BooksORMInterface boi, final BookDescriptor desc, final int selectedRow) {
 		final ResultSet	rs = boi.getResultSet();
 		
-		try{rs.absolute(selectedRow + 1);
+		try{final int		lastPos = rs.getRow();
+			
+			rs.absolute(selectedRow + 1);
+			if (rs.getLong("bl_Id") != desc.id) {	// unsynchronized result set, use binary search to find id required
+				rs.last();
+				
+		        int low = 0, high = rs.getRow() - 1;
+
+		        while (low <= high) {
+		            int 	mid = (low + high) >>> 1;
+		            
+		            rs.absolute(mid + 1);
+		            
+		            long 	midVal = rs.getLong("bl_Id");
+
+		            if (midVal < desc.id) {
+		                low = mid + 1;
+		            }
+		            else if (midVal > desc.id) {
+		                high = mid - 1;
+		            }
+		            else {
+		            	break;
+		            }
+		        }
+			}
 			boi.getInstanceManager().storeInstance(rs, desc, true);
 			rs.updateRow();
+			rs.absolute(lastPos);
 			books.refresh();
-			books.requestFocusInWindow();
 			getLogger().message(Severity.info, "Saved");
 		} catch (SQLException e) {
 			getLogger().message(Severity.error, e, e.getLocalizedMessage());
+		} finally {
+			form.setEnabled(false);
+			books.setEnabled(true);
+			books.requestFocusInWindow();
 		}
 	}
 	
