@@ -194,6 +194,10 @@
 		<key name="elibrary.booklist.bl_Tags.tt">Tags</key>
 		<key name="elibrary.booklist.bl_Image">Image</key>
 		<key name="elibrary.booklist.bl_Image.tt">Image</key>
+		<key name="elibrary.booklist.bl_Mime"></key>	
+		<key name="elibrary.booklist.bl_Mime.tt"></key>	
+		<key name="elibrary.booklist.bl_Content">Content</key>	
+		<key name="elibrary.booklist.bl_Content.tt">Book loaded in appropriative format</key>	
 		<key name="elibrary.booklist.ba_Name">Authors</key>	
 		<key name="elibrary.booklist.ba_Name.tt">List of the authors</key>
 
@@ -398,6 +402,10 @@
 		<key name="elibrary.booklist.bl_Tags.tt">Теги</key>
 		<key name="elibrary.booklist.bl_Image">Обложка</key>
 		<key name="elibrary.booklist.bl_Image.tt">Обложка</key>
+		<key name="elibrary.booklist.bl_Mime"></key>	
+		<key name="elibrary.booklist.bl_Mime.tt"></key>	
+		<key name="elibrary.booklist.bl_Content">Контент</key>	
+		<key name="elibrary.booklist.bl_Content.tt">Загруженная книга в соответстсвуюем формате</key>	
 		<key name="elibrary.booklist.ba_Name">Авторы</key>	
 		<key name="elibrary.booklist.ba_Name.tt">Список авторов</key>
 

@@ -5,6 +5,8 @@ import java.awt.image.RenderedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -22,8 +24,11 @@ import javax.imageio.ImageIO;
 import chav1961.elibrary.admin.entities.AuthorsDescriptor;
 import chav1961.elibrary.admin.entities.BookDescriptor;
 import chav1961.elibrary.admin.entities.SeriesDescriptor;
+import chav1961.purelib.basic.MimeType;
+import chav1961.purelib.basic.Utils;
 import chav1961.purelib.basic.exceptions.FlowException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
+import chav1961.purelib.basic.exceptions.MimeParseException;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.sql.interfaces.InstanceManager;
@@ -129,6 +134,19 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 			}
 		}
 		
+		try{final String	mime = rs.getString("bl_Mime");
+			final byte[]	bookContent = rs.getBytes("bl_Content");
+			
+			inst.content.setMimeType(MimeType.parseMimeList(mime)[0]);
+			try(final ByteArrayInputStream	bais = new ByteArrayInputStream(bookContent);
+				final OutputStream			os = inst.content.putContent()) {
+
+				Utils.copyStream(bais, os);
+			}
+		} catch (MimeParseException | IOException e) {
+			throw new SQLException(e.getLocalizedMessage(), e);
+		}
+		
 		final List<LongItemAndReference<String>>	list = new ArrayList<>();
 
 		ps.setLong(1, inst.id);		
@@ -175,6 +193,19 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		else {
 			rs.updateNull("bl_Image");
 		}
+		
+		rs.updateString("bl_Mime", inst.content.getMimeType().toString());
+		try(final InputStream	is = inst.content.getContent();
+			final ByteArrayOutputStream	baos = new ByteArrayOutputStream()) {
+
+			Utils.copyStream(is, baos);
+			rs.updateBytes("bl_Content", baos.toByteArray());
+		} catch (IOException e) {
+			throw new SQLException(e.getLocalizedMessage(), e);
+		}
+		rs.updateString("bl_Mime", inst.content.getMimeType().toString());
+		
+		
 		if (!update) {
 			rs.updateLong("bl_Id", inst.id);
 		}

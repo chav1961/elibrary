@@ -204,6 +204,22 @@
 						 "appUri":"app:column:/elibrary.booklist/bl_Image?seq=9&type=BYTEA",
 						 "relUri":"bl_Image",
 					 	 "format":""
+					},
+					 {"name":"bl_Mime",
+						 "type":"chav1961.purelib.basic.MimeType",
+						 "labelId":"elibrary.booklist.bl_Mime",
+						 "tooltipId":"elibrary.booklist.bl_Mime.tt",
+						 "appUri":"app:column:/elibrary.booklist/bl_Mime?seq=10&type=TEXT",
+						 "relUri":"bl_Mime",
+					 	 "format":"m"
+					},
+					 {"name":"bl_Content",
+						 "type":"byte[]",
+						 "labelId":"elibrary.booklist.bl_Content",
+						 "tooltipId":"elibrary.booklist.bl_Content.tt",
+						 "appUri":"app:column:/elibrary.booklist/bl_Content?seq=11&type=BYTEA",
+						 "relUri":"bl_Content",
+					 	 "format":"m"
 					}
 				 ]
 			},
