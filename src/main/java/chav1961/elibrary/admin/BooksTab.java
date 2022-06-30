@@ -115,7 +115,7 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 
 				enableMenuItems(false);
 				popupMenu.show(books, (int)rect.getCenterX(), (int)rect.getCenterY());
-			}, SwingUtils.ACTION_ACCEPT);
+			}, SwingUtils.ACTION_CONTEXTMENU);
 			SwingUtils.assignActionKey(this.form, JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, SwingUtils.KS_SOFT_EXIT, (e)->{
 				save(boi, (BookDescriptor)boi.getFormManager(), this.books.getSelectedRow());
 			}, SwingUtils.ACTION_SOFT_EXIT);
@@ -165,38 +165,38 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 	public void close() throws Exception {
 	}
 
-	@OnAction("menu.booklist.copy")
+	@OnAction("action:/booklist.copy")
 	private void copy() {
 		if (books.getSelectedRow() >= 0) {
 			
 		}
 	}
 	
-	@OnAction("booklist.paste")
+	@OnAction("action:/booklist.paste")
 	private void paste() {
 		
 	}
 	
-	@OnAction("booklist.insert")
+	@OnAction("action:/booklist.insert")
 	private void insert() {
 		books.processAction(SwingUtils.ACTION_INSERT);
 	}
 	
-	@OnAction("booklist.duplicate")
+	@OnAction("action:/booklist.duplicate")
 	private void duplicate() {
 		if (books.getSelectedRow() >= 0) {
 			books.processAction(SwingUtils.ACTION_DUPLICATE);
 		}
 	}
 	
-	@OnAction("booklist.edit")
+	@OnAction("action:/booklist.edit")
 	private void edit() {
 		if (books.getSelectedRow() >= 0) {
 			edit(boi, this.books.getSelectedRow(), (BookDescriptor)boi.getFormManager(), this.form);
 		}
 	}
 	
-	@OnAction("booklist.delete")
+	@OnAction("action:/booklist.delete")
 	private void delete() {
 		if (books.getSelectedRow() >= 0) {
 			books.processAction(SwingUtils.ACTION_DELETE);
@@ -269,7 +269,8 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 	}
 
 	private void fill(final BooksORMInterface boi, final int selectedRow, final BookDescriptor desc, final AutoBuiltForm<BookDescriptor,Long> form) {
-		try{load(boi, books.getSelectedRow(), (BookDescriptor)boi.getFormManager());
+		try{load(boi, selectedRow, (BookDescriptor)boi.getFormManager());
+			System.err.println("Fill="+((BookDescriptor)boi.getFormManager()).id);
 			toScreen((BookDescriptor)boi.getFormManager(), form);
 		} catch (ContentException e) {
 			getLogger().message(Severity.error, e, e.getLocalizedMessage());

@@ -1,5 +1,6 @@
 package chav1961.elibrary.admin.db;
 
+import java.awt.Image;
 import java.awt.image.RenderedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -68,12 +69,13 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 
 	@Override
 	public BookDescriptor newInstance() throws SQLException {
-		try{final Long	key = newKey();
+		try{final Long				key = newKey();
+			final BookDescriptor	newInst = desc.clone();
 		
-			assignKey(desc, key);
-			desc.onRecord(RecordAction.INSERT, null, null, desc, key);
-			return desc;
-		} catch (FlowException e) {
+			assignKey(newInst, key);
+			newInst.onRecord(RecordAction.INSERT, null, null, newInst, key);
+			return newInst;
+		} catch (FlowException | CloneNotSupportedException e) {
 			throw new SQLException(e.getLocalizedMessage(), e);
 		}
 	}
@@ -148,10 +150,12 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 			throw new SQLException(e);
 		}
 		inst.authors = list.toArray(new LongItemAndReference[list.size()]);
+		System.err.println("Load "+inst.id);
 	}
 
 	@Override
 	public void storeInstance(final ResultSet rs, final BookDescriptor inst, final boolean update) throws SQLException {
+		System.err.println("Store "+inst.id+", "+update);
 		rs.updateString("bl_code", inst.code);
 		rs.updateLong("bs_Id", inst.seriesNumber.getValue());
 		rs.updateString("bl_Title", inst.title);
@@ -196,7 +200,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	public <T> T get(final BookDescriptor inst, final String name) throws SQLException {
 		switch (name) {
 			case "bl_Id" 		: return (T) Long.valueOf(inst.id);
-			case "bl_Code" 		: return (T) Integer.valueOf(inst.code);
+			case "bl_Code" 		: return (T) inst.code;
 			case "bs_Id" 		: return (T) Long.valueOf(inst.seriesNumber.getValue());
 			case "bl_Title"		: return (T) inst.title;
 			case "bl_Year" 		: return (T) Integer.valueOf(inst.year);
@@ -211,17 +215,32 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	@Override
 	public <T> InstanceManager<Long, BookDescriptor> set(final BookDescriptor inst, final String name, final T value) throws SQLException {
 		switch (name) {
-			case "ba_Id" 		: 
+			case "bl_Id" 		: 
 				inst.id = (Long)value;
 				break;
-//			case "ba_Name" 		:
-//				inst.name = (String)value;
-//				break;
-//			case "ba_Comment"	:
-//				inst.comment = (String)value;
-//				break;
-			default :
-				throw new SQLException("Name ["+name+"] is missing in the instance");
+			case "bl_Code" 		: 
+				inst.code = (String)value;
+				break;
+			case "bs_Id" 		: 
+				inst.seriesNumber.setValue((Long)value);
+				break;
+			case "bl_Title"		: 
+				inst.title = (String)value;
+				break;
+			case "bl_Year" 		: 
+				inst.year = (Integer)value;
+				break;
+			case "bp_Id" 		: 
+				inst.publisher.setValue((Long)value);
+				break;
+			case "bl_Comment"	: 
+				inst.annotation = (String)value;
+				break;
+//			case "bl_Tags" 		: inst.tags;
+			case "bl_Image" 	: 
+				inst.image = (Image)value;
+				break;
+			default : throw new SQLException("Name ["+name+"] is missing in the instance");
 		}
 		return this;
 	}
