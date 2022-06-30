@@ -33,11 +33,13 @@ import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
 import chav1961.purelib.model.ContentModelFactory;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
+import chav1961.purelib.testing.SwingTestingUtils;
 import chav1961.purelib.model.interfaces.NodeMetadataOwner;
 import chav1961.purelib.ui.swing.AutoBuiltForm;
 import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.interfaces.OnAction;
 import chav1961.purelib.ui.swing.useful.JDataBaseTableWithMeta;
+import chav1961.purelib.ui.swing.useful.JDataBaseTableWithMeta.ContentChangedListener.ChangeType;
 
 public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeOwner, NodeMetadataOwner, LocaleChangeListener {
 	private static final long serialVersionUID = -8075407533330137127L;
@@ -52,6 +54,7 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 	private final JDataBaseTableWithMeta<Long, BookDescriptor>		books;
 	private final JCloseableScrollPane					booksScroll;
 	private final AutoBuiltForm<BookDescriptor,Long>	form;
+	private final BooksORMInterface						boi; 
 	
 	public BooksTab(final Localizer localizer, final LoggerFacade logger, final ContentMetadataInterface meta, final ContentMetadataInterface metaParent, final Map<Class<?>,ORMInterface<?,?>> orms) throws NullPointerException, IllegalArgumentException, SQLException, SyntaxException, LocalizationException, ContentException {
 		if (localizer == null) {
@@ -76,14 +79,16 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 			this.toolbar.setFloatable(false);
 			SwingUtils.assignActionListeners(this.toolbar,this);
 	
-			final BooksORMInterface		boi = (BooksORMInterface) orms.get(BookDescriptor.class);
-
-			this.books = new JDataBaseTableWithMeta<Long, BookDescriptor>(meta.byApplicationPath(URI.create(URI_BOOKS))[0], localizer, true, false);
+			this.boi = (BooksORMInterface) orms.get(BookDescriptor.class);
 			
+			this.books = new JDataBaseTableWithMeta<Long, BookDescriptor>(meta.byApplicationPath(URI.create(URI_BOOKS))[0], localizer, true, false);
 			this.books.assignResultSetAndManagers(boi.getResultSet(), boi.getFormManager(), boi.getInstanceManager());
 			this.booksScroll = new JCloseableScrollPane(this.books);
 			assignResizer(this.booksScroll, this.books);
 			assignFocusManager(this.booksScroll, this.books);
+			this.books.addContentChangedListener((table, ct, key, field)->{
+				contentChanged(ct,key);
+			});
 			
 			this.form = new AutoBuiltForm<BookDescriptor,Long>(ContentModelFactory.forAnnotatedClass(BookDescriptor.class), localizer, PureLibSettings.INTERNAL_LOADER, (BookDescriptor)boi.getFormManager(), boi.getFormManager());
 			this.form.setEnabled(false);
@@ -119,7 +124,6 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 		}
 	}
 	
-
 	@Override
 	public void localeChanged(final Locale oldLocale, final Locale newLocale) throws LocalizationException {
 		// TODO Auto-generated method stub
@@ -140,10 +144,9 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 
 	@Override
 	public void close() throws Exception {
-		// TODO Auto-generated method stub
-		
+		boi.close();
 	}
-	
+
 	@OnAction("menu.booklist.copy")
 	private void copy() {
 		if (books.getSelectedRow() >= 0) {
@@ -158,27 +161,45 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 	
 	@OnAction("booklist.insert")
 	private void insert() {
-		
+		books.processAction(SwingUtils.ACTION_INSERT);
 	}
 	
 	@OnAction("booklist.duplicate")
 	private void duplicate() {
 		if (books.getSelectedRow() >= 0) {
-			
+			books.processAction(SwingUtils.ACTION_DUPLICATE);
 		}
 	}
 	
 	@OnAction("booklist.edit")
 	private void edit() {
 		if (books.getSelectedRow() >= 0) {
-			
+			edit(boi, this.books.getSelectedRow(), (BookDescriptor)boi.getFormManager(), this.form);
 		}
 	}
 	
 	@OnAction("booklist.delete")
 	private void delete() {
 		if (books.getSelectedRow() >= 0) {
-			
+			books.processAction(SwingUtils.ACTION_DELETE);
+		}
+	}
+
+	private void contentChanged(final ChangeType ct, final Long key) {
+		switch (ct) {
+			case DELETED	:
+				break;
+			case DUPLICATED	: case INSERTED :
+				try{final int	row = locateResultSet(boi.getResultSet(), key);
+				
+					books.changeSelection(row, 0, false, false);
+					edit();
+				} catch (SQLException e) {
+					getLogger().message(Severity.error, e, e.getLocalizedMessage());
+				}
+				break;
+			default:
+				throw new UnsupportedOperationException("Change type ["+ct+"] is not supported yet");
 		}
 	}
 	
@@ -246,6 +267,35 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 		}
 	}
 
+	private int locateResultSet(final ResultSet rs, final long key) throws SQLException {
+		rs.last();
+		
+        int low = 0, high = rs.getRow() - 1;
+
+        while (low <= high) {
+            int 	mid = (low + high) >>> 1;
+            
+            rs.absolute(mid + 1);
+            
+            long 	midVal = rs.getLong("bl_Id");
+
+            if (midVal < key) {
+                low = mid + 1;
+            }
+            else if (midVal > key) {
+                high = mid - 1;
+            }
+            else {
+            	return mid;
+            }
+        }
+        rs.beforeFirst();
+        while (rs.next()) {
+        	System.err.println("Key="+rs.getLong("bl_Id"));
+        }
+        throw new IllegalArgumentException("Key ["+key+"] not found in the resultset"); 
+	}
+	
 	
 	private void save(final BooksORMInterface boi, final BookDescriptor desc, final int selectedRow) {
 		final ResultSet	rs = boi.getResultSet();
@@ -254,27 +304,7 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 			
 			rs.absolute(selectedRow + 1);
 			if (rs.getLong("bl_Id") != desc.id) {	// unsynchronized result set, use binary search to find id required
-				rs.last();
-				
-		        int low = 0, high = rs.getRow() - 1;
-
-		        while (low <= high) {
-		            int 	mid = (low + high) >>> 1;
-		            
-		            rs.absolute(mid + 1);
-		            
-		            long 	midVal = rs.getLong("bl_Id");
-
-		            if (midVal < desc.id) {
-		                low = mid + 1;
-		            }
-		            else if (midVal > desc.id) {
-		                high = mid - 1;
-		            }
-		            else {
-		            	break;
-		            }
-		        }
+				locateResultSet(rs, desc.id);
 			}
 			boi.getInstanceManager().storeInstance(rs, desc, true);
 			rs.updateRow();

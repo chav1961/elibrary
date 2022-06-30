@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import chav1961.elibrary.admin.entities.PublishersDescriptor;
 import chav1961.elibrary.admin.entities.SeriesDescriptor;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.sql.interfaces.InstanceManager;
@@ -47,7 +48,12 @@ public class SeriesDescriptorMgr implements InstanceManager<Long, SeriesDescript
 	public Long extractKey(final SeriesDescriptor inst) throws SQLException {
 		return inst.id;
 	}
-
+	
+	@Override
+	public void assignKey(final SeriesDescriptor inst, final Long key) throws SQLException {
+		inst.id = key;
+	}
+	
 	@Override
 	public SeriesDescriptor clone(final SeriesDescriptor inst) throws SQLException {
 		try{final SeriesDescriptor	clone = inst.clone();

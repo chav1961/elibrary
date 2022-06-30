@@ -50,6 +50,11 @@ public class AuthorsDescriptorMgr implements InstanceManager<Long, AuthorsDescri
 	}
 
 	@Override
+	public void assignKey(final AuthorsDescriptor inst, final Long key) throws SQLException {
+		inst.id = key;
+	}
+	
+	@Override
 	public AuthorsDescriptor clone(final AuthorsDescriptor inst) throws SQLException {
 		try{final AuthorsDescriptor	clone = inst.clone();
 

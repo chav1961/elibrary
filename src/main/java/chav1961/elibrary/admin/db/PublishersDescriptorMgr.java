@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import chav1961.elibrary.admin.entities.BookDescriptor;
 import chav1961.elibrary.admin.entities.PublishersDescriptor;
 import chav1961.elibrary.admin.entities.SeriesDescriptor;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
@@ -49,6 +50,11 @@ public class PublishersDescriptorMgr implements InstanceManager<Long, Publishers
 		return inst.id;
 	}
 
+	@Override
+	public void assignKey(final PublishersDescriptor inst, final Long key) throws SQLException {
+		inst.id = key;
+	}
+	
 	@Override
 	public PublishersDescriptor clone(final PublishersDescriptor inst) throws SQLException {
 		try{final PublishersDescriptor	clone = inst.clone();

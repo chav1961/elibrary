@@ -18,6 +18,7 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import chav1961.elibrary.admin.entities.AuthorsDescriptor;
 import chav1961.elibrary.admin.entities.BookDescriptor;
 import chav1961.elibrary.admin.entities.SeriesDescriptor;
 import chav1961.purelib.basic.exceptions.FlowException;
@@ -67,7 +68,10 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 
 	@Override
 	public BookDescriptor newInstance() throws SQLException {
-		try{desc.onRecord(RecordAction.INSERT, null, null, desc, newKey());
+		try{final Long	key = newKey();
+		
+			assignKey(desc, key);
+			desc.onRecord(RecordAction.INSERT, null, null, desc, key);
 			return desc;
 		} catch (FlowException e) {
 			throw new SQLException(e.getLocalizedMessage(), e);
@@ -83,7 +87,12 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	public Long extractKey(final BookDescriptor inst) throws SQLException {
 		return inst.id;
 	}
-
+	
+	@Override
+	public void assignKey(final BookDescriptor inst, final Long key) throws SQLException {
+		inst.id = key;
+	}
+	
 	@Override
 	public BookDescriptor clone(final BookDescriptor inst) throws SQLException {
 		try{final BookDescriptor	clone = inst.clone();
