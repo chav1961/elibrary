@@ -124,6 +124,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		inst.publisher.setValue(rs.getLong("bp_Id"));
 		inst.annotation = rs.getString("bl_Comment");
 		inst.tags = fromString(rs.getString("bl_Tags"));
+		inst.page = rs.getInt("bl_Page");
 		((LazyImageKeeperImpl)inst.image).setContentKey(inst.id);
 		
 		try{inst.content.setMimeType(MimeType.parseMimeList(rs.getString("bl_Mime"))[0]);
@@ -166,6 +167,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		rs.updateLong("bp_Id", inst.publisher.getValue());
 		rs.updateString("bl_Comment", inst.annotation);
 		rs.updateString("bl_Tags", toString(inst.tags));
+		rs.updateInt("bl_Page", inst.page);
 		if (inst.image != null) {
 			try(final ByteArrayOutputStream	baos = new ByteArrayOutputStream()) {
 				ImageIO.write((RenderedImage) inst.image, "png", baos);
@@ -224,6 +226,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 			case "bl_Comment"	: return (T) inst.annotation;
 			case "bl_Tags" 		: return (T) inst.tags;
 			case "bl_Image" 	: return (T) inst.image.getImage();
+			case "bl_Page" 		: return (T) Integer.valueOf(inst.page);
 			default : throw new SQLException("Name ["+name+"] is missing in the instance");
 		}
 	}
@@ -255,6 +258,9 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 //			case "bl_Tags" 		: inst.tags;
 			case "bl_Image" 	: 
 				inst.image.setImage((Image)value);
+				break;
+			case "bl_Page" 	: 
+				inst.page = (Integer)value;
 				break;
 			default : throw new SQLException("Name ["+name+"] is missing in the instance");
 		}

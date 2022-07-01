@@ -200,6 +200,8 @@
 		<key name="elibrary.booklist.bl_Content.tt">Book loaded in appropriative format</key>	
 		<key name="elibrary.booklist.ba_Name">Authors</key>	
 		<key name="elibrary.booklist.ba_Name.tt">List of the authors</key>
+		<key name="elibrary.booklist.bl_Page">Page inside</key>
+		<key name="elibrary.booklist.bl_Page.tt">Page inside content (if required)</key>
 
 		<key name="elibrary.book2authors">Books-authors</key>
 		<key name="elibrary.book2authors.tt">Books-authors</key>
@@ -408,6 +410,8 @@
 		<key name="elibrary.booklist.bl_Content.tt">Загруженная книга в соответстсвуюем формате</key>	
 		<key name="elibrary.booklist.ba_Name">Авторы</key>	
 		<key name="elibrary.booklist.ba_Name.tt">Список авторов</key>
+		<key name="elibrary.booklist.bl_Page">Страница</key>
+		<key name="elibrary.booklist.bl_Page.tt">Страница в книге (если требуется)</key>
 
 		<key name="elibrary.book2authors"></key>
 		<key name="elibrary.book2authors.tt"></key>

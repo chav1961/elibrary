@@ -66,6 +66,10 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 	@LocaleResource(value="elibrary.booklist.bl_Content",tooltip="elibrary.booklist.bl_Content.tt")
 	@Format("30m")
 	public MimeBasedContent	content;
+
+	@LocaleResource(value="elibrary.booklist.bl_Page",tooltip="elibrary.booklist.bl_Page.tt")
+	@Format("9ms")
+	public int			page;
 	
 	public BookDescriptor(final LoggerFacade logger, final ContentNodeMetadata root) throws NamingException {
 		this.logger = logger;
