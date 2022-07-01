@@ -23,6 +23,8 @@ import javax.imageio.ImageIO;
 
 import chav1961.elibrary.admin.entities.AuthorsDescriptor;
 import chav1961.elibrary.admin.entities.BookDescriptor;
+import chav1961.elibrary.admin.entities.LazyImageKeeperImpl;
+import chav1961.elibrary.admin.entities.LazyMimeBasedContentImpl;
 import chav1961.elibrary.admin.entities.SeriesDescriptor;
 import chav1961.purelib.basic.MimeType;
 import chav1961.purelib.basic.Utils;
@@ -31,6 +33,7 @@ import chav1961.purelib.basic.exceptions.LocalizationException;
 import chav1961.purelib.basic.exceptions.MimeParseException;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
+import chav1961.purelib.json.ImageKeeper;
 import chav1961.purelib.sql.interfaces.InstanceManager;
 import chav1961.purelib.sql.interfaces.UniqueIdGenerator;
 import chav1961.purelib.streams.JsonStaxParser;
@@ -121,28 +124,10 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		inst.publisher.setValue(rs.getLong("bp_Id"));
 		inst.annotation = rs.getString("bl_Comment");
 		inst.tags = fromString(rs.getString("bl_Tags"));
+		((LazyImageKeeperImpl)inst.image).setContentKey(inst.id);
 		
-		final byte[]	imageContent = rs.getBytes("bl_Image");
-		
-		if (imageContent == null) {
-			inst.image = null;
-		}
-		else {
-			try{inst.image = ImageIO.read(new ByteArrayInputStream(imageContent));
-			} catch (IOException e) {
-				throw new SQLException(e.getLocalizedMessage(), e);
-			}
-		}
-		
-		try{final String	mime = rs.getString("bl_Mime");
-			final byte[]	bookContent = rs.getBytes("bl_Content");
-			
-			inst.content.setMimeType(MimeType.parseMimeList(mime)[0]);
-			try(final ByteArrayInputStream	bais = new ByteArrayInputStream(bookContent);
-				final OutputStream			os = inst.content.putContent()) {
-
-				Utils.copyStream(bais, os);
-			}
+		try{inst.content.setMimeType(MimeType.parseMimeList(rs.getString("bl_Mime"))[0]);
+			((LazyMimeBasedContentImpl)inst.content).setContentKey(inst.id);
 		} catch (MimeParseException | IOException e) {
 			throw new SQLException(e.getLocalizedMessage(), e);
 		}
@@ -238,7 +223,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 			case "bp_Id" 		: return (T) Long.valueOf(inst.publisher.getValue());
 			case "bl_Comment"	: return (T) inst.annotation;
 			case "bl_Tags" 		: return (T) inst.tags;
-			case "bl_Image" 	: return (T) inst.image;
+			case "bl_Image" 	: return (T) inst.image.getImage();
 			default : throw new SQLException("Name ["+name+"] is missing in the instance");
 		}
 	}
@@ -269,7 +254,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 				break;
 //			case "bl_Tags" 		: inst.tags;
 			case "bl_Image" 	: 
-				inst.image = (Image)value;
+				inst.image.setImage((Image)value);
 				break;
 			default : throw new SQLException("Name ["+name+"] is missing in the instance");
 		}

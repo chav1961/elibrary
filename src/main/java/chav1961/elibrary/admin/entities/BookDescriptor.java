@@ -10,6 +10,7 @@ import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.ModuleAccessor;
 import chav1961.purelib.i18n.interfaces.LocaleResource;
 import chav1961.purelib.i18n.interfaces.LocaleResourceLocation;
+import chav1961.purelib.json.ImageKeeper;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 import chav1961.purelib.ui.interfaces.FormManager;
 import chav1961.purelib.ui.interfaces.Format;
@@ -60,7 +61,7 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 
 	@LocaleResource(value="elibrary.booklist.bl_Image",tooltip="elibrary.booklist.bl_Image.tt")
 	@Format("200*200ms")
-	public Image		image;
+	public ImageKeeper	image;
 
 	@LocaleResource(value="elibrary.booklist.bl_Content",tooltip="elibrary.booklist.bl_Content.tt")
 	@Format("30m")
@@ -72,7 +73,8 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 		this.seriesNumber = new AnyRefDescriptor(root.getChild("bs_Id"));
 		this.publisher = new AnyRefDescriptor(root.getChild("bp_Id"));
 		this.authors = new LongItemAndReference[] {new AnyRefDescriptor(root.getParent().getChild("book2authors").getChild("ba_Id"))};
-		this.content = new MimeBasedContentImpl();
+		this.content = new LazyMimeBasedContentImpl();
+		this.image = new LazyImageKeeperImpl();
 	}
 
 	@Override

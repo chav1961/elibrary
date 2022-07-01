@@ -39,6 +39,7 @@ import javax.swing.KeyStroke;
 import chav1961.elibrary.Application;
 import chav1961.elibrary.admin.db.AuthorsORMInterface;
 import chav1961.elibrary.admin.db.BooksORMInterface;
+import chav1961.elibrary.admin.db.ContentManipulator;
 import chav1961.elibrary.admin.db.ORMInterface;
 import chav1961.elibrary.admin.db.PublishersORMInterface;
 import chav1961.elibrary.admin.db.SeriesORMInterface;
@@ -277,6 +278,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 				ctx.bind("models/bs_Id", new SeriesTableModel(conn));
 				ctx.bind("models/bp_Id", new PublishersTableModel(conn));
 				ctx.bind("models/ba_Id", new AuthorsTableModel(conn));
+				ctx.bind("models/content", new ContentManipulator(conn));
 				
 				orms.put(SeriesDescriptor.class, new SeriesORMInterface(getLogger(), conn, ()->getUnique()));
 				orms.put(AuthorsDescriptor.class, new AuthorsORMInterface(getLogger(), conn, ()->getUnique()));
@@ -329,6 +331,8 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 				ctx.unbind("models/bp_Id");
 				((AuthorsTableModel)ctx.lookup("models/ba_Id")).close();
 				ctx.unbind("models/ba_Id");
+				((ContentManipulator)ctx.lookup("models/content")).close();
+				ctx.unbind("models/content");
 				unique.close();
 				orms.remove(SeriesDescriptor.class).close();
 				orms.remove(AuthorsDescriptor.class).close();
