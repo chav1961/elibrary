@@ -130,14 +130,14 @@ public class AnyRefDescriptor implements LongItemAndReference<String> {
 		}
 	}
 	
-	protected String key2presentation(long value) {
+	protected String key2presentation(final long value) {
 		final TableModel	model = getModel();
 		
 		if (model instanceof RefTableModel) {
 			try{
 				return ((RefTableModel)model).key2Value(value);
 			} catch (SQLException e) {
-				return "??????";
+				return "<not typed>";
 			}
 		}
 		else {

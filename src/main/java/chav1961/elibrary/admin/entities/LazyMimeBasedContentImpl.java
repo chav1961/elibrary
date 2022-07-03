@@ -25,6 +25,7 @@ public class LazyMimeBasedContentImpl implements MimeBasedContent {
 	private long			contentKey = -1;
 	private boolean			contentFilled = false;
 	private boolean			needDownload = false;
+	private boolean			contentChanged = false;
 	private MimeType 		currentMime = PureLibSettings.MIME_OCTET_STREAM;
 	private byte[]			content = EMPTY;
 
@@ -39,7 +40,7 @@ public class LazyMimeBasedContentImpl implements MimeBasedContent {
 
 	@Override
 	public String getPresentation() {
-		return content.toString();
+		return currentMime.toString();
 	}
 	
 	@Override
@@ -66,6 +67,7 @@ public class LazyMimeBasedContentImpl implements MimeBasedContent {
 		}
 		else {
 			this.currentMime = type;
+			this.contentChanged = true;
 		}
 	}
 
@@ -84,6 +86,7 @@ public class LazyMimeBasedContentImpl implements MimeBasedContent {
 										super.close();
 										content = toByteArray();
 										contentFilled = true;
+										contentChanged = true;
 									}
 								};
 		return  new GZIPOutputStream(os) {
@@ -100,12 +103,18 @@ public class LazyMimeBasedContentImpl implements MimeBasedContent {
 	public void clearContent() throws IOException {
 		this.content = EMPTY;
 		this.contentFilled = false;
+		this.contentChanged = true;
 	}
 
 	public void setContentKey(final long contentKey) {
 		this.contentKey = contentKey; 
 		this.contentFilled = true;
 		this.needDownload = true;
+		this.contentChanged = false;
+	}
+
+	public boolean isContentChanged() {
+		return contentChanged;
 	}
 	
 	@Override
@@ -115,11 +124,13 @@ public class LazyMimeBasedContentImpl implements MimeBasedContent {
 
 	private void ensureContentLoaded() throws IOException {
 		if (needDownload) {
-			try{final ContentManipulator	cm = (ContentManipulator)modelContext.lookup("models/content");
-			
-				content = cm.loadContent(contentKey);
-			} catch (NamingException | SQLException e) {
-				throw new IOException(e); 
+			if (!contentChanged) {
+				try{final ContentManipulator	cm = (ContentManipulator)modelContext.lookup("models/content");
+				
+					content = cm.loadContent(contentKey);
+				} catch (NamingException | SQLException e) {
+					throw new IOException(e); 
+				}
 			}
 			needDownload = false;
 		}

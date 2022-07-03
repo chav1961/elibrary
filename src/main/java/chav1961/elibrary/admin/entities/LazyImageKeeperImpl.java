@@ -14,10 +14,12 @@ import chav1961.elibrary.admin.db.ContentManipulator;
 import chav1961.purelib.json.ImageKeeper;
 
 public class LazyImageKeeperImpl extends ImageKeeper {
+	private static final long serialVersionUID = 1L;
 	
 	private final Context	modelContext;
 	private long			contentKey = -1;
 	private boolean			needDownload = false;
+	private boolean			contentChanged = false;
 	
 	public LazyImageKeeperImpl() throws NamingException {
 		this.modelContext = new InitialContext();
@@ -29,9 +31,20 @@ public class LazyImageKeeperImpl extends ImageKeeper {
 		return super.getImage();
 	}
 
+	@Override
+	public void setImage(Image image) {
+		super.setImage(image);
+		contentChanged = true;
+	}
+	
 	public void setContentKey(final long contentKey) {
 		this.contentKey = contentKey; 
 		this.needDownload = true;
+		this.contentChanged = false;
+	}
+	
+	public boolean isContentChanged() {
+		return contentChanged;
 	}
 	
 	private void ensureContentLoaded() {

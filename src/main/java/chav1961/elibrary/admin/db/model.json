@@ -141,11 +141,19 @@
 						 "relUri":"bl_Id",
 					 	 "format":"m"
 					},
+					 {"name":"bl_Parent",
+						 "type":"long",
+						 "labelId":"elibrary.booklist.bl_Parent",
+						 "tooltipId":"elibrary.booklist.bl_Parent.tt",
+						 "appUri":"app:column:/elibrary.booklist/bl_Parent?seq=2&type=BIGINT",
+						 "relUri":"bl_Parent",
+					 	 "format":""
+					},
 					 {"name":"bl_Code",
 						 "type":"java.net.URI",
 						 "labelId":"elibrary.booklist.bl_Code",
 						 "tooltipId":"elibrary.booklist.bl_Code.tt",
-						 "appUri":"app:column:/elibrary.booklist/bl_Code?seq=2&type=TEXT",
+						 "appUri":"app:column:/elibrary.booklist/bl_Code?seq=3&type=TEXT",
 						 "relUri":"bl_Code",
 					 	 "format":"m"
 					},
@@ -153,7 +161,7 @@
 						 "type":"long",
 						 "labelId":"elibrary.booklist.bs_Id",
 						 "tooltipId":"elibrary.booklist.bs_Id.tt",
-						 "appUri":"app:column:/elibrary.booklist/bs_Id?seq=3&type=BIGINT",
+						 "appUri":"app:column:/elibrary.booklist/bs_Id?seq=4&type=BIGINT",
 						 "relUri":"bs_Id",
 					 	 "format":""
 					},
@@ -161,7 +169,7 @@
 						 "type":"java.lang.String",
 						 "labelId":"elibrary.booklist.bl_Title",
 						 "tooltipId":"elibrary.booklist.bl_Title.tt",
-						 "appUri":"app:column:/elibrary.booklist/bl_Title?seq=4&type=TEXT",
+						 "appUri":"app:column:/elibrary.booklist/bl_Title?seq=5&type=TEXT",
 						 "relUri":"bl_Name",
 					 	 "format":"mL"
 					},
@@ -169,7 +177,7 @@
 						 "type":"int",
 						 "labelId":"elibrary.booklist.bl_Year",
 						 "tooltipId":"elibrary.booklist.bl_Year.tt",
-						 "appUri":"app:column:/elibrary.booklist/bl_Year?seq=5&type=INTEGER",
+						 "appUri":"app:column:/elibrary.booklist/bl_Year?seq=6&type=INTEGER",
 						 "relUri":"bl_Year",
 					 	 "format":"m"
 					},
@@ -177,7 +185,7 @@
 						 "type":"long",
 						 "labelId":"elibrary.booklist.bp_Id",
 						 "tooltipId":"elibrary.booklist.bp_Id.tt",
-						 "appUri":"app:column:/elibrary.booklist/bp_Id?seq=6&type=BIGINT",
+						 "appUri":"app:column:/elibrary.booklist/bp_Id?seq=7&type=BIGINT",
 						 "relUri":"bl_Year",
 					 	 "format":"m"
 					},
@@ -185,7 +193,7 @@
 						 "type":"java.lang.String",
 						 "labelId":"elibrary.booklist.bl_Comment",
 						 "tooltipId":"elibrary.booklist.bl_Comment.tt",
-						 "appUri":"app:column:/elibrary.booklist/bl_Comment?seq=7&type=TEXT",
+						 "appUri":"app:column:/elibrary.booklist/bl_Comment?seq=8&type=TEXT",
 						 "relUri":"bl_Comment",
 					 	 "format":"l"
 					},
@@ -193,7 +201,7 @@
 						 "type":"java.lang.String",
 						 "labelId":"elibrary.booklist.bl_Tags",
 						 "tooltipId":"elibrary.booklist.bl_Tags.tt",
-						 "appUri":"app:column:/elibrary.booklist/bl_Tags?seq=8&type=TEXT",
+						 "appUri":"app:column:/elibrary.booklist/bl_Tags?seq=9&type=TEXT",
 						 "relUri":"bl_Tags",
 					 	 "format":""
 					},
@@ -201,7 +209,7 @@
 						 "type":"java.awt.Image",
 						 "labelId":"elibrary.booklist.bl_Image",
 						 "tooltipId":"elibrary.booklist.bl_Image.tt",
-						 "appUri":"app:column:/elibrary.booklist/bl_Image?seq=9&type=BYTEA",
+						 "appUri":"app:column:/elibrary.booklist/bl_Image?seq=10&type=BYTEA",
 						 "relUri":"bl_Image",
 					 	 "format":""
 					},
@@ -209,7 +217,7 @@
 						 "type":"chav1961.purelib.basic.MimeType",
 						 "labelId":"elibrary.booklist.bl_Mime",
 						 "tooltipId":"elibrary.booklist.bl_Mime.tt",
-						 "appUri":"app:column:/elibrary.booklist/bl_Mime?seq=10&type=TEXT",
+						 "appUri":"app:column:/elibrary.booklist/bl_Mime?seq=11&type=TEXT",
 						 "relUri":"bl_Mime",
 					 	 "format":"m"
 					},
@@ -217,7 +225,7 @@
 						 "type":"byte[]",
 						 "labelId":"elibrary.booklist.bl_Content",
 						 "tooltipId":"elibrary.booklist.bl_Content.tt",
-						 "appUri":"app:column:/elibrary.booklist/bl_Content?seq=11&type=BYTEA",
+						 "appUri":"app:column:/elibrary.booklist/bl_Content?seq=12&type=BYTEA",
 						 "relUri":"bl_Content",
 					 	 "format":"m"
 					},
@@ -225,50 +233,8 @@
 						 "type":"int",
 						 "labelId":"elibrary.booklist.bl_Page",
 						 "tooltipId":"elibrary.booklist.bl_Page.tt",
-						 "appUri":"app:column:/elibrary.booklist/bl_Page?seq=12&type=INTEGER",
+						 "appUri":"app:column:/elibrary.booklist/bl_Page?seq=13&type=INTEGER",
 						 "relUri":"bl_Page",
-					 	 "format":"m"
-					}
-				 ]
-			},
-			 {"name":"bookcontent",
-				 "type":"chav1961.purelib.model.TableContainer",
-				 "labelId":"elibrary.bookcontent",
-				 "tooltipId":"elibrary.bookcontent.tt",
-				 "appUri":"app:table:/elibrary.bookcontent",
-				 "relUri":"elibrary.bookcontent",
-			 	 "format":"",
-				 "children":[
-					 {"name":"bc_Id",
-						 "type":"long",
-						 "labelId":"elibrary.bookcontent.bc_Id",
-						 "tooltipId":"elibrary.bookcontent.bc_Id.tt",
-						 "appUri":"app:column:/elibrary.bookcontent/bc_Id?seq=1&type=BIGINT&pkSeq=1",
-						 "relUri":"bc_Id",
-					 	 "format":"m"
-					},
-					 {"name":"bc_File",
-						 "type":"java.io.File",
-						 "labelId":"elibrary.bookcontent.bc_File",
-						 "tooltipId":"elibrary.bookcontent.bc_File.tt",
-						 "appUri":"app:column:/elibrary.bookcontent/bc_File?seq=2&type=TEXT",
-						 "relUri":"bc_File",
-					 	 "format":"m"
-					},
-					 {"name":"bc_Mime",
-						 "type":"java.lang.String",
-						 "labelId":"elibrary.bookcontent.bc_Mime",
-						 "tooltipId":"elibrary.bookcontent.bc_Mime.tt",
-						 "appUri":"app:column:/elibrary.bookcontent/bc_Mime?seq=3&type=TEXT",
-						 "relUri":"bc_Mime",
-					 	 "format":"m"
-					},
-					 {"name":"bc_Content",
-						 "type":"byte[]",
-						 "labelId":"elibrary.bookcontent.bc_Content",
-						 "tooltipId":"elibrary.bookcontent.bc_Content.tt",
-						 "appUri":"app:column:/elibrary.bookcontent/bc_Content?seq=4&type=BYTEA",
-						 "relUri":"bc_Content",
 					 	 "format":"m"
 					}
 				 ]

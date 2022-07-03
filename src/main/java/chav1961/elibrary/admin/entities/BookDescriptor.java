@@ -35,6 +35,10 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 	@Format("20ms")
 	public AnyRefDescriptor	seriesNumber;
 
+	@LocaleResource(value="elibrary.booklist.bl_Parent",tooltip="elibrary.booklist.bl_Parent.tt")
+	@Format("20s")
+	public AnyRefDescriptor	placedIn;
+	
 	@LocaleResource(value="elibrary.booklist.bl_Title",tooltip="elibrary.booklist.bl_Title.tt")
 	@Format("9.2msL")
 	public String		title = "";
@@ -75,6 +79,7 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 		this.logger = logger;
 		this.metadata = root;
 		this.seriesNumber = new AnyRefDescriptor(root.getChild("bs_Id"));
+		this.placedIn = new AnyRefDescriptor(root.getChild("bl_Id"));
 		this.publisher = new AnyRefDescriptor(root.getChild("bp_Id"));
 		this.authors = new LongItemAndReference[] {new AnyRefDescriptor(root.getParent().getChild("book2authors").getChild("ba_Id"))};
 		this.content = new LazyMimeBasedContentImpl();

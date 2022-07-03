@@ -10,23 +10,20 @@ public class ContentManipulator implements AutoCloseable  {
 	
 	private final PreparedStatement	psImageLoad;
 	private final PreparedStatement	psContentLoad;
-	private final PreparedStatement	psImageStore;
-	private final PreparedStatement	psContentStore;
 	
 	public ContentManipulator(final Connection conn) throws SQLException {
 		if (conn == null) {
 			throw new NullPointerException("Connection can't be null"); 
 		}
 		else {
-			this.psImageLoad = conn.prepareStatement("");
-			this.psContentLoad = conn.prepareStatement("");
-			this.psImageStore = conn.prepareStatement("");
-			this.psContentStore = conn.prepareStatement("");
+			this.psImageLoad = conn.prepareStatement("select \"bl_Image\" from \"elibrary\".\"booklist\" where \"bl_Id\" = ? and \"bl_Image\" is not null union all select \"bl_Image\" from \"elibrary\".\"booklist\" where \"bl_Id\" in (select \"bl_Parent\" from \"elibrary\".\"booklist\" where \"bl_Id\" = ?)");
+			this.psContentLoad = conn.prepareStatement("select \"bl_Mime\",\"bl_Content\" from \"elibrary\".\"booklist\" where \"bl_Id\" = ? and \"bl_Content\" is not null union all select \"bl_Mime\",\"bl_Content\" from \"elibrary\".\"booklist\" where \"bl_Id\" in (select \"bl_Parent\" from \"elibrary\".\"booklist\" where \"bl_Id\" = ?)");
 		}
 	}
 	
 	public byte[] loadImage(final long key) throws SQLException {
 		psImageLoad.setLong(1, key);
+		psImageLoad.setLong(2, key);
 		try(final ResultSet	rs = psImageLoad.executeQuery()) {
 			if (rs.next()) {
 				return rs.getBytes(1);
@@ -39,6 +36,7 @@ public class ContentManipulator implements AutoCloseable  {
 
 	public byte[] loadContent(final long key) throws SQLException {
 		psContentLoad.setLong(1, key);
+		psContentLoad.setLong(2, key);
 		try(final ResultSet	rs = psContentLoad.executeQuery()) {
 			if (rs.next()) {
 				return rs.getBytes(1);
@@ -49,21 +47,9 @@ public class ContentManipulator implements AutoCloseable  {
 		}
 	}
 
-	public void storeImage(final long key, final byte[] content) throws SQLException {
-		psImageStore.setBytes(1, content);
-		psImageStore.setLong(2, key);
-		psImageStore.executeUpdate();
-	}
-	
-	public void storeContent(final long key, final byte[] content) throws SQLException {
-		psContentStore.setBytes(1, content);
-		psContentStore.setLong(2, key);
-		psContentStore.executeUpdate();
-	}
-	
 	@Override 
 	public void close() throws SQLException {
-		
+		psImageLoad.close();
+		psContentLoad.close();
 	}
-	
 }

@@ -117,6 +117,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	@Override
 	public void loadInstance(final ResultSet rs, final BookDescriptor inst) throws SQLException {
 		inst.id = rs.getLong("bl_Id");
+		inst.placedIn.setValue(rs.getLong("bl_Parent"));
 		inst.code  = rs.getString("bl_Code");
 		inst.seriesNumber.setValue(rs.getLong("bs_Id"));
 		inst.title = rs.getString("bl_Title");
@@ -160,6 +161,12 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	@Override
 	public void storeInstance(final ResultSet rs, final BookDescriptor inst, final boolean update) throws SQLException {
 		System.err.println("Store "+inst.id+", "+update);
+		if (inst.placedIn.getValue() > 0) {
+			rs.updateLong("bl_Parent", inst.placedIn.getValue());
+		}
+		else {
+			rs.updateNull("bl_Parent");
+		}
 		rs.updateString("bl_code", inst.code);
 		rs.updateLong("bs_Id", inst.seriesNumber.getValue());
 		rs.updateString("bl_Title", inst.title);
@@ -168,30 +175,29 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		rs.updateString("bl_Comment", inst.annotation);
 		rs.updateString("bl_Tags", toString(inst.tags));
 		rs.updateInt("bl_Page", inst.page);
-		if (inst.image != null) {
+		
+		if (((LazyImageKeeperImpl)inst.image).isContentChanged()) {
 			try(final ByteArrayOutputStream	baos = new ByteArrayOutputStream()) {
-				ImageIO.write((RenderedImage) inst.image, "png", baos);
+				ImageIO.write((RenderedImage) inst.image.getImage(), "png", baos);
 				
 				rs.updateBytes("bl_Image", baos.toByteArray());
 			} catch (IOException e) {
 				throw new SQLException(e.getLocalizedMessage(), e);
 			}
 		}
-		else {
-			rs.updateNull("bl_Image");
-		}
 		
-		rs.updateString("bl_Mime", inst.content.getMimeType().toString());
-		try(final InputStream	is = inst.content.getContent();
-			final ByteArrayOutputStream	baos = new ByteArrayOutputStream()) {
+		if (((LazyMimeBasedContentImpl)inst.content).isContentChanged()) {
+			rs.updateString("bl_Mime", inst.content.getMimeType().toString());
+			try(final InputStream	is = inst.content.getContent();
+				final ByteArrayOutputStream	baos = new ByteArrayOutputStream()) {
 
-			Utils.copyStream(is, baos);
-			rs.updateBytes("bl_Content", baos.toByteArray());
-		} catch (IOException e) {
-			throw new SQLException(e.getLocalizedMessage(), e);
+				Utils.copyStream(is, baos);
+				rs.updateBytes("bl_Content", baos.toByteArray());
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw new SQLException(e.getLocalizedMessage(), e);
+			}
 		}
-		rs.updateString("bl_Mime", inst.content.getMimeType().toString());
-		
 		
 		if (!update) {
 			rs.updateLong("bl_Id", inst.id);
@@ -218,6 +224,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	public <T> T get(final BookDescriptor inst, final String name) throws SQLException {
 		switch (name) {
 			case "bl_Id" 		: return (T) Long.valueOf(inst.id);
+			case "bl_Parent"	: return (T) Long.valueOf(inst.placedIn.getValue());
 			case "bl_Code" 		: return (T) inst.code;
 			case "bs_Id" 		: return (T) Long.valueOf(inst.seriesNumber.getValue());
 			case "bl_Title"		: return (T) inst.title;
@@ -236,6 +243,9 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		switch (name) {
 			case "bl_Id" 		: 
 				inst.id = (Long)value;
+				break;
+			case "bl_Parent"	: 
+				inst.placedIn.setValue((Long)value);
 				break;
 			case "bl_Code" 		: 
 				inst.code = (String)value;

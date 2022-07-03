@@ -47,6 +47,7 @@ import chav1961.elibrary.admin.entities.AskPassword;
 import chav1961.elibrary.admin.entities.AuthorsDescriptor;
 import chav1961.elibrary.admin.entities.AuthorsTableModel;
 import chav1961.elibrary.admin.entities.BookDescriptor;
+import chav1961.elibrary.admin.entities.CollectorTableModel;
 import chav1961.elibrary.admin.entities.PublishersDescriptor;
 import chav1961.elibrary.admin.entities.PublishersTableModel;
 import chav1961.elibrary.admin.entities.Query;
@@ -159,7 +160,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 
 			SwingUtils.assignActionListeners(this.menu,this);
 			SwingUtils.assignExitMethod4MainWindow(this,()->exitApplication());
-			SwingUtils.centerMainWindow(this,0.75f);
+			SwingUtils.centerMainWindow(this, 0.85f);
 			localizer.addLocaleChangeListener(this);
 			fillLocalizedStrings();
 			disableMenuOnDisconnect();
@@ -278,6 +279,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 				ctx.bind("models/bs_Id", new SeriesTableModel(conn));
 				ctx.bind("models/bp_Id", new PublishersTableModel(conn));
 				ctx.bind("models/ba_Id", new AuthorsTableModel(conn));
+				ctx.bind("models/bl_Id", new CollectorTableModel(conn));
 				ctx.bind("models/content", new ContentManipulator(conn));
 				
 				orms.put(SeriesDescriptor.class, new SeriesORMInterface(getLogger(), conn, ()->getUnique()));
@@ -331,6 +333,8 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 				ctx.unbind("models/bp_Id");
 				((AuthorsTableModel)ctx.lookup("models/ba_Id")).close();
 				ctx.unbind("models/ba_Id");
+				((CollectorTableModel)ctx.lookup("models/bl_Id")).close();
+				ctx.unbind("models/bl_Id");
 				((ContentManipulator)ctx.lookup("models/content")).close();
 				ctx.unbind("models/content");
 				unique.close();

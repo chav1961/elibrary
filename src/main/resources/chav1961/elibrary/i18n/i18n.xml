@@ -180,6 +180,8 @@
 		<key name="elibrary.booklist.bl_Id.tt"></key>
 		<key name="elibrary.booklist.bl_Code">ISBN code</key>
 		<key name="elibrary.booklist.bl_Code.tt">ISBN code</key>
+		<key name="elibrary.booklist.bl_Parent">Placed in</key>
+		<key name="elibrary.booklist.bl_Parent.tt">Place in in the collective book</key>		
 		<key name="elibrary.booklist.bs_Id">Series</key>
 		<key name="elibrary.booklist.bs_Id.tt">Series</key>
 		<key name="elibrary.booklist.bl_Title">Title</key>
@@ -390,6 +392,8 @@
 		<key name="elibrary.booklist.bl_Id.tt"></key>
 		<key name="elibrary.booklist.bl_Code">Код ISBN</key>
 		<key name="elibrary.booklist.bl_Code.tt">Код ISBN</key>
+		<key name="elibrary.booklist.bl_Parent">Опубликовано в...</key>
+		<key name="elibrary.booklist.bl_Parent.tt">Опубликовано в сборнике</key>		
 		<key name="elibrary.booklist.bs_Id">Серия</key>
 		<key name="elibrary.booklist.bs_Id.tt">Серия</key>
 		<key name="elibrary.booklist.bl_Title">Название</key>
@@ -407,7 +411,7 @@
 		<key name="elibrary.booklist.bl_Mime"></key>	
 		<key name="elibrary.booklist.bl_Mime.tt"></key>	
 		<key name="elibrary.booklist.bl_Content">Контент</key>	
-		<key name="elibrary.booklist.bl_Content.tt">Загруженная книга в соответстсвуюем формате</key>	
+		<key name="elibrary.booklist.bl_Content.tt">Загруженная книга в соответствующем формате</key>	
 		<key name="elibrary.booklist.ba_Name">Авторы</key>	
 		<key name="elibrary.booklist.ba_Name.tt">Список авторов</key>
 		<key name="elibrary.booklist.bl_Page">Страница</key>
