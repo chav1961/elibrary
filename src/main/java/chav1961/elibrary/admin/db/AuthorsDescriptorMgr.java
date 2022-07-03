@@ -5,17 +5,22 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import chav1961.elibrary.admin.entities.AuthorsDescriptor;
+import chav1961.elibrary.admin.entities.BookDescriptor;
 import chav1961.elibrary.admin.entities.SeriesDescriptor;
+import chav1961.purelib.basic.exceptions.FlowException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.sql.interfaces.InstanceManager;
 import chav1961.purelib.sql.interfaces.UniqueIdGenerator;
+import chav1961.purelib.ui.interfaces.RecordFormManager.RecordAction;
 
 public class AuthorsDescriptorMgr implements InstanceManager<Long, AuthorsDescriptor> {
 	private final LoggerFacade		logger;
+	private final AuthorsDescriptor	desc;
 	private final UniqueIdGenerator	uig;
 	
 	public AuthorsDescriptorMgr(final LoggerFacade logger, final UniqueIdGenerator uig) {
 		this.logger = logger;
+		this.desc = new AuthorsDescriptor(logger);
 		this.uig = uig;
 	}
 	
@@ -36,7 +41,15 @@ public class AuthorsDescriptorMgr implements InstanceManager<Long, AuthorsDescri
 
 	@Override
 	public AuthorsDescriptor newInstance() throws SQLException {
-		return new AuthorsDescriptor(logger);
+		try{final Long				key = newKey();
+			final AuthorsDescriptor	newInst = desc.clone();
+		
+			assignKey(newInst, key);
+			newInst.onRecord(RecordAction.INSERT, null, null, newInst, key);
+			return newInst;
+		} catch (FlowException | CloneNotSupportedException e) {
+			throw new SQLException(e.getLocalizedMessage(), e);
+		}
 	}
 
 	@Override

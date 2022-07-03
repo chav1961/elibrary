@@ -27,6 +27,7 @@ import chav1961.elibrary.admin.entities.LazyImageKeeperImpl;
 import chav1961.elibrary.admin.entities.LazyMimeBasedContentImpl;
 import chav1961.elibrary.admin.entities.SeriesDescriptor;
 import chav1961.purelib.basic.MimeType;
+import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.Utils;
 import chav1961.purelib.basic.exceptions.FlowException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
@@ -197,6 +198,10 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 				e.printStackTrace();
 				throw new SQLException(e.getLocalizedMessage(), e);
 			}
+		}
+		else if (!update) {
+			rs.updateString("bl_Mime", PureLibSettings.MIME_OCTET_STREAM.toString());
+			rs.updateBytes("bl_Content", new byte[0]);
 		}
 		
 		if (!update) {
