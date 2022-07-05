@@ -21,7 +21,7 @@ public class LazyImageKeeperImpl extends ImageKeeper {
 	static {
 		try{EMPTY = ImageIO.read(LazyImageKeeperImpl.class.getResource("empty.png"));
 		} catch (IOException e) {
-			throw new PreparationException();
+			throw new PreparationException("Mandatory image [empty.png] not found");
 		}
 	}
 	
