@@ -7,24 +7,24 @@ import java.sql.Statement;
 
 import javax.naming.NamingException;
 
-import chav1961.elibrary.admin.entities.AuthorsDescriptor;
 import chav1961.elibrary.admin.entities.BookDescriptor;
-import chav1961.elibrary.admin.entities.SeriesDescriptor;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 import chav1961.purelib.sql.interfaces.UniqueIdGenerator;
 import chav1961.purelib.ui.interfaces.FormManager;
 
-public class BooksORMInterface implements ORMInterface<BookDescriptor, BooksDescriptorMgr> {
+public class BooksORMInterface implements DedicatedORMInterface<BookDescriptor, BooksDescriptorMgr> {
 	private final Statement				stmt;
 	private final ResultSet				rs;
 	private final BooksDescriptorMgr	mgr;
 	private final BookDescriptor		desc;
+	private final BookDescriptor		dedicatedDesc;
 	
 	public BooksORMInterface(final LoggerFacade logger, final Connection conn, final UniqueIdGenerator gen, final ContentNodeMetadata meta) throws SQLException, NamingException {
 		this.stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 		this.rs = stmt.executeQuery("select * from elibrary.booklist order by \"bl_Id\"");
 		this.desc = new BookDescriptor(logger, meta);
+		this.dedicatedDesc = new BookDescriptor(logger, meta);
 		this.mgr = new BooksDescriptorMgr(logger, this.desc, gen, conn);
 	}
 	
@@ -38,6 +38,11 @@ public class BooksORMInterface implements ORMInterface<BookDescriptor, BooksDesc
 		return desc;
 	}
 
+	@Override
+	public FormManager<Long, BookDescriptor> getDedicatedFormManager() {
+		return dedicatedDesc;
+	}
+	
 	@Override
 	public ResultSet getResultSet() {
 		return rs;
