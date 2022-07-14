@@ -156,7 +156,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 			throw new SQLException(e);
 		}
 		inst.authors = list.toArray(new LongItemAndReference[list.size()]);
-		System.err.println("Load "+inst.id);
+//		System.err.println("Load "+inst.id);
 	}
 
 	@Override
@@ -177,11 +177,12 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		rs.updateString("bl_Tags", toString(inst.tags));
 		rs.updateInt("bl_Page", inst.page);
 		
-		if (((LazyImageKeeperImpl)inst.image).isContentChanged()) {
+		if (((LazyImageKeeperImpl)inst.image).isModified()) {
 			try(final ByteArrayOutputStream	baos = new ByteArrayOutputStream()) {
 				ImageIO.write((RenderedImage) inst.image.getImage(), "png", baos);
 				
 				rs.updateBytes("bl_Image", baos.toByteArray());
+				((LazyImageKeeperImpl)inst.image).setModified(false);
 			} catch (IOException e) {
 				throw new SQLException(e.getLocalizedMessage(), e);
 			}

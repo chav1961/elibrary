@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.naming.NamingException;
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -63,10 +64,11 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 	private final JPopupMenu							popupMenu;
 	private final JDataBaseTableWithMeta<Long, BookDescriptor>		books;
 	private final JCloseableScrollPane					booksScroll;
+	private final BookDescriptor						editDescriptor;
 	private final AutoBuiltForm<BookDescriptor,Long>	form;
 	private final BooksORMInterface						boi; 
 	
-	public BooksTab(final Localizer localizer, final LoggerFacade logger, final ContentMetadataInterface meta, final ContentMetadataInterface metaParent, final Map<Class<?>,ORMInterface<?,?>> orms) throws NullPointerException, IllegalArgumentException, SQLException, SyntaxException, LocalizationException, ContentException {
+	public BooksTab(final Localizer localizer, final LoggerFacade logger, final ContentMetadataInterface meta, final ContentMetadataInterface metaParent, final Map<Class<?>,ORMInterface<?,?>> orms) throws NullPointerException, IllegalArgumentException, SQLException, SyntaxException, LocalizationException, ContentException, NamingException {
 		if (localizer == null) {
 			throw new NullPointerException("Localizer can't be null");
 		}
@@ -102,12 +104,13 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 				contentChanged(ct,key);
 			});
 			
-			this.form = new AutoBuiltForm<BookDescriptor,Long>(ContentModelFactory.forAnnotatedClass(BookDescriptor.class), localizer, PureLibSettings.INTERNAL_LOADER, (BookDescriptor)boi.getFormManager(), boi.getFormManager());
+			this.editDescriptor = new BookDescriptor(logger, meta.byApplicationPath(URI.create(URI_BOOKS))[0]);
+			this.form = new AutoBuiltForm<BookDescriptor,Long>(ContentModelFactory.forAnnotatedClass(BookDescriptor.class), localizer, PureLibSettings.INTERNAL_LOADER, (BookDescriptor)this.editDescriptor, this.editDescriptor);
 			this.form.setEnabled(false);
 			
 			SwingUtils.assignActionKey(this.books, SwingUtils.KS_ACCEPT, (e)->{
 				if (!books.getSelectionModel().isSelectionEmpty()) {
-					edit(boi, this.books.getSelectedRow(), (BookDescriptor)boi.getFormManager(), this.form);
+					edit(boi, this.books.getSelectedRow(), this.editDescriptor, this.form);
 				}
 			}, SwingUtils.ACTION_ACCEPT);
 			SwingUtils.assignActionKey(this.books, SwingUtils.KS_CONTEXTMENU, (e)->{
@@ -117,7 +120,7 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 				popupMenu.show(books, (int)rect.getCenterX(), (int)rect.getCenterY());
 			}, SwingUtils.ACTION_CONTEXTMENU);
 			SwingUtils.assignActionKey(this.form, JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, SwingUtils.KS_SOFT_EXIT, (e)->{
-				save(boi, (BookDescriptor)boi.getFormManager(), this.books.getSelectedRow());
+				save(boi, this.editDescriptor, this.books.getSelectedRow());
 			}, SwingUtils.ACTION_SOFT_EXIT);
 			
 			this.books.getSelectionModel().addListSelectionListener((e)->{
@@ -269,9 +272,9 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 	}
 
 	private void fill(final BooksORMInterface boi, final int selectedRow, final BookDescriptor desc, final AutoBuiltForm<BookDescriptor,Long> form) {
-		try{load(boi, selectedRow, (BookDescriptor)boi.getFormManager());
-			System.err.println("Fill="+((BookDescriptor)boi.getFormManager()).id);
-			toScreen((BookDescriptor)boi.getFormManager(), form);
+		try{load(boi, selectedRow, desc);
+			System.err.println("Fill="+desc.id);
+			toScreen(desc, form);
 		} catch (ContentException e) {
 			getLogger().message(Severity.error, e, e.getLocalizedMessage());
 		}

@@ -1,7 +1,5 @@
 package chav1961.elibrary.admin.entities;
 
-import java.awt.Image;
-
 import javax.naming.NamingException;
 
 import chav1961.purelib.basic.exceptions.FlowException;
@@ -23,7 +21,6 @@ import chav1961.purelib.ui.interfaces.RefreshMode;
 @LocaleResource(value="elibrary.booklist",tooltip="elibrary.booklist.tt",help="help.aboutApplication")
 public class BookDescriptor implements Cloneable, FormManager<Long, BookDescriptor>, ModuleAccessor {
 	private final LoggerFacade			logger;
-	private final ContentNodeMetadata	metadata;
 
 	public long			id;
 	
@@ -35,10 +32,6 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 	@Format("20ms")
 	public AnyRefDescriptor	seriesNumber;
 
-	@LocaleResource(value="elibrary.booklist.bl_Parent",tooltip="elibrary.booklist.bl_Parent.tt")
-	@Format("20s")
-	public AnyRefDescriptor	placedIn;
-	
 	@LocaleResource(value="elibrary.booklist.bl_Title",tooltip="elibrary.booklist.bl_Title.tt")
 	@Format("9.2msL")
 	public String		title = "";
@@ -71,13 +64,17 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 	@Format("30m")
 	public MimeBasedContent	content;
 
+	@LocaleResource(value="elibrary.booklist.bl_Parent",tooltip="elibrary.booklist.bl_Parent.tt")
+	@Format("20s")
+	public AnyRefDescriptor	placedIn;
+	
+	
 	@LocaleResource(value="elibrary.booklist.bl_Page",tooltip="elibrary.booklist.bl_Page.tt")
 	@Format("9ms")
 	public int			page;
 	
 	public BookDescriptor(final LoggerFacade logger, final ContentNodeMetadata root) throws NamingException {
 		this.logger = logger;
-		this.metadata = root;
 		this.seriesNumber = new AnyRefDescriptor(root.getChild("bs_Id"));
 		this.placedIn = new AnyRefDescriptor(root.getChild("bl_Id"));
 		this.publisher = new AnyRefDescriptor(root.getChild("bp_Id"));
@@ -90,7 +87,6 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 	public BookDescriptor clone() throws CloneNotSupportedException {
 		return (BookDescriptor) super.clone();
 	}
-
 	
 	@Override
 	public RefreshMode onField(BookDescriptor inst, Long id, String fieldName, Object oldValue, boolean beforeCommit) throws FlowException, LocalizationException {
@@ -128,7 +124,4 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 			this.getClass().getModule().addExports(this.getClass().getPackageName(),item);
 		}
 	}
-
-	
-	
 }

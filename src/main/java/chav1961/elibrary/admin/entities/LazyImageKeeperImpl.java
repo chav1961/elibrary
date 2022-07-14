@@ -28,7 +28,6 @@ public class LazyImageKeeperImpl extends ImageKeeper {
 	private final Context	modelContext;
 	private long			contentKey = -1;
 	private boolean			needDownload = false;
-	private boolean			contentChanged = false;
 	
 	public LazyImageKeeperImpl() throws NamingException {
 		this.modelContext = new InitialContext();
@@ -41,20 +40,9 @@ public class LazyImageKeeperImpl extends ImageKeeper {
 		return super.getImage();
 	}
 
-	@Override
-	public void setImage(final Image image) {
-		super.setImage(image);
-		contentChanged = true;
-	}
-	
 	public void setContentKey(final long contentKey) {
 		this.contentKey = contentKey; 
 		this.needDownload = true;
-		this.contentChanged = false;
-	}
-	
-	public boolean isContentChanged() {
-		return contentChanged;
 	}
 	
 	private void ensureContentLoaded() {
