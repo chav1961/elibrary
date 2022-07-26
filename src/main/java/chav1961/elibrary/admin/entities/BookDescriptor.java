@@ -8,7 +8,7 @@ import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.ModuleAccessor;
 import chav1961.purelib.i18n.interfaces.LocaleResource;
 import chav1961.purelib.i18n.interfaces.LocaleResourceLocation;
-import chav1961.purelib.json.ImageKeeper;
+import chav1961.purelib.model.ImageKeeperImpl;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 import chav1961.purelib.ui.interfaces.FormManager;
 import chav1961.purelib.ui.interfaces.Format;
@@ -58,7 +58,7 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 
 	@LocaleResource(value="elibrary.booklist.bl_Image",tooltip="elibrary.booklist.bl_Image.tt")
 	@Format("200*200ms")
-	public ImageKeeper	image;
+	public ImageKeeperImpl	image;
 
 	@LocaleResource(value="elibrary.booklist.bl_Content",tooltip="elibrary.booklist.bl_Content.tt")
 	@Format("30m")
