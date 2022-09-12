@@ -60,4 +60,14 @@
 		<app:key code="ENTER" action="booklist.edit"/>
 		<app:key code="DELETE" action="booklist.delete"/>
 	</app:keyset>
+	<app:menu id="bottomtoolbar">
+		<app:item name="menu.bottomtoolbar.save" caption="menu.bottomtoolbar.save" tooltip="menu.bottomtoolbar.save.tt" action="bottomtoolbar.save"/>
+		<app:item name="menu.bottomtoolbar.cancel" caption="menu.bottomtoolbar.cancel" tooltip="menu.bottomtoolbar.cancel.tt" action="bottomtoolbar.cancel"/>
+		<app:item name="menu.bottomtoolbar.help" caption="menu.bottomtoolbar.help" tooltip="menu.bottomtoolbar.help.tt" action="bottomtoolbar.help"/>
+	</app:menu>
+	<app:keyset id="bottomtoolbar.keyset">
+		<app:key code="Enter" shift="true" action="bottomtoolbar.save"/>
+		<app:key code="Escape" shift="true" action="bottomtoolbar.cancel"/>
+		<app:key code="F1" action="bottomtoolbar.help"/>
+	</app:keyset>
 </app:root>

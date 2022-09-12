@@ -61,6 +61,11 @@ public class AuthorsDescriptorMgr implements InstanceManager<Long, AuthorsDescri
 	public Long extractKey(final AuthorsDescriptor inst) throws SQLException {
 		return inst.id;
 	}
+	
+	@Override
+	public Long extractKey(final ResultSet rs) throws SQLException {
+		return rs.getLong("ba_Id");
+	}
 
 	@Override
 	public void assignKey(final AuthorsDescriptor inst, final Long key) throws SQLException {

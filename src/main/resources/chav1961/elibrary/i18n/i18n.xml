@@ -92,6 +92,13 @@
 		<key name="menu.booklist.delete">Delete</key>
 		<key name="menu.booklist.delete.tt">Delete book descriptor</key>
 
+		<key name="menu.bottomtoolbar.save">Save</key>
+		<key name="menu.bottomtoolbar.save.tt">Save changes and continue editing list</key>
+		<key name="menu.bottomtoolbar.cancel">Cancel</key>
+		<key name="menu.bottomtoolbar.cancel.tt">Cancel changes and return to list</key>
+		<key name="menu.bottomtoolbar.help">Help</key>
+		<key name="menu.bottomtoolbar.help.tt">Show help about this form</key>
+
 <!-- Settings class localization--> 
 		<key name="settings.title">Settings</key>
 		<key name="settings.title.tt">Settings for application</key>
@@ -304,6 +311,13 @@
 		<key name="menu.booklist.edit.tt">Редактировать выбранный описатель книги</key>
 		<key name="menu.booklist.delete">Удалить</key>
 		<key name="menu.booklist.delete.tt">Удалить выбранный описатель книги</key>
+
+		<key name="menu.bottomtoolbar.save">Сохранить</key>
+		<key name="menu.bottomtoolbar.save.tt">Сохранить изменения и продолжить редактирование списка</key>
+		<key name="menu.bottomtoolbar.cancel">Отменить</key>
+		<key name="menu.bottomtoolbar.cancel.tt">Отменить изменения и вернуться в режим редактирования списка</key>
+		<key name="menu.bottomtoolbar.help">Справка</key>
+		<key name="menu.bottomtoolbar.help.tt">Показать справку по этой форме ввода</key>
 
 <!-- Локализация класса Settings --> 
 		<key name="settings.title">Настройки</key>

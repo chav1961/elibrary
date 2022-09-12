@@ -49,6 +49,11 @@ public class PublishersDescriptorMgr implements InstanceManager<Long, Publishers
 	public Long extractKey(final PublishersDescriptor inst) throws SQLException {
 		return inst.id;
 	}
+	
+	@Override
+	public Long extractKey(final ResultSet rs) throws SQLException {
+		return rs.getLong("bp_Id");
+	}
 
 	@Override
 	public void assignKey(final PublishersDescriptor inst, final Long key) throws SQLException {

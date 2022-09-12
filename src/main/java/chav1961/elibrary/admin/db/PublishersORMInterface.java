@@ -37,10 +37,15 @@ public class PublishersORMInterface implements ORMInterface<PublishersDescriptor
 	}
 
 	@Override
-	public ResultSet getResultSet() {
+	public ResultSet getListResultSet() {
 		return rs;
 	}
 
+	@Override
+	public ResultSet getRecordResultSet(final Long key) throws SQLException {
+		throw new UnsupportedOperationException("Don't use this method");
+	}
+	
 	@Override
 	public void close() throws SQLException {
 		mgr.close();

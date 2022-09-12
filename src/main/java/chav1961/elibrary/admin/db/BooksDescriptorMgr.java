@@ -100,6 +100,12 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	}
 	
 	@Override
+	public Long extractKey(final ResultSet rs) throws SQLException {
+		return rs.getLong("bl_Id");
+	}
+	
+	
+	@Override
 	public void assignKey(final BookDescriptor inst, final Long key) throws SQLException {
 		inst.id = key;
 	}
@@ -161,7 +167,6 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 
 	@Override
 	public void storeInstance(final ResultSet rs, final BookDescriptor inst, final boolean update) throws SQLException {
-		System.err.println("Store "+inst.id+", "+update);
 		if (inst.placedIn.getValue() > 0) {
 			rs.updateLong("bl_Parent", inst.placedIn.getValue());
 		}
@@ -209,7 +214,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 			rs.updateLong("bl_Id", inst.id);
 		}
 		
-		ps.setLong(1, inst.id);		
+		ps.setLong(1, inst.id);	// Refresh authors list		
 		try(final ResultSet	rs1 = ps.executeQuery()) {
 			
 			while (rs1.next()) {
@@ -355,4 +360,5 @@ loop:		for(JsonStaxParserLexType item : parser) {
 			throw new SQLException(e.getLocalizedMessage(), e);
 		}
 	}
+
 }

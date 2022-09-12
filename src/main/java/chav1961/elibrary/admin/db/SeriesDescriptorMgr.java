@@ -50,6 +50,11 @@ public class SeriesDescriptorMgr implements InstanceManager<Long, SeriesDescript
 	}
 	
 	@Override
+	public Long extractKey(final ResultSet rs) throws SQLException {
+		return rs.getLong("bs_Id");
+	}
+	
+	@Override
 	public void assignKey(final SeriesDescriptor inst, final Long key) throws SQLException {
 		inst.id = key;
 	}

@@ -55,18 +55,21 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 	private static final long serialVersionUID = -8075407533330137127L;
 	private static final String				URI_BOOKS = "app:table:/elibrary.booklist";
 	private static final URI				TOOLBAR_MENU_ROOT = URI.create("ui:/model/navigation.top.booklistmenu");	
+	private static final URI				BOTTOM_TOOLBAR_MENU_ROOT = URI.create("ui:/model/navigation.top.bottomtoolbar");	
 
 	private final Localizer								localizer;
 	private final LoggerFacade							logger;
 	private final ContentMetadataInterface				meta;
 	private final Map<Class<?>,ORMInterface<?,?>>		orms;
-	private final JToolBar								toolbar;
+	private final JToolBar								toolbar, bottomToolbar;
 	private final JPopupMenu							popupMenu;
 	private final JDataBaseTableWithMeta<Long, BookDescriptor>		books;
 	private final JCloseableScrollPane					booksScroll;
 	private final BookDescriptor						editDescriptor;
 	private final AutoBuiltForm<BookDescriptor,Long>	form;
-	private final BooksORMInterface						boi; 
+	private final BooksORMInterface						boi;
+	
+	private ResultSet									formRs = null;
 	
 	public BooksTab(final Localizer localizer, final LoggerFacade logger, final ContentMetadataInterface meta, final ContentMetadataInterface metaParent, final Map<Class<?>,ORMInterface<?,?>> orms) throws NullPointerException, IllegalArgumentException, SQLException, SyntaxException, LocalizationException, ContentException, NamingException {
 		if (localizer == null) {
@@ -88,15 +91,19 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 			this.orms = orms;
 			
 			this.toolbar = SwingUtils.toJComponent(metaParent.byUIPath(TOOLBAR_MENU_ROOT), JToolBar.class);
+			this.bottomToolbar = SwingUtils.toJComponent(metaParent.byUIPath(BOTTOM_TOOLBAR_MENU_ROOT), JToolBar.class);
 			this.popupMenu = SwingUtils.toJComponent(metaParent.byUIPath(TOOLBAR_MENU_ROOT), JPopupMenu.class);
+			
 			this.toolbar.setFloatable(false);
-			SwingUtils.assignActionListeners(this.toolbar,this);
-			SwingUtils.assignActionListeners(this.popupMenu,this);
+			this.bottomToolbar.setFloatable(false);
+			SwingUtils.assignActionListeners(this.toolbar, this);
+			SwingUtils.assignActionListeners(this.bottomToolbar, this);
+			SwingUtils.assignActionListeners(this.popupMenu, this);
 	
 			this.boi = (BooksORMInterface) orms.get(BookDescriptor.class);
 			
 			this.books = new JDataBaseTableWithMeta<Long, BookDescriptor>(meta.byApplicationPath(URI.create(URI_BOOKS))[0], localizer, true, false);
-			this.books.assignResultSetAndManagers(boi.getResultSet(), boi.getFormManager(), boi.getInstanceManager());
+			this.books.assignResultSetAndManagers(boi.getListResultSet(), boi.getFormManager(), boi.getInstanceManager());
 			this.booksScroll = new JCloseableScrollPane(this.books);
 			assignResizer(this.booksScroll, this.books);
 			assignFocusManager(this.booksScroll, this.books);
@@ -110,7 +117,11 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 			
 			SwingUtils.assignActionKey(this.books, SwingUtils.KS_ACCEPT, (e)->{
 				if (!books.getSelectionModel().isSelectionEmpty()) {
-					edit(boi, this.books.getSelectedRow(), this.editDescriptor, this.form);
+					try{
+						edit(boi, this.books.getSelectedKey(), this.editDescriptor, this.form);
+					} catch (SQLException exc) {
+						logger.message(Severity.error, exc, exc.getLocalizedMessage());
+					}
 				}
 			}, SwingUtils.ACTION_ACCEPT);
 			SwingUtils.assignActionKey(this.books, SwingUtils.KS_CONTEXTMENU, (e)->{
@@ -119,24 +130,37 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 				enableMenuItems(false);
 				popupMenu.show(books, (int)rect.getCenterX(), (int)rect.getCenterY());
 			}, SwingUtils.ACTION_CONTEXTMENU);
+			
 			SwingUtils.assignActionKey(this.form, JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, SwingUtils.KS_SOFT_EXIT, (e)->{
-				save(boi, this.editDescriptor, this.books.getSelectedRow());
+				try{
+					save(boi, this.editDescriptor, this.books.getSelectedKey());
+				} catch (SQLException exc) {
+					logger.message(Severity.error, exc, exc.getLocalizedMessage());
+				}
 			}, SwingUtils.ACTION_SOFT_EXIT);
+			SwingUtils.assignActionKey(this.form, JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, SwingUtils.KS_SOFT_EXIT, (e)->cancel(), SwingUtils.ACTION_SOFT_EXIT);
 			
 			this.books.getSelectionModel().addListSelectionListener((e)->{
-				if (!books.getSelectionModel().isSelectionEmpty()) {
-					fill(boi, this.books.getSelectedRow(), (BookDescriptor)boi.getFormManager(), this.form);
+				try{if (!books.getSelectionModel().isSelectionEmpty()) {
+						fill(boi, this.books.getSelectedKey(), (BookDescriptor)boi.getFormManager(), this.form);
+					}
+					enableMenuItems(false);
+				} catch (SQLException exc) {
+					logger.message(Severity.error, exc, exc.getLocalizedMessage());
 				}
-				enableMenuItems(false);
 			});
 			
-			final JPanel	panel = new JPanel(new BorderLayout());
+			final JPanel	leftPanel = new JPanel(new BorderLayout());
+			final JPanel	rightPanel = new JPanel(new BorderLayout());
 			
-			panel.add(this.toolbar, BorderLayout.NORTH);
-			panel.add(this.booksScroll, BorderLayout.CENTER);
+			leftPanel.add(this.toolbar, BorderLayout.NORTH);
+			leftPanel.add(this.booksScroll, BorderLayout.CENTER);
 			
-			setLeftComponent(panel);
-			setRightComponent(this.form);
+			rightPanel.add(this.form, BorderLayout.CENTER);
+			rightPanel.add(this.bottomToolbar, BorderLayout.SOUTH);
+			
+			setLeftComponent(leftPanel);
+			setRightComponent(rightPanel);
 			enableMenuItems(false);
 			Toolkit.getDefaultToolkit().getSystemClipboard().addFlavorListener((e)->enableMenuItems(true));
 			final Dimension dim = books.getPreferredScrollableViewportSize();
@@ -193,9 +217,9 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 	}
 	
 	@OnAction("action:/booklist.edit")
-	private void edit() {
+	private void edit() throws SQLException {
 		if (books.getSelectedRow() >= 0) {
-			edit(boi, this.books.getSelectedRow(), (BookDescriptor)boi.getFormManager(), this.form);
+			edit(boi, this.books.getSelectedKey(), (BookDescriptor)boi.getFormManager(), this.form);
 		}
 	}
 	
@@ -206,12 +230,29 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 		}
 	}
 
+	@OnAction("action:/bottomtoolbar.save")
+	private void save() throws SQLException {
+		save(boi, editDescriptor, books.getSelectedKey());	
+	}
+
+	@OnAction("action:/bottomtoolbar.cancel")
+	private void cancel() {
+		form.setEnabled(false);
+		books.setEnabled(true);
+		books.requestFocusInWindow();
+	}
+	
+	@OnAction("action:/bottomtoolbar.help")
+	private void help() {
+		
+	}
+
 	private void contentChanged(final ChangeType ct, final Long key) {
 		switch (ct) {
 			case DELETED	:
 				break;
 			case DUPLICATED	: case INSERTED :
-				try{final int	row = locateResultSet(boi.getResultSet(), key);
+				try{final int	row = locateResultSet(boi.getListResultSet(), key);
 				
 					books.changeSelection(row, 0, false, false);
 					edit();
@@ -255,11 +296,15 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 		});
 	}
 
-	private void load(final BooksORMInterface boi, final int selectedRow, final BookDescriptor desc) {
-		final ResultSet	rs = boi.getResultSet();
-		
-		try{rs.absolute(selectedRow + 1);
-			boi.getInstanceManager().loadInstance(rs, desc);
+	private void load(final BooksORMInterface boi, final Long key, final BookDescriptor desc) {
+		try(final ResultSet	rs = boi.getRecordResultSet(key)) {
+			
+			if (rs.next()) {
+				boi.getInstanceManager().loadInstance(rs, desc);
+			}
+			else {
+				getLogger().message(Severity.error, "Key ["+key+"] not found");
+			}
 		} catch (SQLException e) {
 			getLogger().message(Severity.error, e, e.getLocalizedMessage());
 		}
@@ -271,17 +316,16 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 		form.repaint();
 	}
 
-	private void fill(final BooksORMInterface boi, final int selectedRow, final BookDescriptor desc, final AutoBuiltForm<BookDescriptor,Long> form) {
-		try{load(boi, selectedRow, desc);
-			System.err.println("Fill="+desc.id);
+	private void fill(final BooksORMInterface boi, final Long key, final BookDescriptor desc, final AutoBuiltForm<BookDescriptor,Long> form) {
+		try{load(boi, key, desc);
 			toScreen(desc, form);
 		} catch (ContentException e) {
 			getLogger().message(Severity.error, e, e.getLocalizedMessage());
 		}
 	}
 	
-	private void edit(final BooksORMInterface boi, final int selectedRow, final BookDescriptor desc, final AutoBuiltForm<BookDescriptor,Long> form) {
-		try{fill(boi, selectedRow, desc, form);
+	private void edit(final BooksORMInterface boi, final Long key, final BookDescriptor desc, final AutoBuiltForm<BookDescriptor,Long> form) {
+		try{fill(boi, key, desc, form);
 		} finally {
 			books.setEnabled(false);
 			form.setEnabled(true);
@@ -319,26 +363,18 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 	}
 	
 	
-	private void save(final BooksORMInterface boi, final BookDescriptor desc, final int selectedRow) {
-		final ResultSet	rs = boi.getResultSet();
-		
-		try{final int		lastPos = rs.getRow();
+	private void save(final BooksORMInterface boi, final BookDescriptor desc, final Long key) {
+		try(final ResultSet	rs = boi.getRecordResultSet(key)) {
 			
-			rs.absolute(selectedRow + 1);
-			if (rs.getLong("bl_Id") != desc.id) {	// unsynchronized result set, use binary search to find id required
-				locateResultSet(rs, desc.id);
-			}
+			rs.absolute(1);
 			boi.getInstanceManager().storeInstance(rs, desc, true);
 			rs.updateRow();
-			rs.absolute(lastPos);
 			books.refresh();
 			getLogger().message(Severity.info, "Saved");
 		} catch (SQLException e) {
 			getLogger().message(Severity.error, e, e.getLocalizedMessage());
 		} finally {
-			form.setEnabled(false);
-			books.setEnabled(true);
-			books.requestFocusInWindow();
+			cancel();
 		}
 	}
 

@@ -74,7 +74,7 @@ public class NSITab extends JPanel implements AutoCloseable, LoggerFacadeOwner, 
 			final SeriesORMInterface		soi = (SeriesORMInterface) orms.get(SeriesDescriptor.class);
 			
 			this.series = new JDataBaseTableWithMeta<Long, SeriesDescriptor>(meta.byApplicationPath(URI.create(URI_SERIES))[0], localizer, true, true);
-			this.series.assignResultSetAndManagers(soi.getResultSet(), soi.getFormManager(), soi.getInstanceManager());
+			this.series.assignResultSetAndManagers(soi.getListResultSet(), soi.getFormManager(), soi.getInstanceManager());
 			this.seriesScroll = new JCloseableScrollPane(this.series);
 			assignResizer(this.seriesScroll, this.series);
 			assignFocusManager(this.seriesScroll, this.series);
@@ -82,7 +82,7 @@ public class NSITab extends JPanel implements AutoCloseable, LoggerFacadeOwner, 
 			final AuthorsORMInterface		aoi = (AuthorsORMInterface) orms.get(AuthorsDescriptor.class);
 			
 			this.authors = new JDataBaseTableWithMeta<Long, AuthorsDescriptor>(meta.byApplicationPath(URI.create(URI_AUTHORS))[0], localizer, true, true);
-			this.authors.assignResultSetAndManagers(aoi.getResultSet(), aoi.getFormManager(), aoi.getInstanceManager());
+			this.authors.assignResultSetAndManagers(aoi.getListResultSet(), aoi.getFormManager(), aoi.getInstanceManager());
 			this.authorsScroll = new JCloseableScrollPane(this.authors);
 			assignResizer(this.authorsScroll, this.authors);
 			assignFocusManager(this.authorsScroll, this.authors);
@@ -90,7 +90,7 @@ public class NSITab extends JPanel implements AutoCloseable, LoggerFacadeOwner, 
 			final PublishersORMInterface	poi = (PublishersORMInterface) orms.get(PublishersDescriptor.class);
 			
 			this.publishers = new JDataBaseTableWithMeta<Long, PublishersDescriptor>(meta.byApplicationPath(URI.create(URI_PUBLISHERS))[0], localizer, true, true);
-			this.publishers.assignResultSetAndManagers(poi.getResultSet(), poi.getFormManager(), poi.getInstanceManager());
+			this.publishers.assignResultSetAndManagers(poi.getListResultSet(), poi.getFormManager(), poi.getInstanceManager());
 			this.publishersScroll = new JCloseableScrollPane(this.publishers);
 			assignResizer(this.publishersScroll, this.publishers);
 			assignFocusManager(this.publishersScroll, this.publishers);
@@ -129,18 +129,19 @@ public class NSITab extends JPanel implements AutoCloseable, LoggerFacadeOwner, 
 	}
 
 	private void assignResizer(final JScrollPane owner, final JDataBaseTableWithMeta<?, ?> table) {
+		
 		owner.addComponentListener(new ComponentListener() {
 			@Override public void componentMoved(ComponentEvent e) {}
 			@Override public void componentHidden(ComponentEvent e) {}
 			
 			@Override
 			public void componentShown(ComponentEvent e) {
-				table.resizeColumns();
+				table.resizeColumns(owner.getViewport().getWidth());
 			}
 			
 			@Override
 			public void componentResized(ComponentEvent e) {
-				table.resizeColumns();
+				table.resizeColumns(owner.getViewport().getWidth());
 			}
 		});
 	}
