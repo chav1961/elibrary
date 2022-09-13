@@ -307,12 +307,12 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 			for (ReferenceAndComment item : tags) {
 				if(!theSameFirst) {
 					prn.splitter();
-					prn.startObject().name("ref").value(item.getReference().toASCIIString())
-						.name("comment").value(item.getComment()).endObject();
 				}
+				prn.startObject().name("ref").value(item.getReference().toASCIIString()).splitter().name("comment").value(item.getComment()).endObject();
 				theSameFirst = false;
 			}
 			prn.endArray();
+			prn.flush();
 			return wr.toString();
 		} catch (IOException e) {
 			throw new SQLException(e.getLocalizedMessage(), e);

@@ -19,6 +19,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.naming.NamingException;
+import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -38,6 +39,8 @@ import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
 import chav1961.purelib.basic.interfaces.LoggerFacadeOwner;
+import chav1961.purelib.enumerations.ContinueMode;
+import chav1961.purelib.enumerations.NodeEnterMode;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
 import chav1961.purelib.model.ContentModelFactory;
@@ -112,8 +115,8 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 			});
 			
 			this.editDescriptor = new BookDescriptor(logger, meta.byApplicationPath(URI.create(URI_BOOKS))[0]);
-			this.form = new AutoBuiltForm<BookDescriptor,Long>(ContentModelFactory.forAnnotatedClass(BookDescriptor.class), localizer, PureLibSettings.INTERNAL_LOADER, (BookDescriptor)this.editDescriptor, this.editDescriptor);
-			this.form.setEnabled(false);
+			this.form = new AutoBuiltForm<BookDescriptor,Long>(ContentModelFactory.forAnnotatedClass(BookDescriptor.class), localizer, getLogger(), PureLibSettings.INTERNAL_LOADER, (BookDescriptor)this.editDescriptor, this.editDescriptor);
+			enableForm(false);
 			
 			SwingUtils.assignActionKey(this.books, SwingUtils.KS_ACCEPT, (e)->{
 				if (!books.getSelectionModel().isSelectionEmpty()) {
@@ -237,9 +240,7 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 
 	@OnAction("action:/bottomtoolbar.cancel")
 	private void cancel() {
-		form.setEnabled(false);
-		books.setEnabled(true);
-		books.requestFocusInWindow();
+		enableForm(false);
 	}
 	
 	@OnAction("action:/bottomtoolbar.help")
@@ -327,12 +328,27 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 	private void edit(final BooksORMInterface boi, final Long key, final BookDescriptor desc, final AutoBuiltForm<BookDescriptor,Long> form) {
 		try{fill(boi, key, desc, form);
 		} finally {
-			books.setEnabled(false);
-			form.setEnabled(true);
-			form.requestFocusInWindow();
+			enableForm(true);
 		}
 	}
 
+	private void enableForm(final boolean enabled) {
+		SwingUtils.walkDown(bottomToolbar, (mode, node)->{
+			if ((mode == NodeEnterMode.ENTER) && (node instanceof AbstractButton)) {
+				((AbstractButton)node).setEnabled(enabled);
+			}
+			return ContinueMode.CONTINUE;
+		});
+		books.setEnabled(!enabled);
+		form.setEnabled(enabled);
+		if (enabled) {
+			form.requestFocusInWindow();
+		}
+		else {
+			books.requestFocusInWindow();
+		}
+	}
+	
 	private int locateResultSet(final ResultSet rs, final long key) throws SQLException {
 		rs.last();
 		
