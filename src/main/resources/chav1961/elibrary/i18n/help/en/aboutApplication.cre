@@ -1,6 +1,5 @@
-=== The next Norton Commander clone
+=== Электронная библиотека 
 
-Main difference of the clone is support of the different file system. There is no more difference with other
-clones functionality. The next goal to developing the application was testing my [[https://github.com/chav1961/purelib|Pure Library]]
-(bugs, usability, simplicity etc). Hope, that the second didn't damage the first 
-{{root:chav1961.fsyscommander.Application!smile.png|}}  
+Давно назревшая потребность упорядочить всю свою документацию, чтобы можно было в ней что-то найти за разумное время.
+
+Заодно - очередной тестер моей библиотеки [[https://github.com/chav1961/purelib|Pure Library]] {{root:chav1961.elibrary.Application!smile.png|}}    

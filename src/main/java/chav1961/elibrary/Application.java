@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.SQLException;
 import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 
@@ -19,6 +20,7 @@ import javax.swing.SwingUtilities;
 
 import chav1961.elibrary.admin.AdminConsole;
 import chav1961.elibrary.admin.entities.Settings;
+import chav1961.elibrary.service.RequestEngine;
 import chav1961.purelib.basic.ArgParser;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SimpleInitialContextFactory;
@@ -53,6 +55,8 @@ public class Application implements Closeable, LoggerFacadeOwner {
 	public static final String	HELP_TITLE = "application.help.title";
 	public static final String	HELP_CONTENT = "application.help.content";
 
+	public static final String	CONTENT_PATH = "/content";
+	
 	private static int						portNumber = 0;
 	
 	private final ContentMetadataInterface	xda;
@@ -204,8 +208,10 @@ public class Application implements Closeable, LoggerFacadeOwner {
 				PureLibSettings.PURELIB_LOCALIZER.push(localizer);
 				
 				try(final Application			app = new Application(xda, localizer, parser.getValue(ARG_PROPFILE_LOCATION, File.class), latch);
-					final NanoServiceFactory	service = new NanoServiceFactory(app.getLogger(), props)) {
+					final NanoServiceFactory	service = new NanoServiceFactory(app.getLogger(), props);
+					final RequestEngine			re = new RequestEngine(localizer, parser.getValue(ARG_PROPFILE_LOCATION, File.class))) {
 
+					service.deploy(CONTENT_PATH, re);
 					service.start();
 					portNumber = service.getServerAddress().getPort();
 					
@@ -214,10 +220,11 @@ public class Application implements Closeable, LoggerFacadeOwner {
 					app.showConsole(portNumber);
 					latch.await();
 					service.stop();
+					service.undeploy(CONTENT_PATH);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-			} catch (IOException | ContentException | EnvironmentException e) {
+			} catch (SQLException | IOException | ContentException | EnvironmentException e) {
 				e.printStackTrace();
 			}
 			//System.exit(0);
