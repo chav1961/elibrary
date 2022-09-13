@@ -1,5 +1,6 @@
 package chav1961.elibrary;
 
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.io.Closeable;
 import java.io.File;
@@ -51,6 +52,8 @@ public class Application implements Closeable, LoggerFacadeOwner {
 	public static final String	APP_NOTE_STARTED = "application.note.started";
 	public static final String	HELP_TITLE = "application.help.title";
 	public static final String	HELP_CONTENT = "application.help.content";
+
+	private static int						portNumber = 0;
 	
 	private final ContentMetadataInterface	xda;
 	private final Localizer					localizer;
@@ -100,7 +103,7 @@ public class Application implements Closeable, LoggerFacadeOwner {
 			
 			try{this.tray = new JSystemTray(localizer, APP_NAME, this.getClass().getResource("tray.png").toURI(), APP_TOOLTIP, trayMenu, false);
 				
-				this.tray.addActionListener((e)->showConsole());
+				this.tray.addActionListener((e)->showConsole(portNumber));
 				this.lcl = (oldLocale,newLocale)->tray.localeChanged(oldLocale, newLocale);
 				PureLibSettings.PURELIB_LOCALIZER.addLocaleChangeListener(lcl);
 			} catch (URISyntaxException exc) {
@@ -137,8 +140,11 @@ public class Application implements Closeable, LoggerFacadeOwner {
 	
 	private void callTray(final String action) {
 		switch (action) {
+			case "action:/tray.site" :
+				showSite();
+				break;
 			case "action:/tray.show" :
-				showConsole();
+				showConsole(portNumber);
 				break;
 			case "action:/tray.about" :
 				showAbout();
@@ -150,12 +156,24 @@ public class Application implements Closeable, LoggerFacadeOwner {
 		}
 	}
 
-	private void showConsole() {
+	private void showSite() {
+		if (Desktop.isDesktopSupported()) {
+			try{Desktop.getDesktop().browse(URI.create("http://localhost:"+portNumber+"/static/index.html"));
+			} catch (IOException e) {
+				tray.message(Severity.error, e, e.getLocalizedMessage());
+			}
+		}
+		else {
+			tray.message(Severity.error, "Desktop is not supported");
+		}
+	}
+
+	private void showConsole(final int sitePort) {
 		if (console != null) {
 			console.toFront();
 		}
 		else {
-			try{console = new AdminConsole(xda, localizer, settings, (cons)->SwingUtilities.invokeLater(()->{cons.close(); console = null;}));
+			try{console = new AdminConsole(xda, localizer, settings, sitePort, (cons)->SwingUtilities.invokeLater(()->{cons.close(); console = null;}));
 				console.setVisible(true);
 			} catch (IOException e) {
 				tray.message(Severity.error, e.getLocalizedMessage());
@@ -172,7 +190,7 @@ public class Application implements Closeable, LoggerFacadeOwner {
 		
 		try{final ArgParser						parser = new ApplicationArgParser().parse(args);
 			final SubstitutableProperties		props = new SubstitutableProperties(Utils.mkProps(
-													 NanoServiceFactory.NANOSERVICE_PORT, parser.getValue(ARG_HELP_PORT,String.class)
+													 NanoServiceFactory.NANOSERVICE_PORT, parser.getValue(ARG_HELP_PORT, String.class)
 													,NanoServiceFactory.NANOSERVICE_ROOT, FileSystemInterface.FILESYSTEM_URI_SCHEME+":xmlReadOnly:root://chav1961.elibrary.Application/chav1961/elibrary/helptree.xml"
 													,NanoServiceFactory.NANOSERVICE_CREOLE_PROLOGUE_URI, Application.class.getResource("prolog.cre").toString() 
 													,NanoServiceFactory.NANOSERVICE_CREOLE_EPILOGUE_URI, Application.class.getResource("epilog.cre").toString() 
@@ -186,11 +204,14 @@ public class Application implements Closeable, LoggerFacadeOwner {
 				PureLibSettings.PURELIB_LOCALIZER.push(localizer);
 				
 				try(final Application			app = new Application(xda, localizer, parser.getValue(ARG_PROPFILE_LOCATION, File.class), latch);
-					final NanoServiceFactory	service = new NanoServiceFactory(PureLibSettings.CURRENT_LOGGER, props)) {
+					final NanoServiceFactory	service = new NanoServiceFactory(app.getLogger(), props)) {
 
 					service.start();
-					app.getLogger().message(Severity.info, app.getLocalizer().getValue(APP_NOTE_STARTED));
-					app.showConsole();
+					portNumber = service.getServerAddress().getPort();
+					
+					app.getLogger().message(Severity.info, app.getLocalizer().getValue(APP_NOTE_STARTED), portNumber);
+					
+					app.showConsole(portNumber);
 					latch.await();
 					service.stop();
 				} catch (InterruptedException e) {
@@ -208,7 +229,7 @@ public class Application implements Closeable, LoggerFacadeOwner {
 
 	private static class ApplicationArgParser extends ArgParser {
 		private static final ArgParser.AbstractArg[]	KEYS = {
-			new IntegerArg(ARG_HELP_PORT, true, "Help port to use for help browser", 20000),
+			new IntegerArg(ARG_HELP_PORT, true, "Help port to use for help browser", 0),
 			new FileArg(ARG_PROPFILE_LOCATION, false, "Property file location", "./.elibrary.properties")
 		};
 		

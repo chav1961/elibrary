@@ -2,7 +2,9 @@
 <app:root xmlns:app="http://ui.purelib.chav1961/">
 	<app:i18n location="i18n:xml:root://chav1961.elibrary.Application/chav1961/elibrary/i18n/i18n.xml"/>
 	<app:menu id="traymenu">
+		<app:item name="tray.site" caption="tray.site" tooltip="tray.site.tt" action="tray.site"/>
 		<app:item name="tray.show" caption="tray.show" tooltip="tray.show.tt" action="tray.show"/>
+		<app:separator/>
 		<app:item name="tray.about" caption="tray.about" tooltip="tray.about.tt" action="tray.about"/>
 		<app:separator/>
 		<app:item name="tray.quit" caption="tray.quit" tooltip="tray.quit.tt" action="tray.quit"/>
@@ -36,6 +38,8 @@
 			<app:builtinSubmenu name="builtin.languages" caption="menu.main.tools.languages" tooltip="menu.main.tools.languages.tt"/>
 		</app:submenu>
 		<app:submenu name="menu.main.help" caption="menu.main.help" tooltip="menu.main.help.tt">
+			<app:item name="menu.main.help.test" caption="menu.main.help.test" tooltip="menu.main.help.test.tt" action="main.help.test"/>
+			<app:separator/>
 			<app:item name="menu.main.help.about" caption="menu.main.help.about" tooltip="menu.main.help.about.tt" action="main.help.about"/>
 		</app:submenu>
 	</app:menu>

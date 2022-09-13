@@ -2,6 +2,7 @@ package chav1961.elibrary.admin;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -116,6 +117,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 	private final ContentMetadataInterface		mdi;
 	private final Localizer						localizer;
 	private final SubstitutableProperties		settings;
+	private final int							sitePort;
 	private final CloseCallback<AdminConsole>	closeCallback;
 	private final JMenuBar						menu;
 	private final JCloseableTabbedPane			content;
@@ -130,7 +132,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 	private SimpleDatabaseManager<SimpleDottedVersion>		mgr = null;
 	private Map<Class<?>,ORMInterface<?,?>>		orms = new HashMap<>();
 	
-	public AdminConsole(final ContentMetadataInterface mdi, final Localizer localizer, final SubstitutableProperties settings, final CloseCallback<AdminConsole> closeCallback) throws IOException {
+	public AdminConsole(final ContentMetadataInterface mdi, final Localizer localizer, final SubstitutableProperties settings, final int sitePort, final CloseCallback<AdminConsole> closeCallback) throws IOException {
 		if (mdi == null) {
 			throw new NullPointerException("Metadata interface can't be null");
 		}
@@ -147,6 +149,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 			this.mdi = mdi;
 			this.localizer = localizer;
 			this.settings = settings;
+			this.sitePort = sitePort;
 			this.closeCallback = closeCallback;
 			this.menu = SwingUtils.toJComponent(mdi.byUIPath(URI.create("ui:/model/navigation.top.mainmenu")),JMenuBar.class); 
 			this.content = new JCloseableTabbedPane();
@@ -488,6 +491,19 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 	@OnAction("action:builtin:/builtin.languages")
 	private void changeLang (final Hashtable<String,String[]> langs) throws LocalizationException {
 		localizer.setCurrentLocale(SupportedLanguages.valueOf(langs.get("lang")[0]).getLocale());
+	}
+
+	@OnAction("action:/main.help.test")
+	private void showSite() {
+		if (Desktop.isDesktopSupported()) {
+			try{Desktop.getDesktop().browse(URI.create("http://localhost:"+sitePort+"/static/index.html"));
+			} catch (IOException e) {
+				state.message(Severity.error, e, e.getLocalizedMessage());
+			}
+		}
+		else {
+			state.message(Severity.error, "Desktop is not supported");
+		}
 	}
 	
 	@OnAction("action:/main.help.about")

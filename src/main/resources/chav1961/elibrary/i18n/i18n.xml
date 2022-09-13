@@ -6,11 +6,13 @@
 		<key name="application.title">(c) 2021 A.V.Chernomyrdin aka chav1961. Electronic library V.R.=0.0.1</key>
 		<key name="application.tooltip">(c) 2021 A.V.Chernomyrdin aka chav1961. Electronic library V.R.=0.0.1</key>
 		<key name="application.help">Application help</key>
-		<key name="application.note.started">E-library started</key>
+		<key name="application.note.started">E-library started, site port number=%1$d</key>
 		<key name="application.help.title">About...</key>
 		<key name="application.help.content">uri(aboutApplication.cre)</key>
 		
 <!-- Localization for tray menu --> 
+		<key name="tray.site">Open content</key>
+		<key name="tray.site.tt">Open site with content</key>
 		<key name="tray.show">Show admin tools</key>
 		<key name="tray.show.tt">Show admin console</key>
 		<key name="tray.about">About...</key>
@@ -76,6 +78,8 @@
 		
 		<key name="menu.main.help">Help</key>
 		<key name="menu.main.help.tt">Help for application</key>
+		<key name="menu.main.help.test">Test content</key>
+		<key name="menu.main.help.test.tt">Start browser to test database content</key>
 		<key name="menu.main.help.about">About...</key>
 		<key name="menu.main.help.about.tt">Information about the application</key>
 		
@@ -226,7 +230,7 @@
 		<key name="application.title">(c) 2019 A.V.Chernomyrdin aka chav1961. Электронная библиотека V.R.=0.0.1</key>
 		<key name="application.tooltip">(c) 2019 A.V.Chernomyrdin aka chav1961. Электронная библиотека V.R.=0.0.1</key>
 		<key name="application.help">Помощь по приложению</key>
-		<key name="application.note.started">Электронная библиотека запущена</key>
+		<key name="application.note.started">Электронная библиотека запущена, номер порта сайта=%1$d</key>
 		<key name="application.help.title">О программе</key>
 		<key name="application.help.content">uri(aboutApplication.cre)</key>
 
@@ -248,6 +252,8 @@
 		<key name="console.tab.books">Список</key>
 
 <!-- Локализация меню иконки --> 
+		<key name="tray.site">Открыть сайт</key>
+		<key name="tray.site.tt">Открыть сайт с и нформацией</key>
 		<key name="tray.show">Показать админ.консоль</key>
 		<key name="tray.show.tt">Показать консоль администратора</key>
 		<key name="tray.about">О программе</key>
@@ -296,6 +302,8 @@
 		
 		<key name="menu.main.help">Справка</key>
 		<key name="menu.main.help.tt">Справка по приложению</key>
+		<key name="menu.main.help.test">Тест содержимого</key>
+		<key name="menu.main.help.test.tt">Запуск браузера для теста содержимого</key>
 		<key name="menu.main.help.about">О программе</key>
 		<key name="menu.main.help.about.tt">Информация о приложении</key>
 
