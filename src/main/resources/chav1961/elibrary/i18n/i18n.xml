@@ -222,6 +222,15 @@
 		<key name="elibrary.book2authors.bl_Id.tt">Book</key>
 		<key name="elibrary.book2authors.ba_Id">Author</key>
 		<key name="elibrary.book2authors.ba_Id.tt">Author</key>
+
+<!-- HTML pages localization --> 
+		<key name="html.snippet.series.label">Series: </key>
+		<key name="html.snippet.authors.label">Authors: </key>
+		<key name="html.snippet.publisher.label">Publisher: </key>
+		<key name="html.snippet.year.label">year</key>
+		<key name="html.snippet.publishedIn.label">published in </key>
+		<key name="html.snippet.page.label">page</key>
+		<key name="html.snippet.tags.label">Tags:</key>
 		
 	</lang>
 	<lang name="ru">
@@ -446,6 +455,14 @@
 		<key name="elibrary.book2authors.ba_Id"></key>
 		<key name="elibrary.book2authors.ba_Id.tt"></key>
 		
+<!-- Локализация HTML страниц --> 
+		<key name="html.snippet.series.label">Серия: </key>
+		<key name="html.snippet.authors.label">Авторы: </key>
+		<key name="html.snippet.publisher.label">Издательство: </key>
+		<key name="html.snippet.year.label">год</key>
+		<key name="html.snippet.publishedIn.label">опубликовано в</key>
+		<key name="html.snippet.page.label">стр.</key>
+		<key name="html.snippet.tags.label">Теги: </key>
 		
 	</lang>	
 </localization>
