@@ -23,9 +23,9 @@ public class BooksORMInterface implements DedicatedORMInterface<BookDescriptor, 
 	private final BookDescriptor		dedicatedDesc;
 	
 	public BooksORMInterface(final LoggerFacade logger, final Connection conn, final UniqueIdGenerator gen, final ContentNodeMetadata meta) throws SQLException, NamingException {
-		this.stmtList = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-		this.rsList = stmtList.executeQuery("select * from elibrary.booklist order by \"bl_Id\"");
-		this.stmtRec = conn.prepareStatement("select * from elibrary.booklist where \"bl_Id\" = ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+		this.stmtList = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+		this.rsList = stmtList.executeQuery("select * from \"elibrary\".\"booklist\" order by \"bl_Id\"");
+		this.stmtRec = conn.prepareStatement("select * from \"elibrary\".\"booklist\" where \"bl_Id\" = ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 		this.desc = new BookDescriptor(logger, meta);
 		this.dedicatedDesc = new BookDescriptor(logger, meta);
 		this.mgr = new BooksDescriptorMgr(logger, this.desc, gen, conn);

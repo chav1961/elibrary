@@ -45,7 +45,7 @@ import chav1961.purelib.ui.interfaces.ReferenceAndComment;
 import chav1961.purelib.ui.interfaces.RecordFormManager.RecordAction;
 
 public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor> {
-	private static final ReferenceAndComment[]					EMPTY_TAGS = new ReferenceAndComment[0];
+	private static final ReferenceAndComment[]	EMPTY_TAGS = new ReferenceAndComment[0];
 	
 	private final LoggerFacade		logger;
 	private final BookDescriptor	desc;
@@ -123,6 +123,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 
 	@Override
 	public void loadInstance(final ResultSet rs, final BookDescriptor inst) throws SQLException {
+		rs.refreshRow();
 		inst.id = rs.getLong("bl_Id");
 		inst.placedIn.setValue(rs.getLong("bl_Parent"));
 		inst.code  = rs.getString("bl_Code");
@@ -162,7 +163,6 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 			throw new SQLException(e);
 		}
 		inst.authors = list.toArray(new LongItemAndReference[list.size()]);
-//		System.err.println("Load "+inst.id);
 	}
 
 	@Override

@@ -131,13 +131,13 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 				popupMenu.show(books, (int)rect.getCenterX(), (int)rect.getCenterY());
 			}, SwingUtils.ACTION_CONTEXTMENU);
 			
-			SwingUtils.assignActionKey(this.form, JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, SwingUtils.KS_SOFT_EXIT, (e)->{
+			SwingUtils.assignActionKey(this.form, JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, SwingUtils.KS_SOFT_ACCEPT, (e)->{
 				try{
 					save(boi, this.editDescriptor, this.books.getSelectedKey());
 				} catch (SQLException exc) {
 					logger.message(Severity.error, exc, exc.getLocalizedMessage());
 				}
-			}, SwingUtils.ACTION_SOFT_EXIT);
+			}, SwingUtils.ACTION_SOFT_ACCEPT);
 			SwingUtils.assignActionKey(this.form, JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, SwingUtils.KS_SOFT_EXIT, (e)->cancel(), SwingUtils.ACTION_SOFT_EXIT);
 			
 			this.books.getSelectionModel().addListSelectionListener((e)->{
