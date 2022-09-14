@@ -186,7 +186,7 @@ public class Application implements Closeable, LoggerFacadeOwner {
 	}
 	
 	private void showAbout() {
-		SwingUtils.showAboutScreen(console, localizer, HELP_TITLE, HELP_CONTENT, URI.create("root://chav1961.elibrary.Application/chav1961/elibrary/avatar.jpg"), new Dimension(300,300));
+		SwingUtils.showAboutScreen(console, localizer, HELP_TITLE, HELP_CONTENT, URI.create("root://"+this.getClass().getCanonicalName()+"/chav1961/elibrary/avatar.jpg"), new Dimension(300,300));
 	}
 	
 	public static void main(String[] args) {
@@ -195,7 +195,7 @@ public class Application implements Closeable, LoggerFacadeOwner {
 		try{final ArgParser						parser = new ApplicationArgParser().parse(args);
 			final SubstitutableProperties		props = new SubstitutableProperties(Utils.mkProps(
 													 NanoServiceFactory.NANOSERVICE_PORT, parser.getValue(ARG_HELP_PORT, String.class)
-													,NanoServiceFactory.NANOSERVICE_ROOT, FileSystemInterface.FILESYSTEM_URI_SCHEME+":xmlReadOnly:root://chav1961.elibrary.Application/chav1961/elibrary/helptree.xml"
+													,NanoServiceFactory.NANOSERVICE_ROOT, FileSystemInterface.FILESYSTEM_URI_SCHEME+":xmlReadOnly:root://"+Application.class.getCanonicalName()+"/chav1961/elibrary/helptree.xml"
 													,NanoServiceFactory.NANOSERVICE_CREOLE_PROLOGUE_URI, Application.class.getResource("prolog.cre").toString() 
 													,NanoServiceFactory.NANOSERVICE_CREOLE_EPILOGUE_URI, Application.class.getResource("epilog.cre").toString() 
 												));
@@ -227,10 +227,9 @@ public class Application implements Closeable, LoggerFacadeOwner {
 			} catch (SQLException | IOException | ContentException | EnvironmentException e) {
 				e.printStackTrace();
 			}
-			//System.exit(0);
 		} catch (CommandLineParametersException exc) {
-			exc.printStackTrace();
-			//System.exit(128);
+//			exc.printStackTrace();
+			System.exit(128);
 		}
 	}
 
@@ -244,5 +243,4 @@ public class Application implements Closeable, LoggerFacadeOwner {
 			super(KEYS);
 		}
 	}
-
 }
