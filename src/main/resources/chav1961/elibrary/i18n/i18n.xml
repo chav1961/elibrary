@@ -231,6 +231,10 @@
 		<key name="html.snippet.publishedIn.label">published in </key>
 		<key name="html.snippet.page.label">page</key>
 		<key name="html.snippet.tags.label">Tags:</key>
+		<key name="html.snippet.query.label">Type query: </key>
+		<key name="html.snippet.query.search">Search</key>
+		<key name="html.snippet.query.placehlder">Use Lucene syntax to type query...</key>
+		
 		
 	</lang>
 	<lang name="ru">
@@ -463,6 +467,9 @@
 		<key name="html.snippet.publishedIn.label">опубликовано в</key>
 		<key name="html.snippet.page.label">стр.</key>
 		<key name="html.snippet.tags.label">Теги: </key>
+		<key name="html.snippet.query.label">Введите запрос: </key>
+		<key name="html.snippet.query.search">Найти</key>
+		<key name="html.snippet.query.placehlder">Используйте синтаксис Lucene...</key>
 		
 	</lang>	
 </localization>

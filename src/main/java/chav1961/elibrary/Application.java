@@ -29,7 +29,6 @@ import chav1961.purelib.basic.Utils;
 import chav1961.purelib.basic.exceptions.CommandLineParametersException;
 import chav1961.purelib.basic.exceptions.ContentException;
 import chav1961.purelib.basic.exceptions.EnvironmentException;
-import chav1961.purelib.basic.exceptions.PreparationException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
 import chav1961.purelib.basic.interfaces.LoggerFacadeOwner;
