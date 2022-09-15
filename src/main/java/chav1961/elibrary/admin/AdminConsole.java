@@ -469,7 +469,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 		if (ask(query,450,300)) {
 			try(final LuceneIndexer	indexer = new LuceneIndexer(localizer, state, settings.getProperty(Settings.PROP_INDEXER_DIR, File.class, LuceneIndexer.LUCENE_DEFAULT_INDEXING_DIR))) {
 				
-				for(long item : indexer.search(query.getQueryString(), 10)) {
+				for(LuceneIndexer.SearchResult item : indexer.search(query.getQueryString(), 10)) {
 					System.err.println("Item="+item);				
 				}
 			} catch (IOException | SyntaxException e) {

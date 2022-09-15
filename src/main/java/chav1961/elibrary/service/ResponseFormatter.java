@@ -15,6 +15,7 @@ public class ResponseFormatter {
 	public static final String	SNIPPET_DIV_CLASS = "snippetDiv";
 	public static final String	SNIPPET_TABLE_CLASS = "snippetTable";
 	public static final String	SNIPPET_TAGS_CLASS = "snippetTags";
+	public static final String	SNIPPET_SEARCH_FORM_CLASS = "searchForm";
 
 	public static final String	SNIPPET_SERIES_LABEL = "html.snippet.series.label";
 	public static final String	SNIPPET_AUTHORS_LABEL = "html.snippet.authors.label";
@@ -23,6 +24,9 @@ public class ResponseFormatter {
 	public static final String	SNIPPET_PUBLISHED_IN_LABEL = "html.snippet.publishedIn.label";
 	public static final String	SNIPPET_PAGE_LABEL = "html.snippet.page.label";
 	public static final String	SNIPPET_TAGS_LABEL = "html.snippet.tags.label";
+	public static final String	SNIPPET_QUERY_LABEL = "html.snippet.query.label";
+	public static final String	SNIPPET_QUERY_SEARCH = "html.snippet.query.search";
+	public static final String	SNIPPET_QUERY_PLACEHOLDER = "html.snippet.query.placehlder";
 
 	public static enum ContentPath {
 		SNIPPET_IMAGE("/content/getimage"),
@@ -45,6 +49,44 @@ public class ResponseFormatter {
 		}
 	}
 	
+	public static String buildItemSnippet(final Localizer localizer, final BookDescriptor desc, final Connection conn) {
+		final StringBuilder	sb = new StringBuilder();
+		
+		sb.append("<tr><td><img src=\"").append(buildHRef(ContentPath.SNIPPET_IMAGE,desc.id)).append("\" alt=\"").append("\" width=70").append(" height=100").append("></td>");
+		sb.append("<td><h3><a href=\"").append(buildHRef(ContentPath.SNIPPET_CONTENT,desc.id)).append("\" type=\"").append(desc.content.getMimeType()).append("\">").append(desc.title).append("</a></h3>\n");
+		sb.append("<p>").append(getSeries(localizer, desc, conn)).append(" ").append(getAuthors(localizer, desc, conn)).append("</p>");
+		sb.append("<p>").append(getPublisher(localizer, desc, conn)).append(", ").append(getYear(localizer, desc)).append("</p>");
+		if (desc.placedIn != null && desc.placedIn.getValue() != 0) {
+			sb.append("<p>").append(getPublishedIn(localizer, desc, conn)).append("</p>");
+		}
+		sb.append("</td></tr>\n");
+		
+		return sb.toString();
+	}	
+
+	public static String buildItemDescriptor(final Localizer localizer, final BookDescriptor desc, final Connection conn) {
+		final StringBuilder	sb = new StringBuilder();
+		
+		sb.append("<div class=\"").append(SNIPPET_DIV_CLASS).append("\">\n");
+		sb.append("<table class=\"").append(SNIPPET_TABLE_CLASS).append("\">\n");
+		sb.append("<tr><td><img src=\"").append(buildHRef(ContentPath.SNIPPET_IMAGE,desc.id)).append("\" alt=\"").append("\" width=200").append(" height=297").append("></td>");
+		sb.append("<td><h3><a href=\"").append(buildHRef(ContentPath.SNIPPET_CONTENT,desc.id)).append("\" type=\"").append(desc.content.getMimeType()).append("\">").append(desc.title).append("</a></h3>\n");
+		sb.append("<p>").append(getSeries(localizer, desc, conn)).append(" ").append(getAuthors(localizer, desc, conn)).append("</p>");
+		sb.append("<p>").append(getPublisher(localizer, desc, conn)).append(", ").append(getYear(localizer, desc)).append("</p>");
+		if (desc.placedIn != null && desc.placedIn.getValue() != 0) {
+			sb.append("<p>").append(getPublishedIn(localizer, desc, conn)).append("</p>");
+		}
+		else if (!"0".equals(extractReference(conn, "select count(*) from \"elibrary\".\"booklist\" where \"bl_Parent\" = ?", desc.id))) {
+			sb.append("<hr/>\n");
+			sb.append(buildSnippetContent(localizer, desc, conn));
+		}
+		sb.append("</td></tr></table>\n");
+		sb.append(getTags(localizer, desc));
+		sb.append("</div>\n");
+		
+		return sb.toString();
+	}
+	
 	public static String buildSearchSnippet(final Localizer localizer, final BookDescriptor desc, final Connection conn) {
 		final StringBuilder	sb = new StringBuilder();
 		
@@ -65,22 +107,33 @@ public class ResponseFormatter {
 		
 		return sb.toString();
 	}
-
-	public static String buildItemSnippet(final Localizer localizer, final BookDescriptor desc, final Connection conn) {
+	
+	public static String buildSnippetContent(final Localizer localizer, final BookDescriptor desc, final Connection conn) {
 		final StringBuilder	sb = new StringBuilder();
-		
-		sb.append("<tr><td><img src=\"").append(buildHRef(ContentPath.SNIPPET_IMAGE,desc.id)).append("\" alt=\"").append("\" width=70").append(" height=100").append("></td>");
-		sb.append("<td><h3><a href=\"").append(buildHRef(ContentPath.SNIPPET_CONTENT,desc.id)).append("\" type=\"").append(desc.content.getMimeType()).append("\">").append(desc.title).append("</a></h3>\n");
-		sb.append("<p>").append(getSeries(localizer, desc, conn)).append(" ").append(getAuthors(localizer, desc, conn)).append("</p>");
-		sb.append("<p>").append(getPublisher(localizer, desc, conn)).append(", ").append(getYear(localizer, desc)).append("</p>");
-		if (desc.placedIn != null && desc.placedIn.getValue() != 0) {
-			sb.append("<p>").append(getPublishedIn(localizer, desc, conn)).append("</p>");
+	
+		try(final PreparedStatement	ps = conn.prepareStatement("select * from \"elibrary\".\"booklist\" where \"bl_Parent\" = ?")) {
+			
+			ps.setLong(1, desc.id);
+			try(final ResultSet		rs = ps.executeQuery()) {
+				boolean	theSameFirst = true;
+				
+				while (rs.next()) {
+					if (theSameFirst) {
+						theSameFirst = false;
+						sb.append("<ul>");
+					}
+					sb.append("<li><a href=\"").append(buildHRef(ContentPath.SNIPPET_TOTAL_SERIES_LIST, rs.getLong("bl_Id"))).append("\">").append(escapeHtmlString(rs.getString("bl_Title"))).append("</a></li>");
+				}
+				if (!theSameFirst) {
+					sb.append("</ul>");
+				}
+			}
+		} catch (SQLException e) {
+			sb.append("Error: ").append(e.getLocalizedMessage());
 		}
-		sb.append("</td></tr>\n");
-		
 		return sb.toString();
 	}	
-
+	
 	public static String extractReference(final Connection conn, final String sql, final long id) {
 		try(final PreparedStatement	ps = conn.prepareStatement(sql)) {
 			ps.setLong(1, id);

@@ -1,5 +1,6 @@
 package chav1961.elibrary.admin.indexer;
 
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -7,7 +8,12 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.naming.directory.SearchResult;
+
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -28,6 +34,14 @@ import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
 import org.apache.lucene.store.SimpleFSDirectory;
+import org.apache.lucene.search.highlight.Formatter;
+import org.apache.lucene.search.highlight.Fragmenter;
+import org.apache.lucene.search.highlight.Highlighter;
+import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
+import org.apache.lucene.search.highlight.QueryScorer;
+import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
+import org.apache.lucene.search.highlight.SimpleSpanFragmenter;
+import org.apache.lucene.search.highlight.TokenSources;
 
 import chav1961.purelib.basic.Utils;
 import chav1961.purelib.basic.exceptions.SyntaxException;
@@ -37,7 +51,6 @@ import chav1961.purelib.basic.interfaces.LoggerFacadeOwner;
 import chav1961.purelib.basic.interfaces.ProgressIndicator;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.i18n.interfaces.LocalizerOwner;
-import chav1961.purelib.sql.JDBCUtils;
 
 public class LuceneIndexer implements LoggerFacadeOwner, LocalizerOwner, Closeable {
 	public static final String	LUCENE_DEFAULT_INDEXING_DIR = "./lucene";
@@ -154,7 +167,7 @@ public class LuceneIndexer implements LoggerFacadeOwner, LocalizerOwner, Closeab
 	  wr.addDocument(doc);
 	}
 
-	public long[] search(final String queryStr, final int hitsPerPage) throws IOException, SyntaxException {
+	public SearchResult[] search(final String queryStr, final int hitsPerPage) throws IOException, SyntaxException {
 		try(final StandardAnalyzer 	analyzer = new StandardAnalyzer()) {
 			final Query 			q = new QueryParser("anywhere", analyzer).parse(queryStr);
 
@@ -163,21 +176,47 @@ public class LuceneIndexer implements LoggerFacadeOwner, LocalizerOwner, Closeab
 	        try(final IndexReader 	reader = DirectoryReader.open(index)) {
 	            final IndexSearcher searcher = new IndexSearcher(reader);
 	            final TopDocs 		docs = searcher.search(q, hitsPerPage);
+	    	    final Formatter 	formatter = new SimpleHTMLFormatter();
+		        final QueryScorer 	scorer = new QueryScorer(q);
+		        final Highlighter 	highlighter = new Highlighter(formatter, scorer);
+		        final Fragmenter 	fragmenter = new SimpleSpanFragmenter(scorer, 256);
 	            final ScoreDoc[] 	hits = docs.scoreDocs;
-	            final GrowableLongArray	gla = new GrowableLongArray(false);
+	            final List<SearchResult>	result = new ArrayList<>();
+	            
+		        highlighter.setTextFragmenter(fragmenter);
 	            
 		        System.err.println("Found " + hits.length + " hits.");
 		        for(int i = 0; i < hits.length; i++) {
-		            final int 		docId = hits[i].doc;
-		            final Document	d = searcher.doc(docId);
+		            final int 			docId = hits[i].doc;
+		            final Document		d = searcher.doc(docId);
+		            final String 		text = d.get("anywhere");
+		            final TokenStream 	stream = TokenSources.getAnyTokenStream(reader, docId, "anywhere", analyzer);
+		            final String[] 		frags = highlighter.getBestFragments(stream, text, 10);
 		            
-		            gla.append(Long.valueOf(d.get("bl_Id")));
 		            System.err.println((i + 1) + ". " + d.get("bl_Id") + "\t" + d.get("title"));
+		            result.add(new SearchResult(Long.valueOf(d.get("bl_Id")), hits[i].score, frags.length > 0 ? frags[0] : ""));
 		        }
-		        return gla.extract();
+		        return result.toArray(new SearchResult[result.size()]);
 	        }
-		} catch (ParseException e) {
+		} catch (ParseException | InvalidTokenOffsetsException e) {
 			throw new SyntaxException(0, 0, e.getLocalizedMessage(), e);
+		}
+	}
+	
+	public static class SearchResult {
+		public final long	docId;
+		public final double	score;
+		public final String	fragment;
+		
+		public SearchResult(long docId, double score, String fragment) {
+			this.docId = docId;
+			this.score = score;
+			this.fragment = fragment;
+		}
+
+		@Override
+		public String toString() {
+			return "SearchResult [docId=" + docId + ", score=" + score + ", fragment=" + fragment + "]";
 		}
 	}
 }
