@@ -137,7 +137,7 @@ public class LuceneIndexer implements LoggerFacadeOwner, LocalizerOwner, Closeab
 				int	current = 0;
 				
 				pi.start(localizer.getValue(KEY_START_INDEXING), count);
-				try(final ResultSet		rs = stmt.executeQuery("select * from \"elibrary\".\"booklist\""); 
+				try(final ResultSet		rs = stmt.executeQuery("select \"bl_Id\", \"bl_Title\", \"bl_Comment\" from \"elibrary\".\"booklist\""); 
 					final IndexWriter	wr = new IndexWriter(index, config)) {
 					
 					while (rs.next()) {
@@ -158,12 +158,15 @@ public class LuceneIndexer implements LoggerFacadeOwner, LocalizerOwner, Closeab
 	  final StringBuilder	sb = new StringBuilder();
 	  
 	  doc.add(new StoredField("bl_Id", rs.getLong("bl_Id")));
+	  
 	  doc.add(new TextField("bl_Title", rs.getString("bl_Title"), Field.Store.YES));
 	  sb.append(rs.getString("bl_Title")).append(' ');
+	  
 	  doc.add(new TextField("bl_Comment", rs.getString("bl_Comment"), Field.Store.YES));
 	  sb.append(rs.getString("bl_Comment")).append(' ');
+	  
 	  doc.add(new TextField("anywhere", sb.toString(), Field.Store.YES));
-	  System.err.println("ADD "+sb.toString());
+//	  System.err.println("ADD "+sb.toString());
 	  wr.addDocument(doc);
 	}
 
@@ -185,7 +188,7 @@ public class LuceneIndexer implements LoggerFacadeOwner, LocalizerOwner, Closeab
 	            
 		        highlighter.setTextFragmenter(fragmenter);
 	            
-		        System.err.println("Found " + hits.length + " hits.");
+//		        System.err.println("Found " + hits.length + " hits.");
 		        for(int i = 0; i < hits.length; i++) {
 		            final int 			docId = hits[i].doc;
 		            final Document		d = searcher.doc(docId);
@@ -193,7 +196,7 @@ public class LuceneIndexer implements LoggerFacadeOwner, LocalizerOwner, Closeab
 		            final TokenStream 	stream = TokenSources.getAnyTokenStream(reader, docId, "anywhere", analyzer);
 		            final String[] 		frags = highlighter.getBestFragments(stream, text, 10);
 		            
-		            System.err.println((i + 1) + ". " + d.get("bl_Id") + "\t" + d.get("title"));
+//		            System.err.println((i + 1) + ". " + d.get("bl_Id") + "\t" + d.get("title"));
 		            result.add(new SearchResult(Long.valueOf(d.get("bl_Id")), hits[i].score, frags.length > 0 ? frags[0] : ""));
 		        }
 		        return result.toArray(new SearchResult[result.size()]);

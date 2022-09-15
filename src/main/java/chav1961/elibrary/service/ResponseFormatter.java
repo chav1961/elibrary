@@ -87,7 +87,7 @@ public class ResponseFormatter {
 		return sb.toString();
 	}
 	
-	public static String buildSearchSnippet(final Localizer localizer, final BookDescriptor desc, final Connection conn) {
+	public static String buildSearchSnippet(final Localizer localizer, final BookDescriptor desc, final Connection conn, final String fragment) {
 		final StringBuilder	sb = new StringBuilder();
 		
 		sb.append("<div class=\"").append(SNIPPET_DIV_CLASS).append("\">\n");
@@ -100,7 +100,7 @@ public class ResponseFormatter {
 			sb.append("<p>").append(getPublishedIn(localizer, desc, conn)).append("</p>");
 		}
 		sb.append("<hr/>\n");
-		sb.append("<p>CONTENT</p>\n");
+		sb.append("<p>").append(fragment).append("</p>\n");
 		sb.append("</td></tr></table>\n");
 		sb.append(getTags(localizer, desc));
 		sb.append("</div>\n");

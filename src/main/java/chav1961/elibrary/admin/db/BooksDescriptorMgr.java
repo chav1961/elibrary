@@ -123,7 +123,9 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 
 	@Override
 	public void loadInstance(final ResultSet rs, final BookDescriptor inst) throws SQLException {
-		rs.refreshRow();
+		if (rs.getType() != ResultSet.TYPE_FORWARD_ONLY) {
+			rs.refreshRow();
+		}
 		inst.id = rs.getLong("bl_Id");
 		inst.placedIn.setValue(rs.getLong("bl_Parent"));
 		inst.code  = rs.getString("bl_Code");

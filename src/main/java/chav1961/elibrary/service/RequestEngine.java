@@ -8,8 +8,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.PreparedStatement;
@@ -84,25 +86,26 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 	@Path("/query")
 	public int query(@ToBody(mimeType="text/html") final Writer wr) throws IOException {
 		printStartPage(wr);
-		wr.write("<form action=\"./search\" method=\"GET\" class=\"" + ResponseFormatter.SNIPPET_SEARCH_FORM_CLASS + "\">\n");
+		wr.write("<form action=\"./search\" method=\"GET\" class=\"" + ResponseFormatter.SNIPPET_SEARCH_FORM_CLASS + "\" accept-charset=\"UTF-8\">\n");
 		wr.write("<p>" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_LABEL) + ": ");
 		wr.write("<input type=\"search\" id=\"query\" name=\"query\" placeholder=\"" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_PLACEHOLDER) + "\" size=\"40\">\n");
 		wr.write("<input type=\"submit\" value=\"" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_SEARCH) + "\">\n");
 		wr.write("</p>\n</form>\n");
 		printEndPage(wr);
 		wr.flush();
-		return 200;
+		return HttpURLConnection.HTTP_OK;
 	}	
 	
 	@Path("/search")
 	public int search(@FromQuery("dummy") String dummy, @FromQuery("query") String query, @ToBody(mimeType="text/html") final Writer wr) throws IOException {
 		final StringBuilder		sb = new StringBuilder();
+		final String			decodedQuery = URLDecoder.decode(query,PureLibSettings.DEFAULT_CONTENT_ENCODING);
 		
 		try(final LuceneIndexer	ix = new LuceneIndexer(getLocalizer(), getLogger(), luceneDir)) {
-			boolean	theSameFirst = true;
-			String	prefix = "(select ";
+			boolean			theSameFirst = true;
+			String			prefix = "(select ";
 			
-			for (LuceneIndexer.SearchResult item : ix.search(query, 100)) {
+			for (LuceneIndexer.SearchResult item : ix.search(decodedQuery, 100)) {
 				sb.append(prefix).append(item.docId);
 				if (theSameFirst) {
 					sb.append(" as id ");
@@ -118,20 +121,25 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 				prefix = " union all select ";
 				theSameFirst = false;
 			}
-			sb.append(")");
+			if (!theSameFirst) {
+				sb.append(")");
+			}
 		} catch (SyntaxException exc) {
 			wr.write(("error: "+exc.getLocalizedMessage()));
 			wr.flush();
-			return 500;
+			return HttpURLConnection.HTTP_INTERNAL_ERROR;
 		}
 
 		if (sb.isEmpty()) {
-			wr.write("Not found");
+			printStartPage(wr);
+			wr.write("<h3>Not found</h3>");
+			wr.write("<p>No any results found for you query ["+decodedQuery+"]</p>");
+			printEndPage(wr);
 			wr.flush();
-			return 200;
+			return HttpURLConnection.HTTP_OK;
 		}
 		else {
-			try(final PreparedStatement	ps = conn.prepareStatement("select * from \"elibrary\".\"booklist\", "+sb.toString()+" as T where id = \"bl_Id\" order by score desc", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			try(final PreparedStatement	ps = conn.prepareStatement("select * from \"elibrary\".\"booklist\", "+sb.toString()+" as T where id = \"bl_Id\" order by score desc");
 				final ResultSet			rs = ps.executeQuery()) {
 				boolean		theSameFirst = true;
 
@@ -141,16 +149,16 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 					if (!theSameFirst) {
 						wr.write("<hr/>\n");
 					}
-					wr.write(ResponseFormatter.buildSearchSnippet(getLocalizer(), desc, conn));
+					wr.write(ResponseFormatter.buildSearchSnippet(getLocalizer(), desc, conn, rs.getString("fragment")));
 					theSameFirst = false;
 				}
 				printEndPage(wr);
 				wr.flush();
-				return 200;
+				return HttpURLConnection.HTTP_OK;
 			} catch (SQLException exc) {
 				wr.write(("error: "+exc.getLocalizedMessage()));
 				wr.flush();
-				return 500;
+				return HttpURLConnection.HTTP_INTERNAL_ERROR;
 			}
 		}
 	}	
@@ -168,16 +176,16 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 				if (!theSameFirst) {
 					wr.write("<hr/>\n");
 				}
-				wr.write(ResponseFormatter.buildSearchSnippet(getLocalizer(), desc, conn));
+				wr.write(ResponseFormatter.buildSearchSnippet(getLocalizer(), desc, conn, ""));
 				theSameFirst = false;
 			}
 			printEndPage(wr);
 			wr.flush();
-			return 200;
+			return HttpURLConnection.HTTP_OK;
 		} catch (SQLException e) {
 			wr.write(("error: "+e.getLocalizedMessage()));
 			wr.flush();
-			return 500;
+			return HttpURLConnection.HTTP_INTERNAL_ERROR;
 		}
 	}
 
@@ -192,17 +200,17 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 					try(final InputStream	is = rs.getBinaryStream(1)) {
 						Utils.copyStream(is, os);
 					}
-					return 200;
+					return HttpURLConnection.HTTP_OK;
 				}
 				else {
 					os.flush();
-					return 200;
+					return HttpURLConnection.HTTP_OK;
 				}
 			}
 		} catch (SQLException e) {
 			os.write(("error: "+e.getLocalizedMessage()).getBytes());
 			os.flush();
-			return 500;
+			return HttpURLConnection.HTTP_INTERNAL_ERROR;
 		}
 	}
 	
@@ -219,49 +227,26 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 					try(final InputStream	is = rs.getBinaryStream(1)) {
 						Utils.copyStream(is, os);
 					}
-					return 200;
+					return HttpURLConnection.HTTP_OK;
 				}
 				else {
 					os.flush();
-					return 200;
+					return HttpURLConnection.HTTP_OK;
 				}
 			}
 		} catch (SQLException e) {
 			os.write(("error: "+e.getLocalizedMessage()).getBytes());
 			os.flush();
-			return 500;
+			return HttpURLConnection.HTTP_INTERNAL_ERROR;
 		}
 	}
 
 	@Path("/gettotalserieslist")
 	public int getTotalSeriesList(@FromQuery("dummy") String dummy, @FromQuery("id") String id, @ToBody(mimeType="text/html") final Writer wr) throws IOException {
-		return printTotalList(id, "select \"bs_Name\" from \"elibrary\".\"bookseries\" where \"bs_Id\" = ?"
+		return printTotalList(id, "select * from \"elibrary\".\"booklist\" where \"bs_Id\" = ?::bigint order by \"bl_Title\""
 								, ResponseFormatter.SNIPPET_SERIES_LABEL 
 								, ResponseFormatter.extractReference(conn, "select \"bs_Name\" from \"elibrary\".\"bookseries\" where \"bs_Id\" = ?", Long.valueOf(id))
 								, wr);
-//		final String	seriesTitle = ResponseFormatter.extractReference(conn, "select \"bs_Name\" from \"elibrary\".\"bookseries\" where \"bs_Id\" = ?", Long.valueOf(id));
-//		
-//		try(final PreparedStatement	stmt = conn.prepareStatement("select * from \"elibrary\".\"booklist\" where \"bs_Id\" = ?::bigint order by \"bl_Year\"", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
-//			stmt.setString(1, id);
-//			try(final ResultSet		rs = stmt.executeQuery()) {
-//				
-//				printStartPage(wr);
-//				wr.write(ResponseFormatter.buildListCaption(localizer, ResponseFormatter.SNIPPET_SERIES_LABEL, seriesTitle));
-//				wr.write("<table>\n");
-//				while (rs.next()) {
-//					mgr.loadInstance(rs, desc);
-//					wr.write(ResponseFormatter.buildItemSnippet(getLocalizer(), desc, conn));
-//				}
-//				wr.write("</table>\n");
-//				printEndPage(wr);
-//				wr.flush();
-//				return 200;
-//			}
-//		} catch (SQLException e) {
-//			wr.write(("error: "+e.getLocalizedMessage()));
-//			wr.flush();
-//			return 500;
-//		}
 	}
 
 	@Path("/gettotalauthorslist")
@@ -270,29 +255,6 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 								, ResponseFormatter.SNIPPET_AUTHORS_LABEL 
 								, ResponseFormatter.extractReference(conn, "select \"ba_Name\" from \"elibrary\".\"bookauthors\" where \"ba_Id\" = ?", Long.valueOf(id))
 								, wr);
-//		final String	authorsTitle = ResponseFormatter.extractReference(conn, "select \"ba_Name\" from \"elibrary\".\"bookauthors\" where \"ba_Id\" = ?", Long.valueOf(id));
-//		
-//		try(final PreparedStatement	stmt = conn.prepareStatement("select * from \"elibrary\".\"booklist\" where \"bl_Id\" in (select \"bl_Id\" from \"elibrary\".\"book2authors\" where \"ba_Id\" = ?::bigint) order by \"bl_Year\", \"bl_Title\"", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
-//			stmt.setString(1, id);
-//			try(final ResultSet		rs = stmt.executeQuery()) {
-//				
-//				printStartPage(wr);
-//				wr.write(ResponseFormatter.buildListCaption(localizer, ResponseFormatter.SNIPPET_AUTHORS_LABEL, authorsTitle));
-//				wr.write("<table>\n");
-//				while (rs.next()) {
-//					mgr.loadInstance(rs, desc);
-//					wr.write(ResponseFormatter.buildItemSnippet(getLocalizer(), desc, conn));
-//				}
-//				wr.write("</table>\n");
-//				printEndPage(wr);
-//				wr.flush();
-//				return 200;
-//			}
-//		} catch (SQLException e) {
-//			wr.write(("error: "+e.getLocalizedMessage()));
-//			wr.flush();
-//			return 500;
-//		}
 	}
 
 	@Path("/gettotalpublisherslist")
@@ -301,29 +263,6 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 								, ResponseFormatter.SNIPPET_PUBLISHER_LABEL
 								, ResponseFormatter.extractReference(conn, "select \"bp_Name\" from \"elibrary\".\"bookpublishers\" where \"bp_Id\" = ?", Long.valueOf(id))
 								, wr);
-//		final String	publishersTitle = ResponseFormatter.extractReference(conn, "select \"bp_Name\" from \"elibrary\".\"bookpublishers\" where \"bp_Id\" = ?", Long.valueOf(id));
-//		
-//		try(final PreparedStatement	stmt = conn.prepareStatement("select * from \"elibrary\".\"booklist\" where \"bp_Id\" = ?::bigint order by \"bl_Year\", \"bl_Title\"", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
-//			stmt.setString(1, id);
-//			try(final ResultSet		rs = stmt.executeQuery()) {
-//				
-//				printStartPage(wr);
-//				wr.write(ResponseFormatter.buildListCaption(localizer, ResponseFormatter.SNIPPET_PUBLISHER_LABEL, publishersTitle));
-//				wr.write("<table>\n");
-//				while (rs.next()) {
-//					mgr.loadInstance(rs, desc);
-//					wr.write(ResponseFormatter.buildItemSnippet(getLocalizer(), desc, conn));
-//				}
-//				wr.write("</table>\n");
-//				printEndPage(wr);
-//				wr.flush();
-//				return 200;
-//			}
-//		} catch (SQLException e) {
-//			wr.write(("error: "+e.getLocalizedMessage()));
-//			wr.flush();
-//			return 500;
-//		}
 	}
 
 	@Path("/gettotalyearlist")
@@ -332,27 +271,6 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 								, ResponseFormatter.SNIPPET_YEAR_LABEL
 								, year
 								, wr);
-//		try(final PreparedStatement	stmt = conn.prepareStatement("select * from \"elibrary\".\"booklist\" where \"bl_Year\" = ?::bigint order by \"bl_Title\"", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
-//			stmt.setString(1, year);
-//			try(final ResultSet		rs = stmt.executeQuery()) {
-//				
-//				printStartPage(wr);
-//				wr.write(ResponseFormatter.buildListCaption(localizer, ResponseFormatter.SNIPPET_YEAR_LABEL, year));
-//				wr.write("<table>\n");
-//				while (rs.next()) {
-//					mgr.loadInstance(rs, desc);
-//					wr.write(ResponseFormatter.buildItemSnippet(getLocalizer(), desc, conn));
-//				}
-//				wr.write("</table>\n");
-//				printEndPage(wr);
-//				wr.flush();
-//				return 200;
-//			}
-//		} catch (SQLException e) {
-//			wr.write(("error: "+e.getLocalizedMessage()));
-//			wr.flush();
-//			return 500;
-//		}
 	}
 	
 	@Path("/getitem")
@@ -360,7 +278,7 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 		try(final PreparedStatement	stmt = conn.prepareStatement("select * from \"elibrary\".\"booklist\" where \"bl_Id\" = ?::bigint", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
 			
 			stmt.setString(1, id);
-			try(final ResultSet			rs = stmt.executeQuery()) {
+			try(final ResultSet		rs = stmt.executeQuery()) {
 				printStartPage(wr);
 				if (rs.next()) {
 					mgr.loadInstance(rs, desc);
@@ -368,12 +286,12 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 				}
 				printEndPage(wr);
 				wr.flush();
-				return 200;
+				return HttpURLConnection.HTTP_OK;
 			}
 		} catch (SQLException e) {
-			wr.write(("error: "+e.getLocalizedMessage()));
+			wr.write("error: "+e.getLocalizedMessage());
 			wr.flush();
-			return 500;
+			return HttpURLConnection.HTTP_INTERNAL_ERROR;
 		}
 	}
 	
@@ -408,7 +326,7 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 
 	private void printStartPage(final Writer os) throws IOException {
 		os.write("<!DOCTYPE html>\n");
-		os.write("<html><body>\n");
+		os.write("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"></head><body>\n");
 	}
 
 	private void printEndPage(final Writer os) throws IOException {
@@ -416,12 +334,13 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 	}
 
 	private int printTotalList(final String id, final String sql, final String label, final String title, final Writer wr) throws IOException {
-		try(final PreparedStatement	stmt = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
+		try(final PreparedStatement	stmt = conn.prepareStatement(sql)) {
 			stmt.setString(1, id);
 			try(final ResultSet		rs = stmt.executeQuery()) {
 				
 				printStartPage(wr);
-				wr.write(ResponseFormatter.buildListCaption(getLocalizer(), label, id));
+				wr.write(ResponseFormatter.buildListCaption(getLocalizer(), label, title));
+				wr.write("<hr/>\n");
 				wr.write("<table>\n");
 				while (rs.next()) {
 					mgr.loadInstance(rs, desc);
@@ -430,12 +349,12 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 				wr.write("</table>\n");
 				printEndPage(wr);
 				wr.flush();
-				return 200;
+				return HttpURLConnection.HTTP_OK;
 			}
 		} catch (SQLException e) {
 			wr.write(("error: "+e.getLocalizedMessage()));
 			wr.flush();
-			return 500;
+			return HttpURLConnection.HTTP_INTERNAL_ERROR;
 		}
 	}
 }
