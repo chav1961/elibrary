@@ -195,6 +195,8 @@
 		<key name="elibrary.booklist.bl_Parent.tt">Place in in the collective book</key>		
 		<key name="elibrary.booklist.bs_Id">Series</key>
 		<key name="elibrary.booklist.bs_Id.tt">Series</key>
+		<key name="elibrary.booklist.bs_Seq">Series sequential</key>
+		<key name="elibrary.booklist.bs_Seq.tt">Series sequential</key>
 		<key name="elibrary.booklist.bl_Title">Title</key>
 		<key name="elibrary.booklist.bl_Title.tt">Title</key>
 		<key name="elibrary.booklist.bl_Year">Year</key>
@@ -431,6 +433,8 @@
 		<key name="elibrary.booklist.bl_Parent.tt">Опубликовано в сборнике</key>		
 		<key name="elibrary.booklist.bs_Id">Серия</key>
 		<key name="elibrary.booklist.bs_Id.tt">Серия</key>
+		<key name="elibrary.booklist.bs_Seq">Номер в серии</key>
+		<key name="elibrary.booklist.bs_Seq.tt">Номер в серии</key>
 		<key name="elibrary.booklist.bl_Title">Название</key>
 		<key name="elibrary.booklist.bl_Title.tt">Название</key>
 		<key name="elibrary.booklist.bl_Year">Год издания</key>

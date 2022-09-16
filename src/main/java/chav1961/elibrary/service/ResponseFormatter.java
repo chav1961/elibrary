@@ -162,7 +162,7 @@ public class ResponseFormatter {
 			final StringBuilder	sb = new StringBuilder();
 			final String		presentation = extractReference(conn, "select \"bs_Name\" from \"elibrary\".\"bookseries\" where \"bs_Id\" = ?", desc.seriesNumber.getValue());
 			
-			return sb.append(localizer.getValue(SNIPPET_SERIES_LABEL)).append(" <a href=\"").append(buildHRef(ContentPath.SNIPPET_TOTAL_SERIES_LIST, desc.seriesNumber.getValue())).append("\">").append(escapeHtmlString(presentation)).append("</a>").toString();
+			return sb.append(localizer.getValue(SNIPPET_SERIES_LABEL)).append(" <a href=\"").append(buildHRef(ContentPath.SNIPPET_TOTAL_SERIES_LIST, desc.seriesNumber.getValue())).append("\">").append(escapeHtmlString(presentation)).append("</a> #").append(escapeHtmlString(desc.seriesSeq)).toString();
 		}
 		else {
 			return "";

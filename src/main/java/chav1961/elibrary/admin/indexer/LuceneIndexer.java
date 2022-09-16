@@ -54,6 +54,7 @@ import chav1961.purelib.i18n.interfaces.LocalizerOwner;
 
 public class LuceneIndexer implements LoggerFacadeOwner, LocalizerOwner, Closeable {
 	public static final String	LUCENE_DEFAULT_INDEXING_DIR = "./lucene";
+	public static final String	SEARCH_AGGREGATE_FIELD = "anywhere";
 	
 	private static final String	KEY_START_INDEXING = "LuceneIndexer.startIndexing";
 	
@@ -137,7 +138,14 @@ public class LuceneIndexer implements LoggerFacadeOwner, LocalizerOwner, Closeab
 				int	current = 0;
 				
 				pi.start(localizer.getValue(KEY_START_INDEXING), count);
-				try(final ResultSet		rs = stmt.executeQuery("select \"bl_Id\", \"bl_Title\", \"bl_Comment\" from \"elibrary\".\"booklist\""); 
+				try(final ResultSet		rs = stmt.executeQuery("select bl.\"bl_Id\" "
+												+ ", bs.\"bs_Name\" as \"bs_Name\" "
+												+ ", (select \"bp_Name\" from \"elibrary\".\"bookpublishers\" as bp where bp.\"bp_Id\" = bl.\"bp_Id\") as \"bp_Name\" "
+												+ ", (select string_agg(\"ba_Name\", ' ') from \"elibrary\".\"bookauthors\" as ba inner join \"elibrary\".\"book2authors\" as b2a on b2a.\"ba_Id\" = ba.\"ba_Id\" where b2a.\"bl_Id\" = bl.\"bl_Id\") as \"ba_Authors\" "
+												+ ", \"bl_Title\" "
+												+ ", \"bl_Comment\" "
+												+ "from \"elibrary\".\"booklist\" as bl "
+												+ "left join \"elibrary\".\"bookseries\" as bs on bl.\"bs_Id\" = bs.\"bs_Id\""); 
 					final IndexWriter	wr = new IndexWriter(index, config)) {
 					
 					while (rs.next()) {
@@ -159,23 +167,31 @@ public class LuceneIndexer implements LoggerFacadeOwner, LocalizerOwner, Closeab
 	  
 	  doc.add(new StoredField("bl_Id", rs.getLong("bl_Id")));
 	  
+	  doc.add(new TextField("bp_Name", rs.getString("bp_Name"), Field.Store.YES));
+	  sb.append(rs.getString("bp_Name")).append(' ');
+	  
+	  if (rs.getString("bs_Name") != null) {
+		  doc.add(new TextField("bs_Name", rs.getString("bs_Name"), Field.Store.YES));
+		  sb.append(rs.getString("bs_Name")).append(' ');
+	  }
+	  
+	  doc.add(new TextField("ba_Authors", rs.getString("ba_Authors"), Field.Store.YES));
+	  sb.append(rs.getString("ba_Authors")).append(' ');
+	  
 	  doc.add(new TextField("bl_Title", rs.getString("bl_Title"), Field.Store.YES));
 	  sb.append(rs.getString("bl_Title")).append(' ');
 	  
 	  doc.add(new TextField("bl_Comment", rs.getString("bl_Comment"), Field.Store.YES));
 	  sb.append(rs.getString("bl_Comment")).append(' ');
 	  
-	  doc.add(new TextField("anywhere", sb.toString(), Field.Store.YES));
-//	  System.err.println("ADD "+sb.toString());
+	  doc.add(new TextField(SEARCH_AGGREGATE_FIELD, sb.toString(), Field.Store.YES));
 	  wr.addDocument(doc);
 	}
 
 	public SearchResult[] search(final String queryStr, final int hitsPerPage) throws IOException, SyntaxException {
 		try(final StandardAnalyzer 	analyzer = new StandardAnalyzer()) {
-			final Query 			q = new QueryParser("anywhere", analyzer).parse(queryStr);
+			final Query 			q = new QueryParser(SEARCH_AGGREGATE_FIELD, analyzer).parse(queryStr);
 
-	        System.err.println("Search " + queryStr);
-			
 	        try(final IndexReader 	reader = DirectoryReader.open(index)) {
 	            final IndexSearcher searcher = new IndexSearcher(reader);
 	            final TopDocs 		docs = searcher.search(q, hitsPerPage);
@@ -188,15 +204,13 @@ public class LuceneIndexer implements LoggerFacadeOwner, LocalizerOwner, Closeab
 	            
 		        highlighter.setTextFragmenter(fragmenter);
 	            
-//		        System.err.println("Found " + hits.length + " hits.");
 		        for(int i = 0; i < hits.length; i++) {
 		            final int 			docId = hits[i].doc;
 		            final Document		d = searcher.doc(docId);
 		            final String 		text = d.get("anywhere");
-		            final TokenStream 	stream = TokenSources.getAnyTokenStream(reader, docId, "anywhere", analyzer);
+		            final TokenStream 	stream = TokenSources.getAnyTokenStream(reader, docId, SEARCH_AGGREGATE_FIELD, analyzer);
 		            final String[] 		frags = highlighter.getBestFragments(stream, text, 10);
 		            
-//		            System.err.println((i + 1) + ". " + d.get("bl_Id") + "\t" + d.get("title"));
 		            result.add(new SearchResult(Long.valueOf(d.get("bl_Id")), hits[i].score, frags.length > 0 ? frags[0] : ""));
 		        }
 		        return result.toArray(new SearchResult[result.size()]);

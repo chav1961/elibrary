@@ -45,19 +45,17 @@ import chav1961.purelib.ui.interfaces.ReferenceAndComment;
 import chav1961.purelib.ui.interfaces.RecordFormManager.RecordAction;
 
 public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor> {
-	private static final ReferenceAndComment[]	EMPTY_TAGS = new ReferenceAndComment[0];
+//	private static final ReferenceAndComment[]	EMPTY_TAGS = new ReferenceAndComment[0];
 	
-	private final LoggerFacade		logger;
+//	private final LoggerFacade		logger;
 	private final BookDescriptor	desc;
 	private final UniqueIdGenerator	uig;
-	private final Connection		conn;
 	private final PreparedStatement	ps;
 	
 	public BooksDescriptorMgr(final LoggerFacade logger, final BookDescriptor desc, final UniqueIdGenerator uig, final Connection conn) throws SQLException {
-		this.logger = logger;
+//		this.logger = logger;
 		this.desc = desc;
 		this.uig = uig;
-		this.conn = conn;
 		this.ps = conn.prepareStatement("select \"bl_Id\", \"ba_Id\" from \"elibrary\".\"book2authors\" where \"bl_Id\" = ?", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 	}
 	
@@ -130,6 +128,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		inst.placedIn.setValue(rs.getLong("bl_Parent"));
 		inst.code  = rs.getString("bl_Code");
 		inst.seriesNumber.setValue(rs.getLong("bs_Id"));
+		inst.seriesSeq = rs.getString("bs_Seq");
 		inst.title = rs.getString("bl_Title");
 		inst.year = rs.getInt("bl_Year");
 		inst.publisher.setValue(rs.getLong("bp_Id"));
@@ -177,6 +176,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		}
 		rs.updateString("bl_code", inst.code);
 		rs.updateLong("bs_Id", inst.seriesNumber.getValue());
+		rs.updateString("bs_Seq", inst.seriesSeq);
 		rs.updateString("bl_Title", inst.title);
 		rs.updateInt("bl_Year", inst.year);
 		rs.updateLong("bp_Id", inst.publisher.getValue());
@@ -240,6 +240,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 			case "bl_Parent"	: return (T) Long.valueOf(inst.placedIn.getValue());
 			case "bl_Code" 		: return (T) inst.code;
 			case "bs_Id" 		: return (T) Long.valueOf(inst.seriesNumber.getValue());
+			case "bs_Seq" 		: return (T) inst.seriesSeq;
 			case "bl_Title"		: return (T) inst.title;
 			case "bl_Year" 		: return (T) Integer.valueOf(inst.year);
 			case "bp_Id" 		: return (T) Long.valueOf(inst.publisher.getValue());
@@ -265,6 +266,9 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 				break;
 			case "bs_Id" 		: 
 				inst.seriesNumber.setValue((Long)value);
+				break;
+			case "bs_Seq" 		: 
+				inst.seriesSeq = (String)value;
 				break;
 			case "bl_Title"		: 
 				inst.title = (String)value;

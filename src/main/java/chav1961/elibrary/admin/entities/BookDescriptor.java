@@ -33,6 +33,10 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 	@Format("20ms")
 	public AnyRefDescriptor	seriesNumber;
 
+	@LocaleResource(value="elibrary.booklist.bs_Seq",tooltip="elibrary.booklist.bs_Seq.tt")
+	@Format("20ms")
+	public String		seriesSeq;
+	
 	@LocaleResource(value="elibrary.booklist.bl_Title",tooltip="elibrary.booklist.bl_Title.tt")
 	@Format("9.2msL")
 	public String		title = "";
