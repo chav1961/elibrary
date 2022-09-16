@@ -91,6 +91,8 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 		wr.write("<input type=\"search\" id=\"query\" name=\"query\" placeholder=\"" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_PLACEHOLDER) + "\" size=\"40\">\n");
 		wr.write("<input type=\"submit\" value=\"" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_SEARCH) + "\">\n");
 		wr.write("</p>\n</form>\n");
+		wr.write("<hr/>\n");
+		printHelpPage(wr);
 		printEndPage(wr);
 		wr.flush();
 		return HttpURLConnection.HTTP_OK;
@@ -329,6 +331,11 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 		os.write("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"></head><body>\n");
 	}
 
+	private void printHelpPage(final Writer os) throws IOException {
+		Utils.copyStream(getLocalizer().getContent(ResponseFormatter.SNIPPET_QUERY_LUCENE_HELP, PureLibSettings.MIME_CREOLE_TEXT, PureLibSettings.MIME_HTML_TEXT), os);
+	}
+	
+	
 	private void printEndPage(final Writer os) throws IOException {
 		os.write("</body></html>\n");
 	}

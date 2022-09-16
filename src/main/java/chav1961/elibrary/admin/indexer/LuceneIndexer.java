@@ -140,10 +140,12 @@ public class LuceneIndexer implements LoggerFacadeOwner, LocalizerOwner, Closeab
 				pi.start(localizer.getValue(KEY_START_INDEXING), count);
 				try(final ResultSet		rs = stmt.executeQuery("select bl.\"bl_Id\" "
 												+ ", bs.\"bs_Name\" as \"bs_Name\" "
+												+ ", bl.\"bs_Seq\" as \"bs_Seq\" "
 												+ ", (select \"bp_Name\" from \"elibrary\".\"bookpublishers\" as bp where bp.\"bp_Id\" = bl.\"bp_Id\") as \"bp_Name\" "
 												+ ", (select string_agg(\"ba_Name\", ' ') from \"elibrary\".\"bookauthors\" as ba inner join \"elibrary\".\"book2authors\" as b2a on b2a.\"ba_Id\" = ba.\"ba_Id\" where b2a.\"bl_Id\" = bl.\"bl_Id\") as \"ba_Authors\" "
 												+ ", \"bl_Title\" "
 												+ ", \"bl_Comment\" "
+												+ ", \"bl_Year\"::text as \"bl_Year\" "
 												+ "from \"elibrary\".\"booklist\" as bl "
 												+ "left join \"elibrary\".\"bookseries\" as bs on bl.\"bs_Id\" = bs.\"bs_Id\""); 
 					final IndexWriter	wr = new IndexWriter(index, config)) {
@@ -167,22 +169,25 @@ public class LuceneIndexer implements LoggerFacadeOwner, LocalizerOwner, Closeab
 	  
 	  doc.add(new StoredField("bl_Id", rs.getLong("bl_Id")));
 	  
-	  doc.add(new TextField("bp_Name", rs.getString("bp_Name"), Field.Store.YES));
+	  doc.add(new TextField("publisher", rs.getString("bp_Name"), Field.Store.YES));
 	  sb.append(rs.getString("bp_Name")).append(' ');
 	  
 	  if (rs.getString("bs_Name") != null) {
-		  doc.add(new TextField("bs_Name", rs.getString("bs_Name"), Field.Store.YES));
-		  sb.append(rs.getString("bs_Name")).append(' ');
+		  doc.add(new TextField("series", rs.getString("bs_Name")+" "+rs.getString("bs_Seq"), Field.Store.YES));
+		  sb.append(rs.getString("bs_Name")).append(' ').append(rs.getString("bs_Seq"));
 	  }
 	  
-	  doc.add(new TextField("ba_Authors", rs.getString("ba_Authors"), Field.Store.YES));
+	  doc.add(new TextField("authors", rs.getString("ba_Authors"), Field.Store.YES));
 	  sb.append(rs.getString("ba_Authors")).append(' ');
 	  
-	  doc.add(new TextField("bl_Title", rs.getString("bl_Title"), Field.Store.YES));
+	  doc.add(new TextField("title", rs.getString("bl_Title"), Field.Store.YES));
 	  sb.append(rs.getString("bl_Title")).append(' ');
 	  
-	  doc.add(new TextField("bl_Comment", rs.getString("bl_Comment"), Field.Store.YES));
+	  doc.add(new TextField("annotation", rs.getString("bl_Comment"), Field.Store.YES));
 	  sb.append(rs.getString("bl_Comment")).append(' ');
+
+	  doc.add(new TextField("year", rs.getString("bl_Year"), Field.Store.YES));
+	  sb.append(rs.getString("bl_Year")).append(' ');
 	  
 	  doc.add(new TextField(SEARCH_AGGREGATE_FIELD, sb.toString(), Field.Store.YES));
 	  wr.addDocument(doc);

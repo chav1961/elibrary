@@ -27,7 +27,8 @@ public class ResponseFormatter {
 	public static final String	SNIPPET_QUERY_LABEL = "html.snippet.query.label";
 	public static final String	SNIPPET_QUERY_SEARCH = "html.snippet.query.search";
 	public static final String	SNIPPET_QUERY_PLACEHOLDER = "html.snippet.query.placehlder";
-
+	public static final String	SNIPPET_QUERY_LUCENE_HELP = "html.snippet.query.lucenehelp";
+	
 	public static enum ContentPath {
 		SNIPPET_IMAGE("/content/getimage"),
 		SNIPPET_CONTENT("/content/getcontent"),
@@ -244,7 +245,12 @@ public class ResponseFormatter {
 	}
 
 	private static String escapeHtmlString(final String source) {
-		return source.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+		if (source == null || source.isEmpty()) {
+			return "";
+		}
+		else {
+			return source.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+		}
 	}
 	
 	private static String buildHRef(final ContentPath contentPath, final long id) {

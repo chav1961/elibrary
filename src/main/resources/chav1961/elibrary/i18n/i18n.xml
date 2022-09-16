@@ -236,7 +236,7 @@
 		<key name="html.snippet.query.label">Type query: </key>
 		<key name="html.snippet.query.search">Search</key>
 		<key name="html.snippet.query.placehlder">Use Lucene syntax to type query...</key>
-		
+		<key name="html.snippet.query.lucenehelp">uri(lucenehelp.cre)</key>
 		
 	</lang>
 	<lang name="ru">
@@ -474,6 +474,7 @@
 		<key name="html.snippet.query.label">Введите запрос: </key>
 		<key name="html.snippet.query.search">Найти</key>
 		<key name="html.snippet.query.placehlder">Используйте синтаксис Lucene...</key>
+		<key name="html.snippet.query.lucenehelp">uri(lucenehelp.cre)</key>
 		
 	</lang>	
 </localization>
