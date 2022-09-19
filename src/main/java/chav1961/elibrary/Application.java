@@ -63,12 +63,12 @@ public class Application implements Closeable, LoggerFacadeOwner {
 	private final File						propFileLocation;
 	private final CountDownLatch			latch;
 	private final JSystemTray				tray;
-	private final SubstitutableProperties	settings = new SubstitutableProperties();
+	private final SubstitutableProperties	settings;
 	private final LocaleChangeListener		lcl;
 	private boolean							settingsChanged = false;
 	private volatile AdminConsole			console = null;
 	
-	public Application(final ContentMetadataInterface xda, final Localizer parentLocalizer, final File propFileLocation, final CountDownLatch latch) throws EnvironmentException, CommandLineParametersException {
+	public Application(final ContentMetadataInterface xda, final Localizer parentLocalizer, final File propFileLocation, final CountDownLatch latch) throws EnvironmentException, CommandLineParametersException, IOException {
 		if (xda == null) {
 			throw new NullPointerException("Application descriptor can't be null");
 		}
@@ -88,15 +88,8 @@ public class Application implements Closeable, LoggerFacadeOwner {
 			this.localizer = LocalizerFactory.getLocalizer(xda.getRoot().getLocalizerAssociated());
 			this.propFileLocation = propFileLocation;
 			this.latch = latch;
+			this.settings = SubstitutableProperties.of(propFileLocation); 
 			
-			if (propFileLocation.exists() && propFileLocation.isFile() && propFileLocation.canRead()) {
-				try(final InputStream	fis = new FileInputStream(propFileLocation)) {
-					
-					settings.load(fis);
-				} catch (IOException e) {
-					throw new CommandLineParametersException("Property file ["+propFileLocation.getAbsolutePath()+"] - I/O error while reading: "+e.getLocalizedMessage());
-				}
-			}
 			settings.addPropertyChangeListener((e)->{
 				settingsChanged = true;
 				PureLibSettings.PURELIB_LOCALIZER.setCurrentLocale(settings.getProperty(Settings.PROP_DEFAULT_LANG, SupportedLanguages.class).getLocale());
