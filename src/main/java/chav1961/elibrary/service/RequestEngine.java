@@ -48,7 +48,7 @@ import chav1961.purelib.sql.JDBCUtils;
 
 @RootPath("/content")
 public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacadeOwner, LocalizerOwner, NodeMetadataOwner {
-	private final SubstitutableProperties	props = new SubstitutableProperties();
+	private final SubstitutableProperties	props;
 	private final ContentMetadataInterface	mdi;
 	private final Localizer					localizer;
 	private final SimpleURLClassLoader		loader;
@@ -59,9 +59,8 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 	private final File						luceneDir;
 	
 	public RequestEngine(final Localizer localizer, final File properties) throws IOException, ContentException, SQLException {
-		try(final InputStream	is = new FileInputStream(properties)) {
-			props.load(is);
-		}
+		props = SubstitutableProperties.of(properties);
+		
 		try{
 			try(final InputStream	is = URI.create("root://"+this.getClass().getCanonicalName()+"/chav1961/elibrary/admin/db/model.json").toURL().openStream();
 				final Reader		rdr = new InputStreamReader(is, PureLibSettings.DEFAULT_CONTENT_ENCODING)) {
