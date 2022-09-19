@@ -45,15 +45,11 @@ import chav1961.purelib.ui.interfaces.ReferenceAndComment;
 import chav1961.purelib.ui.interfaces.RecordFormManager.RecordAction;
 
 public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor> {
-//	private static final ReferenceAndComment[]	EMPTY_TAGS = new ReferenceAndComment[0];
-	
-//	private final LoggerFacade		logger;
 	private final BookDescriptor	desc;
 	private final UniqueIdGenerator	uig;
 	private final PreparedStatement	ps;
 	
 	public BooksDescriptorMgr(final LoggerFacade logger, final BookDescriptor desc, final UniqueIdGenerator uig, final Connection conn) throws SQLException {
-//		this.logger = logger;
 		this.desc = desc;
 		this.uig = uig;
 		this.ps = conn.prepareStatement("select \"bl_Id\", \"ba_Id\" from \"elibrary\".\"book2authors\" where \"bl_Id\" = ?", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
@@ -61,7 +57,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	
 	@Override
 	public Class<?> getInstanceType() {
-		return SeriesDescriptor.class;
+		return BookDescriptor.class;
 	}
 
 	@Override
