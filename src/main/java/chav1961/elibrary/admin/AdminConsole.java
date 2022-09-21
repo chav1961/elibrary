@@ -281,7 +281,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 				
 				ctx.bind("models/bs_Id", new SeriesTableModel(conn));
 				ctx.bind("models/bp_Id", new PublishersTableModel(conn));
-				ctx.bind("models/ba_Id", new AuthorsTableModel(conn));
+				ctx.bind("models/ba_Id", new AuthorsTableModel(conn, dbMgmt.getTheSameLastModel()));
 				ctx.bind("models/bl_Id", new CollectorTableModel(conn));
 				ctx.bind("models/content", new ContentManipulator(conn));
 				

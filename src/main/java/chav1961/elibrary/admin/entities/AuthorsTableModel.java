@@ -1,27 +1,36 @@
 package chav1961.elibrary.admin.entities;
 
+import java.net.URI;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class AuthorsTableModel extends RefTableModel {
-	private static final long 		serialVersionUID = 6136391534170874644L;
-	
-	private static final String		KEY_2_VALUE = "select \"ba_Name\" from \"elibrary\".\"bookauthors\" where \"ba_Id\" = ?";
-	private static final String		CONTENT = "select \"ba_Id\", \"ba_Name\", \"ba_Comment\" from \"elibrary\".\"bookauthors\" where \"ba_Name\" like ? order by 1";
+import chav1961.purelib.model.interfaces.ContentMetadataInterface;
+import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 
-	private final Connection		conn;
-	private final PreparedStatement	key2value;
-	private final PreparedStatement	content;
-	private ResultSet				rs = null;
+public class AuthorsTableModel extends RefTableModel {
+	private static final long 			serialVersionUID = 6136391534170874644L;
 	
-	public AuthorsTableModel(final Connection conn) throws SQLException {
+	private static final String			KEY_2_VALUE = "select \"ba_Name\" from \"elibrary\".\"bookauthors\" where \"ba_Id\" = ?";
+	private static final String			CONTENT = "select \"ba_Id\", \"ba_Name\", \"ba_Comment\" from \"elibrary\".\"bookauthors\" where \"ba_Name\" like ? order by 1";
+
+	private final Connection			conn;
+	private final ContentNodeMetadata	root;
+	private final PreparedStatement		key2value;
+	private final PreparedStatement		content;
+	private ResultSet					rs = null;
+	
+	public AuthorsTableModel(final Connection conn, final ContentNodeMetadata node) throws SQLException {
 		if (conn == null) {
 			throw new NullPointerException("Connection can't be null"); 
 		}
+		else if (node == null) {
+			throw new NullPointerException("Metadata interface can't be null"); 
+		}
 		else {
 			this.conn = conn;
+			this.root = node.getOwner().byUIPath(URI.create("ui:/model/elibrary.bookauthors"));
 			this.key2value = conn.prepareStatement(KEY_2_VALUE);
 			this.content = conn.prepareStatement(CONTENT, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 		}

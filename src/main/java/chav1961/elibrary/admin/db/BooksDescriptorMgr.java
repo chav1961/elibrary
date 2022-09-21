@@ -215,7 +215,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		ps.setLong(1, inst.id);	// Refresh authors list		
 		try(final ResultSet	rs1 = ps.executeQuery()) {
 			
-			while (rs1.next()) {
+			while (rs1.absolute(1)) {
 				rs1.deleteRow();
 			}
 			for (LongItemAndReference<String> item : inst.authors) {
