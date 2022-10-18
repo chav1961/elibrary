@@ -37,7 +37,7 @@ public class AuthorsORMInterface implements ORMInterface<AuthorsDescriptor, Auth
 	}
 
 	@Override
-	public ResultSet getListResultSet() {
+	public ResultSet getListResultSet(final Long... keys) {
 		return rs;
 	}
 

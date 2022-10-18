@@ -41,6 +41,7 @@ import chav1961.elibrary.Application;
 import chav1961.elibrary.admin.db.AuthorsORMInterface;
 import chav1961.elibrary.admin.db.BooksORMInterface;
 import chav1961.elibrary.admin.db.ContentManipulator;
+import chav1961.elibrary.admin.db.InnerBooksORMInterface;
 import chav1961.elibrary.admin.db.ORMInterface;
 import chav1961.elibrary.admin.db.PublishersORMInterface;
 import chav1961.elibrary.admin.db.SeriesORMInterface;
@@ -49,6 +50,7 @@ import chav1961.elibrary.admin.entities.AuthorsDescriptor;
 import chav1961.elibrary.admin.entities.AuthorsTableModel;
 import chav1961.elibrary.admin.entities.BookDescriptor;
 import chav1961.elibrary.admin.entities.CollectorTableModel;
+import chav1961.elibrary.admin.entities.InnerBookDescriptor;
 import chav1961.elibrary.admin.entities.PublishersDescriptor;
 import chav1961.elibrary.admin.entities.PublishersTableModel;
 import chav1961.elibrary.admin.entities.Query;
@@ -288,7 +290,8 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 				orms.put(SeriesDescriptor.class, new SeriesORMInterface(getLogger(), conn, ()->getUnique()));
 				orms.put(AuthorsDescriptor.class, new AuthorsORMInterface(getLogger(), conn, ()->getUnique()));
 				orms.put(PublishersDescriptor.class, new PublishersORMInterface(getLogger(), conn, ()->getUnique()));
-				orms.put(BookDescriptor.class, new BooksORMInterface(getLogger(), conn, ()->getUnique(), dbMgmt.getTheSameLastModel().getChild("booklist")));
+				orms.put(BookDescriptor.class, new BooksORMInterface(getLocalizer(), getLogger(), conn, ()->getUnique(), dbMgmt.getTheSameLastModel().getChild("booklist"), orms));
+				orms.put(InnerBookDescriptor.class, new InnerBooksORMInterface(getLogger(), conn, ()->getUnique(), dbMgmt.getTheSameLastModel().getChild("booklist")));
 				
 				((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.connect")).setEnabled(false);
 				((JMenuItem)SwingUtils.findComponentByName(menu, "menu.main.file.disconnect")).setEnabled(true);
@@ -345,6 +348,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 				orms.remove(AuthorsDescriptor.class).close();
 				orms.remove(PublishersDescriptor.class).close();
 				orms.remove(BookDescriptor.class).close();
+				orms.remove(InnerBookDescriptor.class).close();
 				conn.close();
 			} catch (SQLException | NamingException e) {
 			} finally {

@@ -36,7 +36,7 @@ public class SeriesORMInterface implements ORMInterface<SeriesDescriptor, Series
 	}
 
 	@Override
-	public ResultSet getListResultSet() {
+	public ResultSet getListResultSet(final Long... keys) {
 		return rs;
 	}
 

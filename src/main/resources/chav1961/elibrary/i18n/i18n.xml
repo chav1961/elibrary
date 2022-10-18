@@ -209,6 +209,8 @@
 		<key name="elibrary.booklist.bl_Tags.tt">Tags</key>
 		<key name="elibrary.booklist.bl_Image">Image</key>
 		<key name="elibrary.booklist.bl_Image.tt">Image</key>
+		<key name="elibrary.booklist.bl_Image.inner">Fragment</key>
+		<key name="elibrary.booklist.bl_Image.inner.tt">Fragment to interest (scheme, table etc)</key>
 		<key name="elibrary.booklist.bl_Mime"></key>	
 		<key name="elibrary.booklist.bl_Mime.tt"></key>	
 		<key name="elibrary.booklist.bl_Content">Content</key>	
@@ -217,6 +219,8 @@
 		<key name="elibrary.booklist.ba_Name.tt">List of the authors</key>
 		<key name="elibrary.booklist.bl_Page">Page inside</key>
 		<key name="elibrary.booklist.bl_Page.tt">Page inside content (if required)</key>
+		<key name="elibrary.booklist.content">Content</key>
+		<key name="elibrary.booklist.content.tt">Content inside</key>
 
 		<key name="elibrary.book2authors">Books-authors</key>
 		<key name="elibrary.book2authors.tt">Books-authors</key>
@@ -231,6 +235,7 @@
 		<key name="html.snippet.publisher.label">Publisher: </key>
 		<key name="html.snippet.year.label">year</key>
 		<key name="html.snippet.publishedIn.label">published in </key>
+		<key name="html.snippet.content.label">Content:</key>	
 		<key name="html.snippet.page.label">page</key>
 		<key name="html.snippet.tags.label">Tags:</key>
 		<key name="html.snippet.query.label">Type query: </key>
@@ -447,6 +452,8 @@
 		<key name="elibrary.booklist.bl_Tags.tt">Теги</key>
 		<key name="elibrary.booklist.bl_Image">Обложка</key>
 		<key name="elibrary.booklist.bl_Image.tt">Обложка</key>
+		<key name="elibrary.booklist.bl_Image.inner">Фрагмент</key>
+		<key name="elibrary.booklist.bl_Image.inner.tt">Интересный фрагмент из статьи (схема, таблица и т.д.)</key>
 		<key name="elibrary.booklist.bl_Mime"></key>	
 		<key name="elibrary.booklist.bl_Mime.tt"></key>	
 		<key name="elibrary.booklist.bl_Content">Контент</key>	
@@ -455,6 +462,8 @@
 		<key name="elibrary.booklist.ba_Name.tt">Список авторов</key>
 		<key name="elibrary.booklist.bl_Page">Страница</key>
 		<key name="elibrary.booklist.bl_Page.tt">Страница в книге (если требуется)</key>
+		<key name="elibrary.booklist.content">Содержание</key>
+		<key name="elibrary.booklist.content.tt">Содержание, если это журнал или сборник</key>
 
 		<key name="elibrary.book2authors"></key>
 		<key name="elibrary.book2authors.tt"></key>
@@ -469,6 +478,7 @@
 		<key name="html.snippet.publisher.label">Издательство: </key>
 		<key name="html.snippet.year.label">год</key>
 		<key name="html.snippet.publishedIn.label">опубликовано в</key>
+		<key name="html.snippet.content.label">Содержание:</key>	
 		<key name="html.snippet.page.label">стр.</key>
 		<key name="html.snippet.tags.label">Теги: </key>
 		<key name="html.snippet.query.label">Введите запрос: </key>

@@ -2,11 +2,9 @@ package chav1961.elibrary.admin.db;
 
 import java.awt.Image;
 import java.awt.image.RenderedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -21,20 +19,17 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import chav1961.elibrary.admin.entities.AuthorsDescriptor;
 import chav1961.elibrary.admin.entities.BookDescriptor;
+import chav1961.elibrary.admin.entities.InnerBookDescriptor;
 import chav1961.elibrary.admin.entities.LazyImageKeeperImpl;
 import chav1961.elibrary.admin.entities.LazyMimeBasedContentImpl;
-import chav1961.elibrary.admin.entities.SeriesDescriptor;
 import chav1961.purelib.basic.MimeType;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.Utils;
 import chav1961.purelib.basic.exceptions.FlowException;
-import chav1961.purelib.basic.exceptions.LocalizationException;
 import chav1961.purelib.basic.exceptions.MimeParseException;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
-import chav1961.purelib.model.ImageKeeperImpl;
 import chav1961.purelib.sql.interfaces.InstanceManager;
 import chav1961.purelib.sql.interfaces.UniqueIdGenerator;
 import chav1961.purelib.streams.JsonStaxParser;
@@ -44,12 +39,14 @@ import chav1961.purelib.ui.interfaces.LongItemAndReference;
 import chav1961.purelib.ui.interfaces.ReferenceAndComment;
 import chav1961.purelib.ui.interfaces.RecordFormManager.RecordAction;
 
-public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor> {
-	private final BookDescriptor	desc;
-	private final UniqueIdGenerator	uig;
-	private final PreparedStatement	ps;
+public class InnerBookDescriptorMgr implements InstanceManager<Long, InnerBookDescriptor> {
+	public long 	currentParent;
 	
-	public BooksDescriptorMgr(final LoggerFacade logger, final BookDescriptor desc, final UniqueIdGenerator uig, final Connection conn) throws SQLException {
+	private final InnerBookDescriptor	desc;
+	private final UniqueIdGenerator		uig;
+	private final PreparedStatement		ps;
+	
+	public InnerBookDescriptorMgr(final LoggerFacade logger, final InnerBookDescriptor desc, final UniqueIdGenerator uig, final Connection conn) throws SQLException {
 		this.desc = desc;
 		this.uig = uig;
 		this.ps = conn.prepareStatement("select \"bl_Id\", \"ba_Id\" from \"elibrary\".\"book2authors\" where \"bl_Id\" = ?", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
@@ -71,10 +68,11 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	}
 
 	@Override
-	public BookDescriptor newInstance() throws SQLException {
-		try{final Long				key = newKey();
-			final BookDescriptor	newInst = desc.clone();
-		
+	public InnerBookDescriptor newInstance() throws SQLException {
+		try{final Long					key = newKey();
+			final InnerBookDescriptor	newInst = desc.clone();
+			
+			newInst.parentRef = currentParent;
 			assignKey(newInst, key);
 			newInst.onRecord(RecordAction.INSERT, null, null, newInst, key);
 			return newInst;
@@ -89,7 +87,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	}
 
 	@Override
-	public Long extractKey(final BookDescriptor inst) throws SQLException {
+	public Long extractKey(final InnerBookDescriptor inst) throws SQLException {
 		return inst.id;
 	}
 	
@@ -100,13 +98,13 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	
 	
 	@Override
-	public void assignKey(final BookDescriptor inst, final Long key) throws SQLException {
+	public void assignKey(final InnerBookDescriptor inst, final Long key) throws SQLException {
 		inst.id = key;
 	}
 	
 	@Override
-	public BookDescriptor clone(final BookDescriptor inst) throws SQLException {
-		try{final BookDescriptor	clone = inst.clone();
+	public InnerBookDescriptor clone(final InnerBookDescriptor inst) throws SQLException {
+		try{final InnerBookDescriptor	clone = inst.clone();
 
 			clone.id = newKey();
 			return clone;
@@ -116,26 +114,16 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	}
 
 	@Override
-	public void loadInstance(final ResultSet rs, final BookDescriptor inst) throws SQLException {
+	public void loadInstance(final ResultSet rs, final InnerBookDescriptor inst) throws SQLException {
 		if (rs.getType() != ResultSet.TYPE_FORWARD_ONLY) {
 			rs.refreshRow();
 		}
 		inst.id = rs.getLong("bl_Id");
-		inst.code  = rs.getString("bl_Code");
-		inst.seriesNumber.setValue(rs.getLong("bs_Id"));
-		inst.seriesSeq = rs.getString("bs_Seq");
+		inst.parentRef = rs.getLong("bl_Parent");
 		inst.title = rs.getString("bl_Title");
-		inst.year = rs.getInt("bl_Year");
-		inst.publisher.setValue(rs.getLong("bp_Id"));
 		inst.annotation = rs.getString("bl_Comment");
 		inst.tags = fromString(rs.getString("bl_Tags"));
 		((LazyImageKeeperImpl)inst.image).setContentKey(inst.id);
-		
-		try{inst.content.setMimeType(MimeType.parseMimeList(rs.getString("bl_Mime"))[0]);
-			((LazyMimeBasedContentImpl)inst.content).setContentKey(inst.id);
-		} catch (MimeParseException | IOException e) {
-			throw new SQLException(e.getLocalizedMessage(), e);
-		}
 		
 		final List<LongItemAndReference<String>>	list = new ArrayList<>();
 
@@ -161,15 +149,15 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	}
 
 	@Override
-	public void storeInstance(final ResultSet rs, final BookDescriptor inst, final boolean update) throws SQLException {
-		rs.updateString("bl_code", inst.code);
-		rs.updateLong("bs_Id", inst.seriesNumber.getValue());
-		rs.updateString("bs_Seq", inst.seriesSeq);
+	public void storeInstance(final ResultSet rs, final InnerBookDescriptor inst, final boolean update) throws SQLException {
+		rs.updateLong("bl_Parent", inst.parentRef);
 		rs.updateString("bl_Title", inst.title);
-		rs.updateInt("bl_Year", inst.year);
-		rs.updateLong("bp_Id", inst.publisher.getValue());
 		rs.updateString("bl_Comment", inst.annotation);
 		rs.updateString("bl_Tags", toString(inst.tags));
+
+		rs.updateString("bl_Code", "");	// Fictive store to avoid null constraint
+		rs.updateInt("bl_Year", 0);
+		rs.updateInt("bp_Id", 0);
 		
 		if (((LazyImageKeeperImpl)inst.image).isModified()) {
 			try(final ByteArrayOutputStream	baos = new ByteArrayOutputStream()) {
@@ -180,23 +168,6 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 			} catch (IOException e) {
 				throw new SQLException(e.getLocalizedMessage(), e);
 			}
-		}
-		
-		if (((LazyMimeBasedContentImpl)inst.content).isContentChanged()) {
-			rs.updateString("bl_Mime", inst.content.getMimeType().toString());
-			try(final InputStream	is = inst.content.getContent();
-				final ByteArrayOutputStream	baos = new ByteArrayOutputStream()) {
-
-				Utils.copyStream(is, baos);
-				rs.updateBytes("bl_Content", baos.toByteArray());
-			} catch (IOException e) {
-				e.printStackTrace();
-				throw new SQLException(e.getLocalizedMessage(), e);
-			}
-		}
-		else if (!update) {
-			rs.updateString("bl_Mime", PureLibSettings.MIME_OCTET_STREAM.toString());
-			rs.updateBytes("bl_Content", new byte[0]);
 		}
 		
 		if (!update) {
@@ -221,15 +192,10 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	}
 
 	@Override
-	public <T> T get(final BookDescriptor inst, final String name) throws SQLException {
+	public <T> T get(final InnerBookDescriptor inst, final String name) throws SQLException {
 		switch (name) {
 			case "bl_Id" 		: return (T) Long.valueOf(inst.id);
-			case "bl_Code" 		: return (T) inst.code;
-			case "bs_Id" 		: return (T) Long.valueOf(inst.seriesNumber.getValue());
-			case "bs_Seq" 		: return (T) inst.seriesSeq;
 			case "bl_Title"		: return (T) inst.title;
-			case "bl_Year" 		: return (T) Integer.valueOf(inst.year);
-			case "bp_Id" 		: return (T) Long.valueOf(inst.publisher.getValue());
 			case "bl_Comment"	: return (T) inst.annotation;
 			case "bl_Tags" 		: return (T) inst.tags;
 			case "bl_Image" 	: return (T) inst.image.getImage();
@@ -238,28 +204,13 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	}
 
 	@Override
-	public <T> InstanceManager<Long, BookDescriptor> set(final BookDescriptor inst, final String name, final T value) throws SQLException {
+	public <T> InstanceManager<Long, InnerBookDescriptor> set(final InnerBookDescriptor inst, final String name, final T value) throws SQLException {
 		switch (name) {
 			case "bl_Id" 		: 
 				inst.id = (Long)value;
 				break;
-			case "bl_Code" 		: 
-				inst.code = (String)value;
-				break;
-			case "bs_Id" 		: 
-				inst.seriesNumber.setValue((Long)value);
-				break;
-			case "bs_Seq" 		: 
-				inst.seriesSeq = (String)value;
-				break;
 			case "bl_Title"		: 
 				inst.title = (String)value;
-				break;
-			case "bl_Year" 		: 
-				inst.year = (Integer)value;
-				break;
-			case "bp_Id" 		: 
-				inst.publisher.setValue((Long)value);
 				break;
 			case "bl_Comment"	: 
 				inst.annotation = (String)value;
@@ -279,7 +230,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 	}
 
 	@Override
-	public void storeInstance(PreparedStatement ps, BookDescriptor inst, boolean update) throws SQLException {
+	public void storeInstance(PreparedStatement ps, InnerBookDescriptor inst, boolean update) throws SQLException {
 		throw new UnsupportedOperationException("This method is not implemented yet"); 
 	}
 

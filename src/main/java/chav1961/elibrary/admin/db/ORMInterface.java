@@ -9,7 +9,7 @@ import chav1961.purelib.ui.interfaces.FormManager;
 public interface ORMInterface<Cl, Inst extends InstanceManager<Long, Cl>> extends AutoCloseable {
 	Inst getInstanceManager();
 	FormManager<Long, Cl> getFormManager();
-	ResultSet getListResultSet();
+	ResultSet getListResultSet(Long... key) throws SQLException;
 	ResultSet getRecordResultSet(Long key) throws SQLException;
 	void close() throws SQLException;
 }

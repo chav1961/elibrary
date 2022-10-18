@@ -4,10 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.FlavorEvent;
-import java.awt.datatransfer.FlavorListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
@@ -30,51 +27,52 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
 import chav1961.elibrary.admin.db.BooksORMInterface;
+import chav1961.elibrary.admin.db.InnerBooksORMInterface;
 import chav1961.elibrary.admin.db.ORMInterface;
 import chav1961.elibrary.admin.entities.BookDescriptor;
+import chav1961.elibrary.admin.entities.InnerBookDescriptor;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.exceptions.ContentException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
-import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
 import chav1961.purelib.basic.interfaces.LoggerFacadeOwner;
+import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
 import chav1961.purelib.enumerations.ContinueMode;
 import chav1961.purelib.enumerations.NodeEnterMode;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
 import chav1961.purelib.model.ContentModelFactory;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
-import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
-import chav1961.purelib.testing.SwingTestingUtils;
 import chav1961.purelib.model.interfaces.NodeMetadataOwner;
+import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 import chav1961.purelib.ui.swing.AutoBuiltForm;
 import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.interfaces.OnAction;
 import chav1961.purelib.ui.swing.useful.JDataBaseTableWithMeta;
 import chav1961.purelib.ui.swing.useful.JDataBaseTableWithMeta.ContentChangedListener.ChangeType;
 
-public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeOwner, NodeMetadataOwner, LocaleChangeListener {
+public class InnerBookList extends JSplitPane implements AutoCloseable, LoggerFacadeOwner, NodeMetadataOwner, LocaleChangeListener {
 	private static final long serialVersionUID = -8075407533330137127L;
 	private static final String				URI_BOOKS = "app:table:/elibrary.booklist";
 	private static final URI				TOOLBAR_MENU_ROOT = URI.create("ui:/model/navigation.top.booklistmenu");	
 	private static final URI				BOTTOM_TOOLBAR_MENU_ROOT = URI.create("ui:/model/navigation.top.bottomtoolbar");	
 
+	private final long									parentId;
 	private final Localizer								localizer;
 	private final LoggerFacade							logger;
 	private final ContentMetadataInterface				meta;
 	private final Map<Class<?>,ORMInterface<?,?>>		orms;
 	private final JToolBar								toolbar, bottomToolbar;
 	private final JPopupMenu							popupMenu;
-	private final JDataBaseTableWithMeta<Long, BookDescriptor>		books;
+	private final JDataBaseTableWithMeta<Long, InnerBookDescriptor>		books;
 	private final JCloseableScrollPane					booksScroll;
-	private final BookDescriptor						editDescriptor;
-	private final AutoBuiltForm<BookDescriptor,Long>	form;
-	private final BooksORMInterface						boi;
+	private final InnerBookDescriptor					editDescriptor;
+	private final AutoBuiltForm<InnerBookDescriptor,Long>	form;
+	private final InnerBooksORMInterface				boi;
+	private final ResultSet								listRs;
 	
-	private ResultSet									formRs = null;
-	
-	public BooksTab(final Localizer localizer, final LoggerFacade logger, final ContentMetadataInterface meta, final ContentMetadataInterface metaParent, final Map<Class<?>,ORMInterface<?,?>> orms) throws NullPointerException, IllegalArgumentException, SQLException, SyntaxException, LocalizationException, ContentException, NamingException {
+	public InnerBookList(final long parentId, final Localizer localizer, final LoggerFacade logger, final ContentMetadataInterface meta, final ContentMetadataInterface metaParent, final Map<Class<?>,ORMInterface<?,?>> orms) throws NullPointerException, IllegalArgumentException, SQLException, SyntaxException, LocalizationException, ContentException, NamingException {
 		if (localizer == null) {
 			throw new NullPointerException("Localizer can't be null");
 		}
@@ -88,6 +86,7 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 			throw new NullPointerException("ORM inteface map can't be null");
 		}
 		else {
+			this.parentId = parentId;
 			this.localizer = localizer;
 			this.logger = logger;
 			this.meta = meta;
@@ -96,17 +95,19 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 			this.toolbar = SwingUtils.toJComponent(metaParent.byUIPath(TOOLBAR_MENU_ROOT), JToolBar.class);
 			this.bottomToolbar = SwingUtils.toJComponent(metaParent.byUIPath(BOTTOM_TOOLBAR_MENU_ROOT), JToolBar.class);
 			this.popupMenu = SwingUtils.toJComponent(metaParent.byUIPath(TOOLBAR_MENU_ROOT), JPopupMenu.class);
-			
+
 			this.toolbar.setFloatable(false);
 			this.bottomToolbar.setFloatable(false);
 			SwingUtils.assignActionListeners(this.toolbar, this);
 			SwingUtils.assignActionListeners(this.bottomToolbar, this);
 			SwingUtils.assignActionListeners(this.popupMenu, this);
 	
-			this.boi = (BooksORMInterface) orms.get(BookDescriptor.class);
+			this.boi = (InnerBooksORMInterface) orms.get(InnerBookDescriptor.class);
+			this.listRs = boi.getListResultSet(parentId);
+			boi.getInstanceManager().currentParent = parentId;
 			
-			this.books = new JDataBaseTableWithMeta<Long, BookDescriptor>(meta.byApplicationPath(URI.create(URI_BOOKS))[0], localizer, true, false);
-			this.books.assignResultSetAndManagers(boi.getListResultSet(), boi.getFormManager(), boi.getInstanceManager());
+			this.books = new JDataBaseTableWithMeta<Long, InnerBookDescriptor>(meta.byApplicationPath(URI.create(URI_BOOKS))[0], localizer, true, false);
+			this.books.assignResultSetAndManagers(listRs, boi.getFormManager(), boi.getInstanceManager());
 			this.booksScroll = new JCloseableScrollPane(this.books);
 			assignResizer(this.booksScroll, this.books);
 			assignFocusManager(this.booksScroll, this.books);
@@ -114,8 +115,9 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 				contentChanged(ct,key);
 			});
 			
-			this.editDescriptor = new BookDescriptor(localizer, logger, meta.byApplicationPath(URI.create(URI_BOOKS))[0], orms);
-			this.form = new AutoBuiltForm<BookDescriptor,Long>(ContentModelFactory.forAnnotatedClass(BookDescriptor.class), localizer, getLogger(), PureLibSettings.INTERNAL_LOADER, (BookDescriptor)this.editDescriptor, this.editDescriptor);
+			this.editDescriptor = new InnerBookDescriptor(logger, meta.byApplicationPath(URI.create(URI_BOOKS))[0]);
+			this.editDescriptor.parentRef = parentId;
+			this.form = new AutoBuiltForm<InnerBookDescriptor,Long>(ContentModelFactory.forAnnotatedClass(InnerBookDescriptor.class), localizer, getLogger(), PureLibSettings.INTERNAL_LOADER, (InnerBookDescriptor)this.editDescriptor, this.editDescriptor);
 			enableForm(false);
 			
 			SwingUtils.assignActionKey(this.books, SwingUtils.KS_ACCEPT, (e)->{
@@ -145,7 +147,7 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 			
 			this.books.getSelectionModel().addListSelectionListener((e)->{
 				try{if (!books.getSelectionModel().isSelectionEmpty()) {
-						fill(boi, this.books.getSelectedKey(), (BookDescriptor)boi.getFormManager(), this.form);
+						fill(boi, this.books.getSelectedKey(), (InnerBookDescriptor)boi.getFormManager(), this.form);
 					}
 					enableMenuItems(false);
 				} catch (SQLException exc) {
@@ -166,7 +168,7 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 			setRightComponent(rightPanel);
 			enableMenuItems(false);
 			Toolkit.getDefaultToolkit().getSystemClipboard().addFlavorListener((e)->enableMenuItems(true));
-			
+
 			final Dimension dim = books.getPreferredScrollableViewportSize();
 			
 			dim.height += 20;
@@ -195,6 +197,7 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 
 	@Override
 	public void close() throws Exception {
+		this.listRs.close();
 	}
 
 	@OnAction("action:/booklist.copy")
@@ -224,7 +227,7 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 	@OnAction("action:/booklist.edit")
 	private void edit() throws SQLException {
 		if (books.getSelectedRow() >= 0) {
-			edit(boi, this.books.getSelectedKey(), (BookDescriptor)boi.getFormManager(), this.form);
+			edit(boi, this.books.getSelectedKey(), (InnerBookDescriptor)boi.getFormManager(), this.form);
 		}
 	}
 	
@@ -255,7 +258,7 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 			case DELETED	:
 				break;
 			case DUPLICATED	: case INSERTED :
-				try{final int	row = locateResultSet(boi.getListResultSet(), key);
+				try{final int	row = locateResultSet(listRs, key);
 				
 					books.changeSelection(row, 0, false, false);
 					edit();
@@ -299,7 +302,7 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 		});
 	}
 
-	private void load(final BooksORMInterface boi, final Long key, final BookDescriptor desc) {
+	private void load(final InnerBooksORMInterface boi, final Long key, final InnerBookDescriptor desc) {
 		try(final ResultSet	rs = boi.getRecordResultSet(key)) {
 			
 			if (rs.next()) {
@@ -313,13 +316,13 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 		}
 	}
 
-	private void toScreen(final BookDescriptor desc, final AutoBuiltForm<BookDescriptor,Long> form) throws ContentException {
+	private void toScreen(final InnerBookDescriptor desc, final AutoBuiltForm<InnerBookDescriptor,Long> form) throws ContentException {
 		SwingUtils.putToScreen(form.getContentModel().getRoot(), desc, form);
 		form.revalidate();
 		form.repaint();
 	}
 
-	private void fill(final BooksORMInterface boi, final Long key, final BookDescriptor desc, final AutoBuiltForm<BookDescriptor,Long> form) {
+	private void fill(final InnerBooksORMInterface boi, final Long key, final InnerBookDescriptor desc, final AutoBuiltForm<InnerBookDescriptor,Long> form) {
 		try{load(boi, key, desc);
 			toScreen(desc, form);
 		} catch (ContentException e) {
@@ -327,7 +330,7 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 		}
 	}
 	
-	private void edit(final BooksORMInterface boi, final Long key, final BookDescriptor desc, final AutoBuiltForm<BookDescriptor,Long> form) {
+	private void edit(final InnerBooksORMInterface boi, final Long key, final InnerBookDescriptor desc, final AutoBuiltForm<InnerBookDescriptor,Long> form) {
 		try{fill(boi, key, desc, form);
 		} finally {
 			enableForm(true);
@@ -381,7 +384,7 @@ public class BooksTab extends JSplitPane implements AutoCloseable, LoggerFacadeO
 	}
 	
 	
-	private void save(final BooksORMInterface boi, final BookDescriptor desc, final Long key) {
+	private void save(final InnerBooksORMInterface boi, final InnerBookDescriptor desc, final Long key) {
 		try(final ResultSet	rs = boi.getRecordResultSet(key)) {
 			
 			rs.absolute(1);

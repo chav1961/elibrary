@@ -17,11 +17,15 @@ import java.sql.Driver;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import javax.naming.NamingException;
 
 import chav1961.elibrary.admin.db.BooksDescriptorMgr;
+import chav1961.elibrary.admin.db.InnerBookDescriptorMgr;
+import chav1961.elibrary.admin.db.ORMInterface;
 import chav1961.elibrary.admin.entities.BookDescriptor;
+import chav1961.elibrary.admin.entities.InnerBookDescriptor;
 import chav1961.elibrary.admin.entities.Settings;
 import chav1961.elibrary.admin.indexer.LuceneIndexer;
 import chav1961.purelib.basic.PureLibSettings;
@@ -56,9 +60,11 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 	private final Connection				conn;
 	private final BookDescriptor			desc;
 	private final BooksDescriptorMgr		mgr;
+	private final InnerBookDescriptor		idesc;
+	private final InnerBookDescriptorMgr	imgr;
 	private final File						luceneDir;
 	
-	public RequestEngine(final Localizer localizer, final File properties) throws IOException, ContentException, SQLException {
+	public RequestEngine(final Localizer localizer, final File properties, final Map<Class<?>,ORMInterface<?,?>> orms) throws IOException, ContentException, SQLException {
 		props = SubstitutableProperties.of(properties);
 		
 		try{
@@ -75,8 +81,10 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 								props.getProperty(Settings.PROP_SEARCH_USER, String.class), 
 								props.getProperty(Settings.PROP_SEARCH_PASSWORD, char[].class));
 			this.luceneDir = props.getProperty(Settings.PROP_INDEXER_DIR, File.class, LuceneIndexer.LUCENE_DEFAULT_INDEXING_DIR);
-			this.desc = new BookDescriptor(getLogger(), mdi.getRoot().getChild("booklist"));
+			this.desc = new BookDescriptor(localizer, getLogger(), mdi.getRoot().getChild("booklist"), orms);
 			this.mgr = new BooksDescriptorMgr(getLogger(), desc, ()->0, conn);
+			this.idesc = new InnerBookDescriptor(getLogger(), mdi.getRoot().getChild("booklist"));
+			this.imgr = new InnerBookDescriptorMgr(getLogger(), idesc, ()->0, conn);
 		} catch (NamingException exc) {
 			throw new ContentException(exc); 
 		}
@@ -166,7 +174,7 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 	
 	@Path("/show")
 	public int show(@ToBody(mimeType="text/html") final Writer wr) throws IOException {
-		try(final PreparedStatement	stmt = conn.prepareStatement("select * from \"elibrary\".\"booklist\" order by \"bl_Year\", \"bl_Title\"", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+		try(final PreparedStatement	stmt = conn.prepareStatement("select * from \"elibrary\".\"booklist\" where \"bl_Parent\" is null order by \"bl_Year\", \"bl_Title\"", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			final ResultSet			rs = stmt.executeQuery()) {
 			
 			boolean		theSameFirst = true;
@@ -192,15 +200,18 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 
 	@Path("/getimage")
 	public int getImage(@FromQuery("dummy") String dummy, @FromQuery("id") String id, @ToBody(mimeType="image/*") final OutputStream os) throws IOException {
-		try(final PreparedStatement	stmt = conn.prepareStatement("select \"bl_Image\" from \"elibrary\".\"booklist\" where \"bl_Id\" = ?::bigint", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
+		try(final PreparedStatement	stmt = conn.prepareStatement("select \"bl_Image\" from \"elibrary\".\"booklist\" where \"bl_Id\" = ?::bigint and \"bl_Image\" is not null "
+													+ "union all select \"bl_Image\" from \"elibrary\".\"booklist\" where \"bl_Id\" in (select \"bl_Parent\" from \"elibrary\".\"booklist\" where \"bl_Parent\" is not null and \"bl_Id\" = ?::bigint) and \"bl_Image\" is not null")) {
 
 			stmt.setString(1, id);
+			stmt.setString(2, id);
 			try(final ResultSet		rs = stmt.executeQuery()) {
 				
 				if (rs.next()) {
 					try(final InputStream	is = rs.getBinaryStream(1)) {
 						Utils.copyStream(is, os);
 					}
+					os.flush();
 					return HttpURLConnection.HTTP_OK;
 				}
 				else {
@@ -284,6 +295,28 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 				if (rs.next()) {
 					mgr.loadInstance(rs, desc);
 					wr.write(ResponseFormatter.buildItemDescriptor(getLocalizer(), desc, conn));
+				}
+				printEndPage(wr);
+				wr.flush();
+				return HttpURLConnection.HTTP_OK;
+			}
+		} catch (SQLException e) {
+			wr.write("error: "+e.getLocalizedMessage());
+			wr.flush();
+			return HttpURLConnection.HTTP_INTERNAL_ERROR;
+		}
+	}
+
+	@Path("/getinneritem")
+	public int getInnerItem(@FromQuery("dummy") String dummy, @FromQuery("id") String id, @ToBody(mimeType="text/html") final Writer wr) throws IOException {
+		try(final PreparedStatement	stmt = conn.prepareStatement("select * from \"elibrary\".\"booklist\" where \"bl_Id\" = ?::bigint", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
+			
+			stmt.setString(1, id);
+			try(final ResultSet		rs = stmt.executeQuery()) {
+				printStartPage(wr);
+				if (rs.next()) {
+					imgr.loadInstance(rs, idesc);
+					wr.write(ResponseFormatter.buildSubItemDescriptor(getLocalizer(), idesc, conn));
 				}
 				printEndPage(wr);
 				wr.flush();

@@ -4,7 +4,6 @@ import java.awt.Desktop;
 import java.awt.Dimension;
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,13 +11,17 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import chav1961.elibrary.admin.AdminConsole;
+import chav1961.elibrary.admin.db.ORMInterface;
 import chav1961.elibrary.admin.entities.Settings;
 import chav1961.elibrary.service.RequestEngine;
 import chav1961.purelib.basic.ArgParser;
@@ -44,6 +47,7 @@ import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.useful.JSystemTray;
 
 public class Application implements Closeable, LoggerFacadeOwner {
+	public static final UUID	APPLICATION_UUID = UUID.fromString("28d63a54-3d1a-478e-bb2c-610bd5ab6259");
 	public static final String	ARG_HELP_PORT = "helpPort";
 	public static final String	ARG_PROPFILE_LOCATION = "prop";
 	
@@ -196,12 +200,13 @@ public class Application implements Closeable, LoggerFacadeOwner {
 				final ContentMetadataInterface	xda = ContentModelFactory.forXmlDescription(is);
 				final CountDownLatch			latch = new CountDownLatch(1);
 				final Localizer					localizer = LocalizerFactory.getLocalizer(xda.getRoot().getLocalizerAssociated());
+				final Map<Class<?>,ORMInterface<?,?>> orms = new HashMap<>();
 
 				PureLibSettings.PURELIB_LOCALIZER.push(localizer);
 				
 				try(final Application			app = new Application(xda, localizer, parser.getValue(ARG_PROPFILE_LOCATION, File.class), latch);
 					final NanoServiceFactory	service = new NanoServiceFactory(app.getLogger(), props);
-					final RequestEngine			re = new RequestEngine(localizer, parser.getValue(ARG_PROPFILE_LOCATION, File.class))) {
+					final RequestEngine			re = new RequestEngine(localizer, parser.getValue(ARG_PROPFILE_LOCATION, File.class), orms)) {
 
 					service.deploy(CONTENT_PATH, re);
 					service.start();

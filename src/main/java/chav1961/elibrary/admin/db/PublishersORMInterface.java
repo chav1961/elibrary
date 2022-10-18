@@ -37,7 +37,7 @@ public class PublishersORMInterface implements ORMInterface<PublishersDescriptor
 	}
 
 	@Override
-	public ResultSet getListResultSet() {
+	public ResultSet getListResultSet(final Long... keys) {
 		return rs;
 	}
 
