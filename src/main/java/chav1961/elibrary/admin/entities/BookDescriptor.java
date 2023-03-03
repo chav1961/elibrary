@@ -154,7 +154,7 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 				ibl.setDividerLocation(400);
 				ibl.setPreferredSize(new Dimension(1200,700));
 				
-				container.showDialog(JDialogContainer.Option.DONT_USE_ENTER_AS_OK);
+				container.showDialog(JDialogContainer.JDialogContainerOption.DONT_USE_ENTER_AS_OK);
 				return RefreshMode.DEFAULT;
 			} catch (NamingException | IOException | ContentException | SQLException | EnvironmentException exc) {
 				throw new FlowException(exc);
