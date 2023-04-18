@@ -126,7 +126,7 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 	@Override
 	public RefreshMode onRecord(final RecordAction action, final BookDescriptor oldRecord, final Long oldId, final BookDescriptor newRecord, final Long newId) throws FlowException, LocalizationException {
 		switch (action) {
-			case CHANGE		:
+			case UPDATE		:
 				break;
 			case CHECK		:
 				break;

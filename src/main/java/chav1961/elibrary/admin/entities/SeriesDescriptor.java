@@ -45,7 +45,7 @@ public class SeriesDescriptor implements Cloneable, FormManager<Long, SeriesDesc
 	@Override
 	public RefreshMode onRecord(final RecordAction action, final SeriesDescriptor oldRecord, final Long oldId, final SeriesDescriptor newRecord, final Long newId) throws FlowException, LocalizationException {
 		switch (action) {
-			case CHANGE		:
+			case UPDATE		:
 				break;
 			case CHECK		:
 				break;

@@ -70,7 +70,7 @@ public class InnerBookDescriptor implements Cloneable, FormManager<Long, InnerBo
 	@Override
 	public RefreshMode onRecord(final RecordAction action, final InnerBookDescriptor oldRecord, final Long oldId, final InnerBookDescriptor newRecord, final Long newId) throws FlowException, LocalizationException {
 		switch (action) {
-			case CHANGE		:
+			case UPDATE		:
 				break;
 			case CHECK		:
 				break;

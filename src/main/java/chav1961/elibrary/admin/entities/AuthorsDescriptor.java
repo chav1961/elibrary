@@ -42,7 +42,7 @@ public class AuthorsDescriptor implements Cloneable, FormManager<Long, AuthorsDe
 	@Override
 	public RefreshMode onRecord(final RecordAction action, final AuthorsDescriptor oldRecord, final Long oldId, final AuthorsDescriptor newRecord, final Long newId) throws FlowException, LocalizationException {
 		switch (action) {
-			case CHANGE		:
+			case UPDATE		:
 				break;
 			case CHECK		:
 				break;
