@@ -410,7 +410,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 		try(final FileSystemInterface	fsi = FileSystemFactory.createFileSystem(URI.create("fsi:file://./"))) {
 			final JFileSelectionDialog	fsd = new JFileSelectionDialog(localizer);
 			
-			fsd.select(fsi, JFileSelectionDialog.OPTIONS_ALLOW_MKDIR | JFileSelectionDialog.OPTIONS_CAN_SELECT_FILE | JFileSelectionDialog.OPTIONS_CONFIRM_REPLACEMENT| JFileSelectionDialog.OPTIONS_FOR_SAVE, (owner,accepted)->{});
+			fsd.select(fsi, JFileSelectionDialog.OPTIONS_ALLOW_MKDIR | JFileSelectionDialog.OPTIONS_CAN_SELECT_FILE | JFileSelectionDialog.OPTIONS_CONFIRM_REPLACEMENT| JFileSelectionDialog.OPTIONS_FOR_SAVE, (owner,accepted)->true);
 			for (String item : fsd.getSelection()) {
 				try(final OutputStream		os = fsi.open(item).create().write();
 					final ZipOutputStream	zos = new ZipOutputStream(os)) {
@@ -429,7 +429,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 		try(final FileSystemInterface	fsi = FileSystemFactory.createFileSystem(URI.create("fsi:file://./"))) {
 			final JFileSelectionDialog	fsd = new JFileSelectionDialog(localizer);
 			
-			fsd.select(fsi, JFileSelectionDialog.OPTIONS_CAN_SELECT_FILE | JFileSelectionDialog.OPTIONS_FOR_OPEN | JFileSelectionDialog.OPTIONS_FILE_MUST_EXISTS, (owner,accepted)->{});
+			fsd.select(fsi, JFileSelectionDialog.OPTIONS_CAN_SELECT_FILE | JFileSelectionDialog.OPTIONS_FOR_OPEN | JFileSelectionDialog.OPTIONS_FILE_MUST_EXISTS, (owner,accepted)->true);
 			for (String item : fsd.getSelection()) {
 				try(final InputStream		is = fsi.open(item).read();
 					final ZipInputStream	zis = new ZipInputStream(is)) {
