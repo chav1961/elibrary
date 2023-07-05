@@ -90,7 +90,7 @@
 	</distributionManagement>
     
 	<build>
-		<finalName>imagedb</finalName>
+		<finalName>elibrary</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -172,7 +172,7 @@
 					<argLine>-Dsuppress.junit.trace=true</argLine>					
         		</configuration>
 			</plugin>
-			<plugin>
+<!--			<plugin>
 			    <groupId>org.apache.maven.plugins</groupId>
 			    <artifactId>maven-dependency-plugin</artifactId>
 			    <version>2.6</version>
@@ -194,6 +194,7 @@
 			        </execution>
 			    </executions>
 			</plugin>
+-->			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
