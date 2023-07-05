@@ -11,8 +11,10 @@ import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
@@ -75,6 +77,7 @@ public class NSITab extends JPanel implements AutoCloseable, LoggerFacadeOwner, 
 			
 			this.series = new JDataBaseTableWithMeta<Long, SeriesDescriptor>(meta.byApplicationPath(URI.create(URI_SERIES))[0], localizer, true, true);
 			this.series.assignResultSetAndManagers(soi.getListResultSet(), soi.getFormManager(), soi.getInstanceManager());
+			this.series.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 			this.seriesScroll = new JCloseableScrollPane(this.series);
 			assignResizer(this.seriesScroll, this.series);
 			assignFocusManager(this.seriesScroll, this.series);
@@ -83,6 +86,7 @@ public class NSITab extends JPanel implements AutoCloseable, LoggerFacadeOwner, 
 			
 			this.authors = new JDataBaseTableWithMeta<Long, AuthorsDescriptor>(meta.byApplicationPath(URI.create(URI_AUTHORS))[0], localizer, true, true);
 			this.authors.assignResultSetAndManagers(aoi.getListResultSet(), aoi.getFormManager(), aoi.getInstanceManager());
+			this.authors.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 			this.authorsScroll = new JCloseableScrollPane(this.authors);
 			assignResizer(this.authorsScroll, this.authors);
 			assignFocusManager(this.authorsScroll, this.authors);
@@ -91,16 +95,23 @@ public class NSITab extends JPanel implements AutoCloseable, LoggerFacadeOwner, 
 			
 			this.publishers = new JDataBaseTableWithMeta<Long, PublishersDescriptor>(meta.byApplicationPath(URI.create(URI_PUBLISHERS))[0], localizer, true, true);
 			this.publishers.assignResultSetAndManagers(poi.getListResultSet(), poi.getFormManager(), poi.getInstanceManager());
+			this.publishers.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 			this.publishersScroll = new JCloseableScrollPane(this.publishers);
 			assignResizer(this.publishersScroll, this.publishers);
 			assignFocusManager(this.publishersScroll, this.publishers);
 			
 			fillLocalizedStrings();
 
-			setLayout(new GridLayout(3,1,10,10));			
+			setLayout(new GridLayout(3,3,10,10));			
 			add(this.seriesScroll);
 			add(this.authorsScroll);
 			add(this.publishersScroll);
+			add(new JLabel(" "));
+			add(new JLabel(" "));
+			add(new JLabel(" "));
+			add(new JLabel(" "));
+			add(new JLabel(" "));
+			add(new JLabel(" "));
 			SwingUtilities.invokeLater(()->this.series.requestFocusInWindow());
 		}
 	}
