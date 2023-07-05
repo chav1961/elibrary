@@ -130,6 +130,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		inst.annotation = rs.getString("bl_Comment");
 		inst.tags = fromString(rs.getString("bl_Tags"));
 		((LazyImageKeeperImpl)inst.image).setContentKey(inst.id);
+		inst.page = rs.getInt("bl_Page");
 		
 		try{inst.content.setMimeType(MimeType.parseMimeList(rs.getString("bl_Mime"))[0]);
 			((LazyMimeBasedContentImpl)inst.content).setContentKey(inst.id);
@@ -170,6 +171,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 		rs.updateLong("bp_Id", inst.publisher.getValue());
 		rs.updateString("bl_Comment", inst.annotation);
 		rs.updateString("bl_Tags", toString(inst.tags));
+		rs.updateInt("bl_Page", inst.page);
 		
 		if (((LazyImageKeeperImpl)inst.image).isModified()) {
 			try(final ByteArrayOutputStream	baos = new ByteArrayOutputStream()) {

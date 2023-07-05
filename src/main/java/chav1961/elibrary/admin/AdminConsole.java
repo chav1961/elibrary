@@ -255,7 +255,7 @@ public class AdminConsole extends JFrame implements AutoCloseable, LoggerFacadeO
 						return new SimpleDottedVersion("0.0");
 					}
 					@Override
-					public ContentNodeMetadata getDatabaseModel(Connection conn) throws SQLException {
+					public ContentNodeMetadata getDatabaseModel(final Connection conn) throws SQLException {
 						return null;
 					}
 					

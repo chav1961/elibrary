@@ -100,6 +100,10 @@ public class BookDescriptor implements Cloneable, FormManager<Long, BookDescript
 	@Format("30m")
 	public MimeBasedContent	content;
 
+	@LocaleResource(value="elibrary.booklist.bl_Page",tooltip="elibrary.booklist.bl_Page.tt")
+	@Format("5m")
+	public int				page;
+	
 	public BookDescriptor(final Localizer localizer, final LoggerFacade logger, final ContentNodeMetadata root, final Map<Class<?>,ORMInterface<?,?>> orms) throws NamingException {
 		this.localizer = localizer;
 		this.logger = logger;
