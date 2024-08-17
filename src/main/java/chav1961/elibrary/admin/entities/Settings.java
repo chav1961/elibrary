@@ -40,39 +40,46 @@ import chav1961.purelib.ui.swing.useful.JLocalizedOptionPane;
 @Action(resource=@LocaleResource(value="settings.test",tooltip="settings.test.tt"),actionString="test")
 public class Settings implements FormManager<Object,Settings>, ModuleAccessor {
 	public static final String	PROP_DRIVER = "driver";	
+	public static final String	PROP_DRIVER_DEFAULT = "./current.jar";	
 	public static final String	PROP_CONN_STRING = "connString";	
+	public static final String	PROP_CONN_STRING_DEFAULT = "jdbc:postgresql://localhost:5432/postgres";	
 	public static final String	PROP_ADMIN_USER = "adminUser";	
+	public static final String	PROP_ADMIN_USER_DEFAULT = "admin";	
 	public static final String	PROP_SEARCH_USER = "searchUser";	
+	public static final String	PROP_SEARCH_USER_DEFAULT = "user";	
 	public static final String	PROP_SEARCH_PASSWORD = "searchPassword";	
+	public static final char[]	PROP_SEARCH_PASSWORD_DEFAULT = "password".toCharArray();	
 	public static final String	PROP_DEFAULT_LANG = "defaultLanguage";	
+	public static final String	PROP_DEFAULT_LANG_DEFAULT = Locale.getDefault().getLanguage();
 	public static final String	PROP_INDEXER_DIR = "indexerDir";	
+	public static final String	PROP_INDEXER_DIR_DEFAULT = LuceneIndexer.LUCENE_DEFAULT_INDEXING_DIR;	
 
 	public static final String	KEY_VERSIONING_MISSING = "settings.versioning.missing";	
 	public static final String	KEY_VERSIONING_MISSING_TITLE = "settings.versioning.missing.title";	
 	
 	@LocaleResource(value="settings.jdbcdriver",tooltip="settings.jdbcdriver.tt")
 	@Format("30ms")
-	public File		jdbcDriver = new File("./current.jar");
+	public File		jdbcDriver = new File(PROP_DRIVER_DEFAULT);
 	
 	@LocaleResource(value="settings.connstring",tooltip="settings.connstring.tt")
 	@Format("30ms")
-	public URI		connectionString = URI.create("jdbc:postgresql://localhost:5432/postgres");
+	public URI		connectionString = URI.create(PROP_CONN_STRING_DEFAULT);
 
 	@LocaleResource(value="settings.adminuser",tooltip="settings.adminuser.tt")
 	@Format("30ms")
-	public String	adminUser = "admin";
+	public String	adminUser = PROP_ADMIN_USER_DEFAULT;
 
 	@LocaleResource(value="settings.searchuser",tooltip="settings.searchuser.tt")
 	@Format("30ms")
-	public String	searchUser = "user";
+	public String	searchUser = PROP_SEARCH_USER_DEFAULT;
 
 	@LocaleResource(value="settings.searchpassword",tooltip="settings.searchpassword.tt")
 	@Format("30ms")
-	public char[]	searchPassword = "password".toCharArray();
+	public char[]	searchPassword = PROP_SEARCH_PASSWORD_DEFAULT;
 
 	@LocaleResource(value="settings.defaultlang",tooltip="settings.defaultlang.tt")
 	@Format("30ms")
-	public SupportedLanguages	defaultLang = SupportedLanguages.valueOf(Locale.getDefault().getLanguage());
+	public SupportedLanguages	defaultLang = SupportedLanguages.valueOf(PROP_DEFAULT_LANG_DEFAULT);
 
 	@LocaleResource(value="settings.defaultlang",tooltip="settings.defaultlang.tt")
 	@Format("30ms")
@@ -165,5 +172,18 @@ public class Settings implements FormManager<Object,Settings>, ModuleAccessor {
 			props.setProperty(PROP_DEFAULT_LANG, defaultLang.name());
 			props.setProperty(PROP_INDEXER_DIR, indexerDir.getAbsolutePath());
 		}
+	}
+	
+	public static SubstitutableProperties getDefaultSettings() {
+		final SubstitutableProperties	result = new SubstitutableProperties();
+
+		result.setProperty(PROP_DRIVER, PROP_DRIVER_DEFAULT);	
+		result.setProperty(PROP_CONN_STRING, PROP_CONN_STRING_DEFAULT);	
+		result.setProperty(PROP_ADMIN_USER, PROP_ADMIN_USER_DEFAULT);	
+		result.setProperty(PROP_SEARCH_USER, PROP_SEARCH_USER_DEFAULT);	
+		result.setProperty(PROP_SEARCH_PASSWORD, new String(PROP_SEARCH_PASSWORD_DEFAULT));	
+		result.setProperty(PROP_DEFAULT_LANG, PROP_DEFAULT_LANG_DEFAULT);
+		result.setProperty(PROP_INDEXER_DIR, PROP_INDEXER_DIR_DEFAULT);
+		return result;
 	}
 }
