@@ -64,8 +64,8 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 	private final InnerBookDescriptorMgr	imgr;
 	private final File						luceneDir;
 	
-	public RequestEngine(final Localizer localizer, final File properties, final Map<Class<?>,ORMInterface<?,?>> orms) throws IOException, ContentException, SQLException {
-		props = SubstitutableProperties.of(properties);
+	public RequestEngine(final Localizer localizer, final SubstitutableProperties props, final Map<Class<?>,ORMInterface<?,?>> orms) throws IOException, ContentException, SQLException {
+		this.props = props;
 		
 		try{
 			try(final InputStream	is = URI.create("root://"+this.getClass().getCanonicalName()+"/chav1961/elibrary/admin/db/model.json").toURL().openStream();
@@ -89,6 +89,7 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 			throw new ContentException(exc); 
 		}
 	}
+
 
 	@Path("/query")
 	public int query(@ToBody(mimeType="text/html") final Writer wr) throws IOException {

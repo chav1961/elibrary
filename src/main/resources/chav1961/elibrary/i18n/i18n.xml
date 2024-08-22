@@ -9,6 +9,8 @@
 		<key name="application.note.started">E-library started, site port number=%1$d</key>
 		<key name="application.help.title">About...</key>
 		<key name="application.help.content">uri(aboutApplication.cre)</key>
+		<key name="application.noPropFile.title">Configuration file is missing...</key>
+		<key name="application.noPropFile.message">E-Library configuration file not typed, not found or doesn't have access for you. Continue with defaults?</key>
 		
 <!-- Localization for tray menu --> 
 		<key name="tray.site">Open content</key>
@@ -253,6 +255,8 @@
 		<key name="application.note.started">Электронная библиотека запущена, номер порта сайта=%1$d</key>
 		<key name="application.help.title">О программе</key>
 		<key name="application.help.content">uri(aboutApplication.cre)</key>
+		<key name="application.noPropFile.title">Файл конфигурации не найден...</key>
+		<key name="application.noPropFile.message">Файл конфигурации E-Library не задан, не найден или недоступен. Продолжить с настройками по умолчанию?</key>
 
 <!-- Локализация окна консоли --> 
 		<key name="console.title">(c) 2022 aka chav1961, Электронная библиотека V.R.=1.00</key>

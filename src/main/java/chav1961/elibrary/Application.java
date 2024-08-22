@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
@@ -44,6 +45,7 @@ import chav1961.purelib.model.ContentModelFactory;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
 import chav1961.purelib.nanoservice.NanoServiceFactory;
 import chav1961.purelib.ui.swing.SwingUtils;
+import chav1961.purelib.ui.swing.useful.JLocalizedOptionPane;
 import chav1961.purelib.ui.swing.useful.JSystemTray;
 
 public class Application implements Closeable, LoggerFacadeOwner {
@@ -57,6 +59,8 @@ public class Application implements Closeable, LoggerFacadeOwner {
 	public static final String	APP_NOTE_STARTED = "application.note.started";
 	public static final String	HELP_TITLE = "application.help.title";
 	public static final String	HELP_CONTENT = "application.help.content";
+	public static final String	MSG_NO_PROP_FILE_TITLE = "application.noPropFile.title";
+	public static final String	MSG_NO_PROP_FILE_MESSAGE = "application.noPropFile.message";
 
 	public static final String	CONTENT_PATH = "/content";
 	
@@ -92,7 +96,17 @@ public class Application implements Closeable, LoggerFacadeOwner {
 			this.localizer = LocalizerFactory.getLocalizer(xda.getRoot().getLocalizerAssociated());
 			this.propFileLocation = propFileLocation;
 			this.latch = latch;
-			this.settings = SubstitutableProperties.of(propFileLocation); 
+			if (!this.propFileLocation.exists()) {
+				if (new JLocalizedOptionPane(this.localizer).confirm(null, MSG_NO_PROP_FILE_MESSAGE, MSG_NO_PROP_FILE_TITLE, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
+					this.settings = Settings.getDefaultSettings();
+				}
+				else {
+					throw new CommandLineParametersException("Configuration file ["+this.propFileLocation.getAbsolutePath()+"] not typed, not found or not accessible for you");
+				}
+			}
+			else {
+				this.settings = SubstitutableProperties.of(propFileLocation); 
+			}
 			
 			settings.addPropertyChangeListener((e)->{
 				settingsChanged = true;
@@ -136,6 +150,10 @@ public class Application implements Closeable, LoggerFacadeOwner {
 
 	public Localizer getLocalizer() {
 		return localizer;
+	}
+
+	public SubstitutableProperties getSettings() {
+		return settings;
 	}
 	
 	private void callTray(final String action) {
@@ -206,7 +224,7 @@ public class Application implements Closeable, LoggerFacadeOwner {
 				
 				try(final Application			app = new Application(xda, localizer, parser.getValue(ARG_PROPFILE_LOCATION, File.class), latch);
 					final NanoServiceFactory	service = new NanoServiceFactory(app.getLogger(), props);
-					final RequestEngine			re = new RequestEngine(localizer, parser.getValue(ARG_PROPFILE_LOCATION, File.class), orms)) {
+					final RequestEngine			re = new RequestEngine(localizer, app.getSettings(), orms)) {
 
 					service.deploy(CONTENT_PATH, re);
 					service.start();
