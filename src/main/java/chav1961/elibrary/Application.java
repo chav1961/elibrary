@@ -24,7 +24,7 @@ import javax.swing.SwingUtilities;
 import chav1961.elibrary.admin.AdminConsole;
 import chav1961.elibrary.admin.db.ORMInterface;
 import chav1961.elibrary.admin.entities.Settings;
-import chav1961.elibrary.service.RequestEngine;
+import chav1961.elibrary.service.RequestEngineOld;
 import chav1961.purelib.basic.ArgParser;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SimpleInitialContextFactory;
@@ -224,7 +224,7 @@ public class Application implements Closeable, LoggerFacadeOwner {
 				
 				try(final Application			app = new Application(xda, localizer, parser.getValue(ARG_PROPFILE_LOCATION, File.class), latch);
 					final NanoServiceFactory	service = new NanoServiceFactory(app.getLogger(), props);
-					final RequestEngine			re = new RequestEngine(localizer, app.getSettings(), orms)) {
+					final RequestEngineOld			re = new RequestEngineOld(localizer, app.getSettings(), orms)) {
 
 					service.deploy(CONTENT_PATH, re);
 					service.start();

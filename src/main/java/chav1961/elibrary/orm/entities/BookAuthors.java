@@ -1,0 +1,49 @@
+package chav1961.elibrary.orm.entities;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table (name = "BOOKAUTHORS")
+public class BookAuthors {
+	 @Id
+	 @Column(name = "ba_Id")
+	 private long	id;
+	 
+	 @Column(name = "ba_Name")
+	 private String	name;
+
+	 @Column(name = "ba_Comment")
+	 private String	comment;
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
+	@Override
+	public String toString() {
+		return "BookAuthors [id=" + id + ", name=" + name + ", comment=" + comment + "]";
+	}
+}

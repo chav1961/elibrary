@@ -4,28 +4,26 @@ import java.util.Properties;
 
 import javax.swing.GroupLayout.Group;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.query.Query;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 
-import chav1961.elibrary.orm.entities.Group2User;
-import chav1961.elibrary.orm.entities.Library;
-import chav1961.elibrary.orm.entities.Library2Group;
-import chav1961.elibrary.orm.entities.Library2Scheme;
-import chav1961.elibrary.orm.entities.Project;
-import chav1961.elibrary.orm.entities.Project2Group;
-import chav1961.elibrary.orm.entities.QuantumMatrix;
-import chav1961.elibrary.orm.entities.QuantumScheme;
-import chav1961.elibrary.orm.entities.User;
+import chav1961.elibrary.orm.entities.Book2Authors;
+import chav1961.elibrary.orm.entities.BookAuthors;
+import chav1961.elibrary.orm.entities.BookList;
+import chav1961.elibrary.orm.entities.BookPublishers;
+import chav1961.elibrary.orm.entities.BookSeries;
 
-//https://javarush.com/groups/posts/hibernate-java
+
 public class HibernateSession implements AutoCloseable {
 	private final SessionFactory	factory;
+	private long 					lastUnique = 0;
 
     public HibernateSession(final Properties props) {
-    	this(props, Group.class, Group2User.class, Library.class, Library2Group.class, Library2Scheme.class, 
-    			    Project.class, Project2Group.class, QuantumMatrix.class, QuantumScheme.class, User.class);
+    	this(props, Book2Authors.class, BookAuthors.class, BookList.class, BookPublishers.class, BookSeries.class);
     }	
 	
     public HibernateSession(final Properties props, final Class<?>... classes) {
@@ -59,6 +57,19 @@ public class HibernateSession implements AutoCloseable {
     	}
     	else {
         	return factory.getCriteriaBuilder();
+    	}
+    }
+    
+    public long getUniqueId() {
+    	try(final Session	session = getSessionFactory().getCurrentSession()) {
+    		synchronized(this) {
+    			if ((lastUnique & 0xFF) == 0) {
+    			    final Query<Long> 	query = session.createQuery( "select nextval('SYSTEMSEQ')", Long.class);
+    			    
+    			    lastUnique = query.uniqueResult().longValue() << 8;
+    			}
+    		    return lastUnique++;
+    		}
     	}
     }
 }

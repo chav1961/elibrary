@@ -58,6 +58,10 @@ public abstract class AbstractDAO {
 			return session.createQuery(query).list();
 		}
 	}
+
+	protected long getUniqueId() {
+		return hs.getUniqueId();
+	}
 	
 	protected Session getSession() {
 		return getFactory().openSession();
@@ -67,13 +71,7 @@ public abstract class AbstractDAO {
 		return getFactory().getCriteriaBuilder();
 	}
 	
-	
-	
 	private SessionFactory getFactory() {
 		return hs.getSessionFactory();
 	}
-	
-
-	
-	
 }
