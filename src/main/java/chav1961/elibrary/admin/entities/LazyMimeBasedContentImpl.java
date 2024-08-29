@@ -26,7 +26,7 @@ public class LazyMimeBasedContentImpl implements MimeBasedContent {
 	private boolean			contentFilled = false;
 	private boolean			needDownload = false;
 	private boolean			contentChanged = false;
-	private MimeType 		currentMime = PureLibSettings.MIME_OCTET_STREAM;
+	private MimeType 		currentMime = MimeType.MIME_OCTET_STREAM;
 	private byte[]			content = EMPTY;
 
 	public LazyMimeBasedContentImpl() throws NamingException {

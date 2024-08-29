@@ -28,6 +28,7 @@ import chav1961.elibrary.admin.entities.BookDescriptor;
 import chav1961.elibrary.admin.entities.InnerBookDescriptor;
 import chav1961.elibrary.admin.entities.Settings;
 import chav1961.elibrary.admin.indexer.LuceneIndexer;
+import chav1961.purelib.basic.MimeType;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SimpleURLClassLoader;
 import chav1961.purelib.basic.SubstitutableProperties;
@@ -365,7 +366,7 @@ public class RequestEngineOld implements ModuleAccessor, AutoCloseable, LoggerFa
 	}
 
 	private void printHelpPage(final Writer os) throws IOException {
-		Utils.copyStream(getLocalizer().getContent(ResponseFormatter.SNIPPET_QUERY_LUCENE_HELP, PureLibSettings.MIME_CREOLE_TEXT, PureLibSettings.MIME_HTML_TEXT), os);
+		Utils.copyStream(getLocalizer().getContent(ResponseFormatter.SNIPPET_QUERY_LUCENE_HELP, MimeType.MIME_CREOLE_TEXT, MimeType.MIME_HTML_TEXT), os);
 	}
 	
 	

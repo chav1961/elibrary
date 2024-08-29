@@ -197,7 +197,7 @@ public class BooksDescriptorMgr implements InstanceManager<Long, BookDescriptor>
 			}
 		}
 		else if (!update) {
-			rs.updateString("bl_Mime", PureLibSettings.MIME_OCTET_STREAM.toString());
+			rs.updateString("bl_Mime", MimeType.MIME_OCTET_STREAM.toString());
 			rs.updateBytes("bl_Content", new byte[0]);
 		}
 		
