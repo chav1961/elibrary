@@ -24,7 +24,6 @@ import javax.swing.SwingUtilities;
 import chav1961.elibrary.admin.AdminConsole;
 import chav1961.elibrary.admin.db.ORMInterface;
 import chav1961.elibrary.admin.entities.Settings;
-import chav1961.elibrary.service.RequestEngineOld;
 import chav1961.purelib.basic.ArgParser;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SimpleInitialContextFactory;
@@ -43,7 +42,6 @@ import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
 import chav1961.purelib.i18n.interfaces.SupportedLanguages;
 import chav1961.purelib.model.ContentModelFactory;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
-import chav1961.purelib.nanoservice.NanoServiceFactory;
 import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.useful.JLocalizedOptionPane;
 import chav1961.purelib.ui.swing.useful.JSystemTray;
@@ -207,13 +205,6 @@ public class Application implements Closeable, LoggerFacadeOwner {
 		System.setProperty("java.naming.factory.initial", SimpleInitialContextFactory.class.getName());
 		
 		try{final ArgParser						parser = new ApplicationArgParser().parse(args);
-			final SubstitutableProperties		props = new SubstitutableProperties(Utils.mkProps(
-													 NanoServiceFactory.NANOSERVICE_PORT, parser.getValue(ARG_HELP_PORT, String.class)
-													,NanoServiceFactory.NANOSERVICE_ROOT, FileSystemInterface.FILESYSTEM_URI_SCHEME+":xmlReadOnly:root://"+Application.class.getCanonicalName()+"/chav1961/elibrary/helptree.xml"
-													,NanoServiceFactory.NANOSERVICE_CREOLE_PROLOGUE_URI, Application.class.getResource("prolog.cre").toString() 
-													,NanoServiceFactory.NANOSERVICE_CREOLE_EPILOGUE_URI, Application.class.getResource("epilog.cre").toString() 
-												));
-		
 			try(final InputStream				is = Application.class.getResourceAsStream("application.xml")) {
 				final ContentMetadataInterface	xda = ContentModelFactory.forXmlDescription(is);
 				final CountDownLatch			latch = new CountDownLatch(1);
@@ -222,24 +213,15 @@ public class Application implements Closeable, LoggerFacadeOwner {
 
 				PureLibSettings.PURELIB_LOCALIZER.push(localizer);
 				
-				try(final Application			app = new Application(xda, localizer, parser.getValue(ARG_PROPFILE_LOCATION, File.class), latch);
-					final NanoServiceFactory	service = new NanoServiceFactory(app.getLogger(), props);
-					final RequestEngineOld			re = new RequestEngineOld(localizer, app.getSettings(), orms)) {
-
-					service.deploy(CONTENT_PATH, re);
-					service.start();
-					portNumber = service.getServerAddress().getPort();
-					
+				try(final Application			app = new Application(xda, localizer, parser.getValue(ARG_PROPFILE_LOCATION, File.class), latch)) {
 					app.getLogger().message(Severity.info, app.getLocalizer().getValue(APP_NOTE_STARTED), portNumber);
 					
 					app.showConsole(portNumber);
 					latch.await();
-					service.stop();
-					service.undeploy(CONTENT_PATH);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-			} catch (SQLException | IOException | ContentException | EnvironmentException e) {
+			} catch (IOException | ContentException | EnvironmentException e) {
 				e.printStackTrace();
 			}
 		} catch (CommandLineParametersException exc) {
