@@ -11,7 +11,6 @@ import java.util.Locale;
 
 import javax.swing.JOptionPane;
 
-import chav1961.elibrary.admin.AdminConsole;
 import chav1961.elibrary.admin.indexer.LuceneIndexer;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SimpleURLClassLoader;
@@ -26,7 +25,6 @@ import chav1961.purelib.i18n.interfaces.LocaleResourceLocation;
 import chav1961.purelib.i18n.interfaces.LocalizerOwner;
 import chav1961.purelib.i18n.interfaces.SupportedLanguages;
 import chav1961.purelib.sql.JDBCUtils;
-import chav1961.purelib.sql.model.SimpleDatabaseManager;
 import chav1961.purelib.ui.interfaces.Action;
 import chav1961.purelib.ui.interfaces.FormManager;
 import chav1961.purelib.ui.interfaces.Format;
@@ -86,11 +84,9 @@ public class Settings implements FormManager<Object,Settings>, ModuleAccessor {
 	public File		indexerDir = new File(LuceneIndexer.LUCENE_DEFAULT_INDEXING_DIR);
 	
 	private final LoggerFacade	logger;
-	private final AdminConsole	console;
 	
-	public Settings(final LoggerFacade 	logger, final AdminConsole console) {
+	public Settings(final LoggerFacade 	logger) {
 		this.logger = logger;
-		this.console = console;
 	}
 	
 	@Override
@@ -115,9 +111,6 @@ public class Settings implements FormManager<Object,Settings>, ModuleAccessor {
 					try(final SimpleURLClassLoader	loader = new SimpleURLClassLoader(new URL[0]);
 						final Connection			conn = JDBCUtils.getConnection(JDBCUtils.loadJdbcDriver(loader, jdbcDriver), connectionString, searchUser, searchPassword)) {
 
-						if (!SimpleDatabaseManager.isDatabasePrepared4Versioning(conn, conn.getSchema())) {
-							new JLocalizedOptionPane(SwingUtils.getNearestOwner(console, LocalizerOwner.class).getLocalizer()).message(null, KEY_VERSIONING_MISSING, KEY_VERSIONING_MISSING_TITLE, JOptionPane.INFORMATION_MESSAGE);
-						}
 						button.markOK(true);
 					} catch (ContentException | SQLException | IOException e) {
 						button.markOK(false);

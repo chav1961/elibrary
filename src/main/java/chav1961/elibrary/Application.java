@@ -21,7 +21,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
-import chav1961.elibrary.admin.AdminConsole;
 import chav1961.elibrary.admin.db.ORMInterface;
 import chav1961.elibrary.admin.entities.Settings;
 import chav1961.purelib.basic.ArgParser;
@@ -72,7 +71,6 @@ public class Application implements Closeable, LoggerFacadeOwner {
 	private final SubstitutableProperties	settings;
 	private final LocaleChangeListener		lcl;
 	private boolean							settingsChanged = false;
-	private volatile AdminConsole			console = null;
 	
 	public Application(final ContentMetadataInterface xda, final Localizer parentLocalizer, final File propFileLocation, final CountDownLatch latch) throws EnvironmentException, CommandLineParametersException, IOException {
 		if (xda == null) {
@@ -127,9 +125,6 @@ public class Application implements Closeable, LoggerFacadeOwner {
 
 	@Override
 	public void close() throws IOException {
-		if (console != null) {
-			console.close();
-		}
 		if (settingsChanged) {
 			try(final OutputStream	fos = new FileOutputStream(propFileLocation)) {
 				
@@ -185,20 +180,9 @@ public class Application implements Closeable, LoggerFacadeOwner {
 	}
 
 	private void showConsole(final int sitePort) {
-		if (console != null) {
-			console.toFront();
-		}
-		else {
-			try{console = new AdminConsole(xda, localizer, settings, sitePort, (cons)->SwingUtilities.invokeLater(()->{cons.close(); console = null;}));
-				console.setVisible(true);
-			} catch (IOException e) {
-				tray.message(Severity.error, e.getLocalizedMessage());
-			}
-		}
 	}
 	
 	private void showAbout() {
-		SwingUtils.showAboutScreen(console, localizer, HELP_TITLE, HELP_CONTENT, URI.create("root://"+this.getClass().getCanonicalName()+"/chav1961/elibrary/avatar.jpg"), new Dimension(300,300));
 	}
 	
 	public static void main(String[] args) {
