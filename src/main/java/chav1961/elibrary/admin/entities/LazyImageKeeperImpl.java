@@ -12,7 +12,7 @@ import javax.naming.NamingException;
 
 import chav1961.elibrary.admin.db.ContentManipulator;
 import chav1961.purelib.basic.exceptions.PreparationException;
-import chav1961.purelib.model.ImageKeeperImpl;
+import chav1961.purelib.basic.util.ImageKeeperImpl;
 
 public class LazyImageKeeperImpl extends ImageKeeperImpl {
 	private static final long 	serialVersionUID = 1L;
